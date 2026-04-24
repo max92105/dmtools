@@ -1,1 +1,2 @@
+*.psd filter=lfs diff=lfs merge=lfs -text
 DMTools/DMTools/libcef.dll filter=lfs diff=lfs merge=lfs -text
