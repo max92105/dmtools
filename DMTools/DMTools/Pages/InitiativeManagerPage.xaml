@@ -1,0 +1,371 @@
+﻿<Page x:Class="DMTools.Pages.InitiativeManagerPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      Loaded="Page_Loaded" KeyUp="Page_KeyUp"
+      mc:Ignorable="d" 
+      d:DesignHeight="720" d:DesignWidth="1280"
+      Title="Initiative Manager">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="90*" />
+        </Grid.RowDefinitions>
+        <Image Grid.Row="0" Source="/Ressource/Header.png" Stretch="Fill"/>
+        <Label Grid.Row="0" Content="Initiative" FontWeight="Bold" FontSize="50" 
+               HorizontalAlignment="Center" VerticalAlignment="top" Foreground="White"/>
+
+        <TabControl Grid.Row="1">
+            <TabItem Header="Initiative - New Monster">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="8*" />
+                        <RowDefinition Height="92*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="25*"/>
+                        <ColumnDefinition Width="25*"/>
+                        <ColumnDefinition Width="50*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <GroupBox Name="gbSearch" Grid.Column="0" Grid.Row="0" Header="Search">
+                        <TextBox Name="txtSearchName" Margin="0,0,2,0" HorizontalAlignment="Left" 
+                                 Width="{Binding ElementName=gbSearch, Path=ActualWidth}" TextChanged="txtSearchName_TextChanged"/>
+                    </GroupBox>
+
+                    <ListBox Name="lbMonsters" Grid.Column="0" Grid.Row="1" SelectedItem="{Binding Path=SelectedMonster, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" ItemsSource="{Binding Monsters, Mode=OneWay}" 
+                             DisplayMemberPath="Name" SelectedValuePath="Id" SelectionChanged="lbMonsters_SelectionChanged"/>
+
+                    <GroupBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Header="Initiative Entry">
+                        <StackPanel>
+                            <Label Content="Quantity" HorizontalAlignment="Left"/>
+                            <TextBox Name="txtQuantity" PreviewTextInput="txt_PreviewTextInput" Text="{Binding Path=MonsterQuantity,
+                                RelativeSource={RelativeSource AncestorType={x:Type Page}}}"/>
+
+                            <Label Content="Name" HorizontalAlignment="Left"/>
+                            <TextBox Name="txtMonsterName" Text="{Binding Path=SelectedMonster.Name, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" />
+
+
+                            <Label Content="Hit Points" HorizontalAlignment="Left"/>
+                            <TextBox Name="txtHitPoint" Text="{Binding Path=SelectedMonster.HitPoints, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" 
+                                         PreviewTextInput="txt_PreviewTextInput"/>
+
+                            <Label Content="Armor Class" HorizontalAlignment="Left"/>
+                            <TextBox Name="txtArmorClass" Text="{Binding Path=SelectedMonster.ArmorClass, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" 
+                                         PreviewTextInput="txt_PreviewTextInput"/>
+
+                            <DockPanel Margin="0,20,0,0" Height="30">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50*"/>
+                                        <ColumnDefinition Width="50*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Name="btnAdd" Content="Add"  Click="btnAdd_Click"/>
+                                    <Button Grid.Column="1" Name="btnSeeHtml" Click="btnSeeHtml_Click">
+                                        <DockPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="20*"/>
+                                                    <ColumnDefinition Width="80*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Image Grid.Column="0" Source="/Ressource/HtmlPop.png"/>
+                                                <TextBlock Grid.Column="1" VerticalAlignment="Center">See StatBlock</TextBlock>
+                                            </Grid>
+                                        </DockPanel>
+                                    </Button>
+                                </Grid>
+                            </DockPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Initiative - New Player">
+                <Grid>
+                    <DataGrid Name="dgPlayers" ColumnWidth="*" SelectedItem="{Binding Path=SelectedDisplayPlayerCharacter,
+                                RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                              CanUserResizeColumns="False" 
+                              ItemsSource="{Binding DisplayPlayerCharacters}" AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Armor Class" Binding="{Binding ArmorClass}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Initiative Bonus" Binding="{Binding InitiativeBonus}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Initiative" Binding="{Binding Initiative}"/>
+                            <DataGridTemplateColumn Header="Add To Initiative">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Name="btnAddToInitiative" Click="btnAddToInitiative_Click" Height="24" Width="24">
+                                            <Image Source="/Ressource/AddIcon.png"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Initiative - List">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="97*"/>
+                    </Grid.ColumnDefinitions>
+                    <DataGrid Name="dgInitiativeEntries" Grid.Column="1" ColumnWidth="*" SelectedItem="{Binding Path=SelectedInitativeEntry,
+                                RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                              CanUserResizeColumns="False" RowEditEnding="dgInitiativeEntries_RowEditEnding"
+                              ItemsSource="{Binding InitiativeEntries}" AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ItsTurn}" Value="true">
+                                        <Setter Property="Background" Value="#FFFF2B2B"></Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="{x:Type DataGridCell}">
+                                <Setter Property="Foreground" Value="Black" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{x:Null}" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Initiative" Binding="{Binding Initiative}"/>
+                            <DataGridTextColumn Header="TieBreaker" Binding="{Binding TieBreaker}"/>
+                            <DataGridTextColumn Width="4*"  Header="Name" Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="Hp" Binding="{Binding HitPoints}" />
+                            <DataGridTextColumn Header="Ac" Binding="{Binding ArmorClass}"/>
+                            <DataGridCheckBoxColumn Header="Blinded" Binding="{Binding IsBlinded}">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <TextBlock>
+                                                    - A blinded creature can't see and automatically fails any ability check that requires sight. 
+                                                    <LineBreak /> 
+                                                    - Attack rolls against the creature have advantage, and the creature's attack rolls have disadvantage.
+                                                </TextBlock>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Header="Charmed" Binding="{Binding IsCharmed}">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <TextBlock>
+                                                    - A charmed creature can't attack the charmer or target the charmer with harmful abilities or magical effects.
+                                                    <LineBreak /> 
+                                                    - The charmer has advantage on any ability check to interact socially with the creature.
+                                                </TextBlock>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Header="Deafened" Binding="{Binding IsDeafened}">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <TextBlock>
+                                                    - A deafened creature can't hear and automatically fails any ability check that requires hearing.
+                                                </TextBlock>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Header="Frightened" Binding="{Binding IsFrightened}">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <TextBlock>
+                                                    - A frightened creature has disadvantage on ability checks and attack rolls while the source of its fear is within line of sight.
+                                                    <LineBreak /> 
+                                                    - The creature can't willingly move closer to the source of its fear.
+                                                </TextBlock>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Header="Incapacitated" Binding="{Binding IsIncapacitated}">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <TextBlock>
+                                                    - An incapacitated creature can't take actions or reactions.
+                                                </TextBlock>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Header="Invisible" Binding="{Binding IsInvisible}">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <TextBlock>
+                                                    - An invisible creature is impossible to see without the aid of magic or a special sense. For the purpose of hiding, the creature is heavily obscured. The creature's location can be detected by any noise it makes or any tracks it leaves.
+                                                    <LineBreak /> 
+                                                    - Attack rolls against the creature have disadvantage, and the creature's attack rolls have advantage.
+                                                </TextBlock>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Header="Paralyzed" Binding="{Binding IsParalyzed}">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <TextBlock>
+                                                    - A paralyzed creature is incapacitated and can't move or speak.
+                                                    <LineBreak /> 
+                                                    - The creature automatically fails Strength and Dexterity saving throws.
+                                                    <LineBreak /> 
+                                                    - Attack rolls against the creature have advantage.
+                                                    <LineBreak /> 
+                                                    - Any attack that hits the creature is a critical hit if the attacker is within 5 feet of the creature.
+                                                </TextBlock>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Header="Petrified" Binding="{Binding IsPetrified}">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <TextBlock>
+                                                    - A petrified creature is transformed, along with any nonmagical object it is wearing or carrying, into a solid inanimate substance (usually stone). Its weight increases by a factor of ten, and it ceases aging.
+                                                    <LineBreak /> 
+                                                    - The creature is incapacitated, can't move or speak, and is unaware of its surroundings.
+                                                    <LineBreak /> 
+                                                    - Attack rolls against the creature have advantage.
+                                                    <LineBreak /> 
+                                                    - The creature automatically fails Strength and Dexterity saving throws.
+                                                    <LineBreak /> 
+                                                    - The creature has resistance to all damage.
+                                                     <LineBreak /> 
+                                                    - The creature is immune to poison and disease, although a poison or disease already in its system is suspended, not neutralized.
+                                                </TextBlock>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Header="Poisoned" Binding="{Binding IsPoisoned}">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <TextBlock>
+                                                    - A poisoned creature has disadvantage on attack rolls and ability checks.
+                                                </TextBlock>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Header="Restrained" Binding="{Binding IsRestrained}">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <TextBlock>
+                                                    - A restrained creature's speed becomes 0, and it can't benefit from any bonus to its speed.
+                                                    <LineBreak /> 
+                                                    - Attack rolls against the creature have advantage, and the creature's attack rolls have disadvantage.
+                                                    <LineBreak /> 
+                                                    - The creature has disadvantage on Dexterity saving throws.
+                                                </TextBlock>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridCheckBoxColumn Header="Stunned" Binding="{Binding IsStunned}">
+                                <DataGridCheckBoxColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <TextBlock>
+                                                    - A stunned creature is incapacitated, can't move, and can speak only falteringly.
+                                                    <LineBreak /> 
+                                                    - The creature automatically fails Strength and Dexterity saving throws.
+                                                    <LineBreak /> 
+                                                    - Attack rolls against the creature have advantage.
+                                                </TextBlock>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridCheckBoxColumn.HeaderStyle>
+                            </DataGridCheckBoxColumn>
+                            <DataGridTemplateColumn Header="Stat Block">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Name="btnShowStatBlock" Click="btnShowStatBlock_Click" Height="16" Width="16">
+                                            <Image Source="/Ressource/HtmlPop.png"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel>
+                        <Button Name="btnPrevious" ToolTip="Previous" Click="btnPrevious_Click">
+                            <DockPanel>
+                                <Image Source="/Ressource/PreviousArrow.png"/>
+                            </DockPanel>
+                        </Button>
+                        <Button Name="btnNext" ToolTip="Next" Click="btnNext_Click">
+                            <DockPanel>
+                                <Image Source="/Ressource/NextArrow.png"/>
+                            </DockPanel>
+                        </Button>
+                        <Button Name="btnUp" ToolTip="Adds 1 to the initiative of the selected entry." Click="btnUp_Click">
+                            <DockPanel>
+                                <Image Source="/Ressource/ArrowUp.png"/>
+                            </DockPanel>
+                        </Button>
+                        <Button Name="btnDown" ToolTip="Reduces the initiative of the selected entry by 1." Click="btnDown_Click">
+                            <DockPanel>
+                                <Image Source="/Ressource/ArrowDown.png"/>
+                            </DockPanel>
+                        </Button>
+                        <Button Name="btnRerollInitiative" ToolTip="Reroll Initiative" Click="btnRerollInitiative_Click">
+                            <DockPanel>
+                                <Image Source="/Ressource/RefreshOne.png"/>
+                            </DockPanel>
+                        </Button>
+                        <Button Name="btnRerollAll" ToolTip="Reroll All" Click="btnRerollAll_Click">
+                            <DockPanel>
+                                <Image Source="/Ressource/RefreshTwo.png"/>
+                            </DockPanel>
+                        </Button>
+                        <Button Name="btnResetInitiative" ToolTip="Reset Initiative"  Click="btnResetInitiative_Click">
+                            <DockPanel>
+                                <Image Source="/Ressource/Reset.png"/>
+                            </DockPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Page>

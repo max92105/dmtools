@@ -1,0 +1,40 @@
+﻿<Page x:Class="DMTools.Pages.EncounterBuilderPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d" d:DesignHeight="720" d:DesignWidth="1280"
+      Loaded="Page_Loaded"  Title="Encounter Builder" >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="90*" />
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0" Source="/Ressource/Header.png" Stretch="Fill"/>
+        <Label Grid.Row="0" Content="Encounter Builder" FontWeight="Bold" FontSize="50" 
+               HorizontalAlignment="Center" VerticalAlignment="top" Foreground="White"/>
+
+        <Grid  Grid.Row="1" Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="8*" />
+                <RowDefinition Height="89*" />
+                <RowDefinition Height="5*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="25*"/>
+                <ColumnDefinition Width="40*"/>
+                <ColumnDefinition Width="35*"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Name="gbSearch" Grid.Column="0" Grid.Row="0" Header="Search">
+                <TextBox Name="txtSearchName" Margin="0,0,2,0" HorizontalAlignment="Left" 
+                                 Width="{Binding ElementName=gbSearch,Path=ActualWidth}" TextChanged="txtSearchName_TextChanged"/>
+            </GroupBox>
+
+            <ListBox Name="lbMonsters" Grid.Column="0" Grid.Row="1" SelectedItem="{Binding Path=SelectedMonster,
+                                RelativeSource={RelativeSource AncestorType={x:Type Page}}}" ItemsSource="{Binding Monsters, Mode=OneWay}" 
+                             DisplayMemberPath="Name" SelectedValuePath="Id"/>
+        </Grid>
+    </Grid>
+</Page>

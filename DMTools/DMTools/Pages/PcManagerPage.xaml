@@ -1,0 +1,57 @@
+﻿<Page x:Class="DMTools.Pages.PcManagerPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d" 
+      d:DesignHeight="720" d:DesignWidth="1280"
+      Loaded="Page_Loaded"  Title="Pc Manager">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="90*" />
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0" Source="/Ressource/Header.png" Stretch="Fill"/>
+        <Label Grid.Row="0" Content="Player Characters" FontWeight="Bold" FontSize="50" 
+               HorizontalAlignment="Center" VerticalAlignment="top" Foreground="White"/>
+
+        <Grid  Grid.Row="1" Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="8*" />
+                <RowDefinition Height="89*" />
+                <RowDefinition Height="5*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10*"/>
+                <ColumnDefinition Width="90*"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Name="gbSearch" Grid.Column="1" Grid.Row="0" Header="Filters">
+                <DockPanel>
+                    <Label Grid.Column="0" Grid.Row="3" Content="Name"/>
+                    <TextBox Name="txtSearchName" Margin="0,0,2,0" HorizontalAlignment="Left" 
+                                 Width="{Binding ElementName=gbSearch,Path=ActualWidth}" TextChanged="txtSearchName_TextChanged"/>
+                </DockPanel>
+            </GroupBox>
+
+            <StackPanel Grid.Column="0" Grid.Row="1">
+                <Button Name="btnNewPc" Content="New" Click="btnNewPc_Click"/>
+                <Button Name="btnEditPc" Content="Edit" Click="btnEditPc_Click"/>
+            </StackPanel>
+
+            <DataGrid Name="dgPlayerCharacters" Grid.Row="1" Grid.Column="1" ColumnWidth="*" 
+                      SelectedItem="{Binding Path=SelectedPlayerCharacter,
+                      RelativeSource={RelativeSource AncestorType={x:Type Page}}}" SelectionMode="Single"
+                      CanUserResizeColumns="False" MouseDoubleClick="dgPlayerCharacters_MouseDoubleClick"
+                      ItemsSource="{Binding PlayerCharaters}" AutoGenerateColumns="False" CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Armor Class" Binding="{Binding ArmorClass}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Initiative Bonus" Binding="{Binding InitiativeBonus}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Grid>
+</Page>

@@ -1,0 +1,69 @@
+﻿<Page x:Class="DMTools.Pages.MonsterManagerPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d" d:DesignHeight="720" d:DesignWidth="1280"
+      Loaded="Page_Loaded" Title="Monster Manager">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="90*" />
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0" Source="/Ressource/Header.png" Stretch="Fill"/>
+        <Label Grid.Row="0" Content="Monsters" FontWeight="Bold" FontSize="50" 
+               HorizontalAlignment="Center" VerticalAlignment="top" Foreground="White"/>
+
+        <Grid  Grid.Row="1" Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="8*" />
+                <RowDefinition Height="89*" />
+                <RowDefinition Height="5*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10*"/>
+                <ColumnDefinition Width="90*"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Name="gbSearch" Grid.Column="1" Grid.Row="0" Header="Filters">
+                <DockPanel>
+                    <Label Grid.Column="0" Grid.Row="3" Content="Name"/>
+                    <TextBox Name="txtSearchName" Margin="0,0,2,0" HorizontalAlignment="Left" 
+                                 Width="{Binding ElementName=gbSearch,Path=ActualWidth}" TextChanged="txtSearchName_TextChanged"/>
+                </DockPanel>
+            </GroupBox>
+
+            <StackPanel Grid.Column="0" Grid.Row="1">
+                <Button Name="btnNewMonster" Content="New" Click="btnNewMonster_Click"/>
+                <Button Name="btnEditMonster" Content="Edit" Click="btnEditMonster_Click"/>
+                <Button Name="btnExport" Content="Export" Click="btnExport_Click"/>
+                <Button Name="btnImport" Content="Import" Click="btnImport_Click"/>
+            </StackPanel>
+
+            <DataGrid Name="dgmonsters" Grid.Row="1" Grid.Column="1" ColumnWidth="*" SelectedItem="{Binding Path=SelectedMonster,
+                              RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                              CanUserResizeColumns="False" MouseDoubleClick="dgmonsters_MouseDoubleClick"
+                              ItemsSource="{Binding Monsters}" AutoGenerateColumns="False" CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Header="" Binding="{Binding IsSelected}" />
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Hit Points" Binding="{Binding HitPoints}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Armor Class" Binding="{Binding ArmorClass}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Type" Binding="{Binding Type}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Subtype" Binding="{Binding Subtype}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Challenge Rating" Binding="{Binding ChallengeRating}" IsReadOnly="True"/>
+                    <DataGridTemplateColumn Header="See Stat Block">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Name="btnShowStatBlock" Click="btnShowStatBlock_Click" Height="16" Width="16">
+                                    <Image Source="/Ressource/HtmlPop.png"/>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Grid>
+</Page>

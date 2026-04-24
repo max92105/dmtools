@@ -1,0 +1,42 @@
+﻿<Window x:Class="DMTools.Pages.SpecialAbilitiesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" ResizeMode="NoResize"
+        Title="Special Ability" Height="300" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40*"/>
+            <RowDefinition Height="15*"/>
+            <RowDefinition Height="40*"/>
+            <RowDefinition Height="15*"/>
+            <RowDefinition Height="15*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="80*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Content="From an existing one" Grid.Column="0" Grid.Row="0"/>
+
+        <ComboBox Name="cboSpecialAbilities" Grid.Column="1" Grid.Row="0" SelectedItem="{Binding SelectedDisplaySpecialAbility}" Height="25" DisplayMemberPath="DisplayName" SelectedValuePath="Id"
+                  VerticalAlignment="Top" IsEditable="True" IsTextSearchEnabled="True" TextSearch.TextPath="DisplayName"/>
+
+        <Button Name="btnApply" Content="Apply" Grid.Column="1" Grid.Row="0" Width="100" HorizontalAlignment="Right" 
+                VerticalAlignment="Bottom" Margin="0,0,0,5" Click="btnApply_Click"/>
+
+        <Separator Grid.ColumnSpan="2" Grid.Row="0" VerticalAlignment="Bottom" />
+
+        <Label Content="Name" Grid.Column="0" Grid.Row="1"/>
+        <TextBox Text="{Binding SpecialAbility.Name}" Grid.Column="1" Grid.Row="1"/>
+
+        <Label Content="Description" Grid.Column="0" Grid.Row="2"/>
+        <TextBox Text="{Binding SpecialAbility.Description}" Grid.Column="1" Grid.Row="2" AcceptsReturn="True"/>
+
+        <Label Content="Attack Bonus" Grid.Column="0" Grid.Row="3"/>
+        <TextBox Text="{Binding SpecialAbility.AttackBonus}" Grid.Column="1" Grid.Row="3"/>
+
+        <Button Name="btnSave" Content="Save" Grid.Column="1" Grid.Row="4" Width="210" HorizontalAlignment="Right" Click="btnSave_Click"/>
+    </Grid>
+</Window>
