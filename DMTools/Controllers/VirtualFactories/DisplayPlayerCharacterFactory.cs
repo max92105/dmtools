@@ -1,9 +1,12 @@
-﻿using Data.Constant;
+﻿using Controllers.Helpers;
+using Data.Constant;
 using Data.Constants;
+using Data.Objects;
 using Data.VirtualObject;
+using LiteDB;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Linq;
 
 namespace Controllers.VirtualFactories
 {
@@ -11,31 +14,27 @@ namespace Controllers.VirtualFactories
     {
         public List<DisplayPlayerCharacter> GetObjects()
         {
-            SQLiteConnection sqliteConnection = new SQLiteConnection(DatabaseInfo.ConnectionString);
-            sqliteConnection.Open();
-
-            String query = String.Format("SELECT * FROM PlayerCharacters ORDER BY Name");
-            SQLiteCommand command = new SQLiteCommand(query, sqliteConnection);
-
-            SQLiteDataReader reader = command.ExecuteReader();
-            List<DisplayPlayerCharacter> displayPlayerCharacters = new List<DisplayPlayerCharacter>();
-
-            while (reader.Read())
+            using (var db = DatabaseHelper.GetDatabase())
             {
-                DisplayPlayerCharacter displayPlayerCharacter = new DisplayPlayerCharacter();
+                var collection = db.GetCollection<PlayerCharacter>("playerCharacters");
+                var playerCharacters = collection.FindAll().OrderBy(p => p.Name).ToList();
 
-                displayPlayerCharacter.Id = (Guid)reader["Id"];
-                displayPlayerCharacter.Name = reader["Name"].ToString();
-                displayPlayerCharacter.ArmorClass = Convert.ToInt16(reader["ArmorClass"]);
-                displayPlayerCharacter.InitiativeBonus = Convert.ToInt16(reader["InitiativeBonus"]);
-                displayPlayerCharacter.Level = Convert.ToInt16(reader["Level"]);
-                displayPlayerCharacter.SetInternalState(InternalStates.UnModified, true);
+                var displayPlayerCharacters = playerCharacters.Select(p => new DisplayPlayerCharacter
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    ArmorClass = p.ArmorClass,
+                    InitiativeBonus = p.InitiativeBonus,
+                    Level = p.Level
+                }).ToList();
 
-                displayPlayerCharacters.Add(displayPlayerCharacter);
+                foreach (var dpc in displayPlayerCharacters)
+                {
+                    dpc.SetInternalState(InternalStates.UnModified, true);
+                }
+
+                return displayPlayerCharacters;
             }
-
-            sqliteConnection.Close();
-            return displayPlayerCharacters;
         }
     }
 }

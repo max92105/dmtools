@@ -1,8 +1,11 @@
-﻿using Data.Constants;
+﻿using Controllers.Helpers;
+using Data.Constants;
+using Data.Objects;
 using Data.VirtualObject;
+using LiteDB;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Linq;
 
 namespace Controllers.Factories
 {
@@ -10,30 +13,20 @@ namespace Controllers.Factories
     {
         public List<DisplaySpecialAbility> GetObjects()
         {
-            SQLiteConnection sqliteConnection = new SQLiteConnection(DatabaseInfo.ConnectionString);
-            sqliteConnection.Open();
-
-            String query = String.Format(@" SELECT SpecialAbilities.Id, Monsters.Name || ' - ' || SpecialAbilities.Name AS DisplayName 
-                                            FROM SpecialAbilities 
-                                            INNER JOIN Monsters ON Monsters.Id = SpecialAbilities.MonsterId");
-
-            SQLiteCommand command = new SQLiteCommand(query, sqliteConnection);
-
-            SQLiteDataReader reader = command.ExecuteReader();
-            List<DisplaySpecialAbility> displaySpecialAbilities = new List<DisplaySpecialAbility>();
-
-            while (reader.Read())
+            using (var db = DatabaseHelper.GetDatabase())
             {
-                DisplaySpecialAbility displaySpecialAbility = new DisplaySpecialAbility();
+                var specialAbilitiesCollection = db.GetCollection<SpecialAbility>("specialAbilities");
+                var monstersCollection = db.GetCollection<Monster>("monsters");
 
-                displaySpecialAbility.Id = (Guid)reader["Id"];
-                displaySpecialAbility.DisplayName = (String)reader["DisplayName"];
+                var specialAbilities = specialAbilitiesCollection.FindAll().ToList();
+                var monsters = monstersCollection.FindAll().ToDictionary(m => m.Id, m => m.Name);
 
-                displaySpecialAbilities.Add(displaySpecialAbility);
+                return specialAbilities.Select(s => new DisplaySpecialAbility
+                {
+                    Id = s.Id,
+                    DisplayName = (monsters.ContainsKey(s.MonsterId) ? monsters[s.MonsterId] : "Unknown") + " - " + s.Name
+                }).ToList();
             }
-
-            sqliteConnection.Close();
-            return displaySpecialAbilities;
         }
     }
 }

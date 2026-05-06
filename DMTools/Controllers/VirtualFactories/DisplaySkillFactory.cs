@@ -1,9 +1,12 @@
-﻿using Data.Constant;
+﻿using Controllers.Helpers;
+using Data.Constant;
 using Data.Constants;
+using Data.Objects;
 using Data.VirtualObject;
+using LiteDB;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Linq;
 
 namespace Controllers.Factories
 {
@@ -11,35 +14,30 @@ namespace Controllers.Factories
     {
         public List<DisplaySkill> GetObjectsByMonsterId(Guid monsterId)
         {
-            SQLiteConnection sqliteConnection = new SQLiteConnection(DatabaseInfo.ConnectionString);
-            sqliteConnection.Open();
-
-            String query = String.Format(@" SELECT Skills.*, SkillTypes.Name FROM Skills 
-                                            INNER JOIN SkillTypes ON SkillTypes.Id = Skills.SkillTypeId
-                                            WHERE monsterId = '{0}'
-                                            ORDER BY SkillTypes.Name", monsterId);
-
-            SQLiteCommand command = new SQLiteCommand(query, sqliteConnection);
-
-            SQLiteDataReader reader = command.ExecuteReader();
-            List<DisplaySkill> displaySkills = new List<DisplaySkill>();
-
-            while (reader.Read())
+            using (var db = DatabaseHelper.GetDatabase())
             {
-                DisplaySkill displaySkill = new DisplaySkill();
+                var skillsCollection = db.GetCollection<Skill>("skills");
+                var skillTypesCollection = db.GetCollection<SkillType>("skillTypes");
 
-                displaySkill.Id = (Guid)reader["Id"];
-                displaySkill.MonsterId = (Guid)reader["MonsterId"];
-                displaySkill.SkillTypeId = (Guid)reader["SkillTypeId"];
-                displaySkill.Name = reader["Name"].ToString();
-                displaySkill.Save = Convert.ToInt16(reader["Save"]);
-                displaySkill.SetInternalState(InternalStates.UnModified, true);
+                var skills = skillsCollection.Find(s => s.MonsterId == monsterId).ToList();
+                var skillTypes = skillTypesCollection.FindAll().ToDictionary(st => st.Id, st => st.Name);
 
-                displaySkills.Add(displaySkill);
+                var displaySkills = skills.Select(s => new DisplaySkill
+                {
+                    Id = s.Id,
+                    MonsterId = s.MonsterId,
+                    SkillTypeId = s.SkillTypeId,
+                    Name = skillTypes.ContainsKey(s.SkillTypeId) ? skillTypes[s.SkillTypeId] : "Unknown",
+                    Save = s.Save
+                }).OrderBy(ds => ds.Name).ToList();
+
+                foreach (var ds in displaySkills)
+                {
+                    ds.SetInternalState(InternalStates.UnModified, true);
+                }
+
+                return displaySkills;
             }
-
-            sqliteConnection.Close();
-            return displaySkills;
         }
     }
 }

@@ -1,9 +1,11 @@
-﻿using Data.Constant;
+﻿using Controllers.Helpers;
+using Data.Constant;
 using Data.Constants;
 using Data.Objects;
+using LiteDB;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Linq;
 
 namespace Controllers.Factories
 {
@@ -11,28 +13,16 @@ namespace Controllers.Factories
     {
         public List<SkillType> GetObjects()
         {
-            SQLiteConnection sqliteConnection = new SQLiteConnection(DatabaseInfo.ConnectionString);
-            sqliteConnection.Open();
-
-            String query = String.Format("SELECT * FROM SkillTypes ORDER BY Name");
-            SQLiteCommand command = new SQLiteCommand(query, sqliteConnection);
-
-            SQLiteDataReader reader = command.ExecuteReader();
-            List<SkillType> skillTypes = new List<SkillType>();
-
-            while (reader.Read())
+            using (var db = DatabaseHelper.GetDatabase())
             {
-                SkillType skillType = new SkillType();
-
-                skillType.Id = (Guid)reader["Id"];
-                skillType.Name = reader["Name"].ToString();
-                skillType.SetInternalState(InternalStates.UnModified, true);
-
-                skillTypes.Add(skillType);
+                var collection = db.GetCollection<SkillType>("skillTypes");
+                var skillTypes = collection.FindAll().OrderBy(s => s.Name).ToList();
+                foreach (var skillType in skillTypes)
+                {
+                    skillType.SetInternalState(InternalStates.UnModified, true);
+                }
+                return skillTypes;
             }
-
-            sqliteConnection.Close();
-            return skillTypes;
         }
     }
 }

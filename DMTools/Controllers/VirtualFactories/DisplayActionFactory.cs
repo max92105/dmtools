@@ -1,8 +1,11 @@
-﻿using Data.Constants;
+﻿using Controllers.Helpers;
+using Data.Constants;
+using Data.Objects;
 using Data.VirtualObject;
+using LiteDB;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Linq;
 
 namespace Controllers.Factories
 {
@@ -10,30 +13,20 @@ namespace Controllers.Factories
     {
         public List<DisplayAction> GetObjects()
         {
-            SQLiteConnection sqliteConnection = new SQLiteConnection(DatabaseInfo.ConnectionString);
-            sqliteConnection.Open();
-
-            String query = String.Format(@" SELECT Actions.Id, Monsters.Name || ' - ' || Actions.Name AS DisplayName 
-                                            FROM Actions 
-                                            INNER JOIN Monsters ON Monsters.Id = Actions.MonsterId");
-
-            SQLiteCommand command = new SQLiteCommand(query, sqliteConnection);
-
-            SQLiteDataReader reader = command.ExecuteReader();
-            List<DisplayAction> displayActions = new List<DisplayAction>();
-
-            while (reader.Read())
+            using (var db = DatabaseHelper.GetDatabase())
             {
-                DisplayAction displayAction = new DisplayAction();
+                var actionsCollection = db.GetCollection<Data.Objects.Action>("actions");
+                var monstersCollection = db.GetCollection<Monster>("monsters");
 
-                displayAction.Id = (Guid)reader["Id"];
-                displayAction.DisplayName = (String)reader["DisplayName"];
+                var actions = actionsCollection.FindAll().ToList();
+                var monsters = monstersCollection.FindAll().ToDictionary(m => m.Id, m => m.Name);
 
-                displayActions.Add(displayAction);
+                return actions.Select(a => new DisplayAction
+                {
+                    Id = a.Id,
+                    DisplayName = (monsters.ContainsKey(a.MonsterId) ? monsters[a.MonsterId] : "Unknown") + " - " + a.Name
+                }).ToList();
             }
-
-            sqliteConnection.Close();
-            return displayActions;
         }
     }
 }

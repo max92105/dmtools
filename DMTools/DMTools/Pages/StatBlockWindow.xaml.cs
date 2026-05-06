@@ -1,7 +1,4 @@
-﻿using CefSharp;
-using DMTools.Helpers;
-using System;
-using System.Threading;
+﻿using System;
 using System.Windows;
 
 namespace DMTools.Pages
@@ -24,7 +21,7 @@ namespace DMTools.Pages
         {
             try
             {
-                wbStatBlock.LoadHtml(_Html);
+                wbStatBlock.NavigateToString(_Html);
             }
             catch (Exception ex)
             {

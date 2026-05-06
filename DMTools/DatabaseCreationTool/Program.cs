@@ -1,14 +1,9 @@
-﻿using System.Data.SQLite;
-using System.IO;
-using FluentMigrator;
-using FluentMigrator.Runner.Announcers;
-using System.Reflection;
-using FluentMigrator.Runner.Initialization;
-using FluentMigrator.Runner.Processors;
-using FluentMigrator.Runner;
-using FluentMigrator.Runner.Processors.SQLite;
+﻿using Data.Constants;
+using DatabaseCreationTool.Migrations;
+using LiteDB;
 using System;
-using Data.Constants;
+using System.IO;
+using System.Reflection;
 
 namespace DatabaseCreationTool
 {
@@ -18,40 +13,47 @@ namespace DatabaseCreationTool
         {
             try
             {
-                if (!File.Exists(DatabaseInfo.DatabasePath))
-                    SQLiteConnection.CreateFile(DatabaseInfo.DatabasePath);
-
                 DateTime start = DateTime.Now;
-                string connectionString = DatabaseInfo.ConnectionString;
+                string liteDbPath = DatabaseInfo.DatabasePath;
 
-                Announcer announcer = new TextWriterAnnouncer(WriteToConsole);
+                Console.WriteLine("========================================");
+                Console.WriteLine("  DMTools Database Tool");
+                Console.WriteLine("========================================");
+                Console.WriteLine("");
+                Console.WriteLine("1. Run LiteDB migrations");
+                Console.WriteLine("2. Import data from SQLite database");
+                Console.WriteLine("3. Run migrations + Import from SQLite");
+                Console.WriteLine("");
+                Console.Write("Choose an option (1/2/3): ");
 
-                #if DEBUG
-                announcer.ShowSql = true;
-                #endif
+                string choice = Console.ReadLine();
 
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                IRunnerContext migrationContext = new RunnerContext(announcer);
-
-                var options = new ProcessorOptions
+                switch (choice)
                 {
-                    PreviewOnly = false,  // set to true to see the SQL
-                    Timeout = 60
-                };
+                    case "1":
+                        RunMigrations(liteDbPath);
+                        break;
 
-                var factory = new SQLiteProcessorFactory();
+                    case "2":
+                        RunSqliteImport(liteDbPath);
+                        break;
 
-                using (IMigrationProcessor processor = factory.Create(connectionString, announcer, options))
-                {
-                    var runner = new MigrationRunner(assembly, migrationContext, processor);
-                    runner.MigrateUp(true);
+                    case "3":
+                        RunMigrations(liteDbPath);
+                        RunSqliteImport(liteDbPath);
+                        break;
+
+                    default:
+                        Console.WriteLine("Invalid option.");
+                        break;
                 }
 
-                WriteToConsole(String.Format("----< Les Migrations ont durées : {0} >----", DateTime.Now.Subtract(start)));
+                WriteToConsole(String.Format("----< Completed in: {0} >----", DateTime.Now.Subtract(start)));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                WriteToConsole(ex.Message);
+                WriteToConsole("ERROR: " + ex.Message);
+                WriteToConsole(ex.StackTrace);
             }
 
             #if DEBUG
@@ -59,6 +61,55 @@ namespace DatabaseCreationTool
             Console.WriteLine("----< PRESS ENTER TO END PROGRAM >----");
             Console.ReadLine();
             #endif
+        }
+
+        private static void RunMigrations(string liteDbPath)
+        {
+            WriteToConsole("----< LiteDB Migration Runner >----");
+            WriteToConsole(String.Format("Database Path: {0}", liteDbPath));
+
+            // Ensure directory exists
+            string directory = Path.GetDirectoryName(liteDbPath);
+            if (!String.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            using (var db = new LiteDatabase(liteDbPath))
+            {
+                var runner = new LiteDbMigrationRunner(db);
+                runner.LoadMigrationsFromAssembly(Assembly.GetExecutingAssembly());
+                runner.MigrateUp();
+            }
+
+            WriteToConsole("----< Migrations complete >----");
+        }
+
+        private static void RunSqliteImport(string liteDbPath)
+        {
+            Console.WriteLine("");
+            Console.Write("Enter the path to your SQLite database file: ");
+            string sqlitePath = Console.ReadLine();
+
+            if (String.IsNullOrWhiteSpace(sqlitePath))
+            {
+                Console.WriteLine("No path provided, skipping import.");
+                return;
+            }
+
+            // Remove quotes if user pasted a path with quotes
+            sqlitePath = sqlitePath.Trim('"', ' ');
+
+            if (!File.Exists(sqlitePath))
+            {
+                Console.WriteLine("ERROR: File not found: " + sqlitePath);
+                return;
+            }
+
+            WriteToConsole("----< SQLite to LiteDB Import >----");
+            var importer = new SqliteToLiteDbImporter(sqlitePath, liteDbPath);
+            importer.Import();
+            WriteToConsole("----< Import complete >----");
         }
 
         private static void WriteToConsole(String message)

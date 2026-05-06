@@ -3,11 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         xmlns:local="clr-namespace:DMTools.Pages"
         mc:Ignorable="d" Width="500"
         Title="StatBlockWindow" >
     <Grid>
-        <cefSharp:ChromiumWebBrowser Name="wbStatBlock" Loaded="wbStatBlock_Loaded"/>
+        <WebBrowser Name="wbStatBlock" Loaded="wbStatBlock_Loaded"/>
     </Grid>
 </Window>

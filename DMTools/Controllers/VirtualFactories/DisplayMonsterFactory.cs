@@ -1,8 +1,10 @@
-﻿using Data.Constants;
+﻿using Controllers.Helpers;
+using Data.Constants;
+using Data.Objects;
 using Data.VirtualObject;
+using LiteDB;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Linq;
 
 namespace Controllers.VirtualFactories
@@ -11,80 +13,42 @@ namespace Controllers.VirtualFactories
     {
         public List<DisplayMonster> GetObjects()
         {
-            SQLiteConnection sqliteConnection = new SQLiteConnection(DatabaseInfo.ConnectionString);
-            sqliteConnection.Open();
-
-            String query = String.Format(@" SELECT Monsters.Id,
-                                            Monsters.Name,
-                                            Monsters.Type,
-                                            Monsters.Subtype,
-                                            Monsters.ArmorClass,
-                                            Monsters.HitPoints,
-                                            Monsters.ChallengeRating
-                                            FROM Monsters
-                                            ORDER BY Name");
-
-            SQLiteCommand command = new SQLiteCommand(query, sqliteConnection);
-
-            SQLiteDataReader reader = command.ExecuteReader();
-            List<DisplayMonster> displayMonsters = new List<DisplayMonster>();
-
-            while (reader.Read())
+            using (var db = DatabaseHelper.GetDatabase())
             {
-                DisplayMonster displayMonster = new DisplayMonster();
+                var collection = db.GetCollection<Monster>("monsters");
+                var monsters = collection.FindAll().OrderBy(m => m.Name).ToList();
 
-                displayMonster.Id = (Guid)reader["Id"];
-                displayMonster.Name = reader["Name"].ToString();
-                displayMonster.Type = reader["Type"].ToString();
-                displayMonster.Subtype = reader["Subtype"].ToString();
-                displayMonster.ArmorClass = Convert.ToInt16(reader["ArmorClass"]);
-                displayMonster.HitPoints = Convert.ToInt16(reader["HitPoints"]);
-                displayMonster.ChallengeRating = Convert.ToDecimal(reader["ChallengeRating"]);
-
-                displayMonsters.Add(displayMonster);
+                return monsters.Select(m => new DisplayMonster
+                {
+                    Id = m.Id,
+                    Name = m.Name,
+                    Type = m.Type,
+                    Subtype = m.Subtype,
+                    ArmorClass = m.ArmorClass,
+                    HitPoints = m.HitPoints,
+                    ChallengeRating = m.ChallengeRating
+                }).ToList();
             }
-
-            sqliteConnection.Close();
-            return displayMonsters;
         }
 
         public List<DisplayMonster> GetObjectsBySearchCriteria(String name)
         {
-            SQLiteConnection sqliteConnection = new SQLiteConnection(DatabaseInfo.ConnectionString);
-            sqliteConnection.Open();
-
-            String query = String.Format(@" SELECT Monsters.Id,
-                                            Monsters.Name,
-                                            Monsters.Type,
-                                            Monsters.Subtype,
-                                            Monsters.ArmorClass,
-                                            Monsters.HitPoints,
-                                            Monsters.ChallengeRating
-                                            FROM Monsters 
-                                            WHERE Name LIKE '%{0}%'
-                                            ORDER BY Name", name);
-
-            SQLiteCommand command = new SQLiteCommand(query, sqliteConnection);
-
-            SQLiteDataReader reader = command.ExecuteReader();
-            List<DisplayMonster> displayMonsters = new List<DisplayMonster>();
-
-            while (reader.Read())
+            using (var db = DatabaseHelper.GetDatabase())
             {
-                DisplayMonster displayMonster = new DisplayMonster();
+                var collection = db.GetCollection<Monster>("monsters");
+                var monsters = collection.Find(m => m.Name.Contains(name)).OrderBy(m => m.Name).ToList();
 
-                displayMonster.Id = (Guid)reader["Id"];
-                displayMonster.Name = reader["Name"].ToString();
-                displayMonster.Type = reader["Type"].ToString();
-                displayMonster.ArmorClass = Convert.ToInt16(reader["ArmorClass"]);
-                displayMonster.HitPoints = Convert.ToInt16(reader["HitPoints"]);
-                displayMonster.ChallengeRating = Convert.ToDecimal(reader["ChallengeRating"]);
-
-                displayMonsters.Add(displayMonster);
+                return monsters.Select(m => new DisplayMonster
+                {
+                    Id = m.Id,
+                    Name = m.Name,
+                    Type = m.Type,
+                    Subtype = m.Subtype,
+                    ArmorClass = m.ArmorClass,
+                    HitPoints = m.HitPoints,
+                    ChallengeRating = m.ChallengeRating
+                }).ToList();
             }
-
-            sqliteConnection.Close();
-            return displayMonsters;
         }
     }
 }
