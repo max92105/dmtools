@@ -1,4 +1,5 @@
 ﻿using Controllers.Controllers;
+using Controllers.Factories;
 using Data.DataModels.InitiativeManagerPage;
 using Data.Objects;
 using Data.VirtualObject;
@@ -126,11 +127,52 @@ namespace DMTools.Pages
             try
             {
                 Load();
+                if (EncounterService.PendingEntries != null && EncounterService.PendingEntries.Count > 0)
+                {
+                    LoadPendingEncounter(EncounterService.PendingEntries);
+                    EncounterService.PendingEntries = null;
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void LoadPendingEncounter(System.Collections.Generic.List<EncounterPendingEntry> pending)
+        {
+            var monsterFactory = new MonsterFactory();
+            var random = new Random();
+
+            foreach (var entry in pending)
+            {
+                var monster = monsterFactory.GetObject(entry.MonsterId);
+                if (monster.Id == Guid.Empty) continue;
+
+                var dexModel = InitiativeManagerPageDataController.LoadDexterity(monster.Id);
+
+                for (int i = 0; i < entry.Quantity; i++)
+                {
+                    int initiative = random.Next(1, 21) + dexModel.Dexterity.Modifier;
+                    int tiebreaker = _InitiativeManagerPageDataModel.InitiativeEntries
+                        .Count(obj => obj.Initiative == initiative);
+                    int nbOfMonster = _InitiativeManagerPageDataModel.InitiativeEntries
+                        .Count(obj => obj.MonsterId != Guid.Empty) + 1;
+
+                    _InitiativeManagerPageDataModel.InitiativeEntries.Add(new InitiativeEntry
+                    {
+                        MonsterId = monster.Id,
+                        ArmorClass = monster.ArmorClass,
+                        HitPoints = monster.HitPoints,
+                        DexterityModifier = (Int16)dexModel.Dexterity.Modifier,
+                        Initiative = initiative,
+                        TieBreaker = tiebreaker,
+                        Name = nbOfMonster + " - " + monster.Name
+                    });
+                }
+            }
+
+            OrderInitiativeEntries();
         }
 
         private void Page_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)

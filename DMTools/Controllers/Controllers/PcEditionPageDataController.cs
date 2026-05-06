@@ -35,7 +35,9 @@ namespace Controllers.Controllers
                 Name = "New Player Character",
                 ArmorClass = 10,
                 InitiativeBonus = 0,
-                Level = 1
+                Level = 1,
+                MaxHp = 10,
+                PassivePerception = 10
             };
 
             return pcEditionPageDataModel;

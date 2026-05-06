@@ -101,6 +101,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\EncounterBuilderPageDataController.cs" />
     <Compile Include="Controllers\PcManagerPageDataController.cs" />
     <Compile Include="Controllers\PcEditionPageDataController.cs" />
     <Compile Include="Controllers\InitiativeManagerPageDataController.cs" />
@@ -112,6 +113,8 @@
     <Compile Include="Controllers\StatBlockHelperDataController.cs" />
     <Compile Include="Factories\ArmorClassEntryFactory.cs" />
     <Compile Include="Factories\DamageModifierFactory.cs" />
+    <Compile Include="Factories\EncounterEntryFactory.cs" />
+    <Compile Include="Factories\EncounterFactory.cs" />
     <Compile Include="Factories\FactoryBase.cs" />
     <Compile Include="Factories\PlayerCharacterFactory.cs" />
     <Compile Include="Factories\SenseFactory.cs" />

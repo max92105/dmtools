@@ -1,32 +1,84 @@
-﻿<Page x:Class="DMTools.Pages.MainPage"
+<Page x:Class="DMTools.Pages.MainPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      mc:Ignorable="d" 
+      mc:Ignorable="d"
       d:DesignHeight="720" d:DesignWidth="1280"
       Title="Main Menu">
+
+    <Page.Resources>
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#F0E6D3"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Padding" Value="20,16"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#22E69A28"/>
+                                <Setter Property="Foreground" Value="#E69A28"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#55E69A28"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10*" />
-            <RowDefinition Height="5*" />
-            <RowDefinition Height="5*" />
-            <RowDefinition Height="5*" />
-            <RowDefinition Height="5*" />
-            <RowDefinition Height="15*" />
-            <RowDefinition Height="10*" />
-            <RowDefinition Height="10*" />
-            <RowDefinition Height="20*" />
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Image Grid.Row="0" Source="/Ressource/Header.png" Stretch="Fill"/>
-        <Label Grid.Row="0" Grid.Column="1" Content="Main Menu" FontWeight="Bold" FontSize="50" 
-               HorizontalAlignment="Center" VerticalAlignment="top" Foreground="White"/>
+        <!-- Full-page background, fully visible -->
+        <Image Grid.RowSpan="2" Source="/Ressource/DNDBackground.png" Stretch="UniformToFill"/>
 
-        <Image Grid.Row="1" Grid.RowSpan="9" Source="/Ressource/DNDBackground.png"  Stretch="Fill"/>
-        <Button Grid.Row="1" Name="btnMonsterManager" Content="Monster Manager" FontSize="24" Grid.Column="1" Click="btnMonsterManager_Click" />
-        <Button Grid.Row="2" Name="btnInitiativeManager" Content="Initiative Manager" FontSize="24" Grid.Column="1" Click="btnInitiativeManager_Click"/>
-        <Button Grid.Row="3" Name="btnPcManager" Content="Pc Manager" FontSize="24" Grid.Column="1" Click="btnPcManager_Click"/>
-        <Button Grid.Row="4" Name="btnEncounterBuilder" Content="Encounter Builder" FontSize="24" Grid.Column="1" Click="btnEncounterBuilder_Click"/>
+        <!-- Header: translucent dark band + title -->
+        <Rectangle Grid.Row="0" Fill="#CC0A0000"/>
+        <TextBlock Grid.Row="0" Text="DM Tools"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontFamily="Georgia" FontSize="42" FontWeight="Bold"
+                   Foreground="#E69A28"/>
+
+        <!-- Centered menu card -->
+        <Border Grid.Row="1"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                Width="400" Background="#E6100800"
+                BorderBrush="#E69A28" BorderThickness="1">
+            <StackPanel>
+
+                <!-- Card title with decorative rules -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,26">
+                    <Rectangle Width="50" Height="1" Fill="#E69A28" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                    <TextBlock Text="MAIN MENU" FontFamily="Georgia" FontSize="14" FontWeight="Bold"
+                               Foreground="#E69A28" VerticalAlignment="Center"/>
+                    <Rectangle Width="50" Height="1" Fill="#E69A28" VerticalAlignment="Center" Margin="14,0,0,0"/>
+                </StackPanel>
+
+                <!-- Menu entries -->
+                <Button Name="btnMonsterManager"    Content="Monster Manager"   Style="{StaticResource MenuButtonStyle}" Click="btnMonsterManager_Click"/>
+                <Button Name="btnInitiativeManager" Content="Initiative Manager" Style="{StaticResource MenuButtonStyle}" Click="btnInitiativeManager_Click"/>
+                <Button Name="btnPcManager"         Content="PC Manager"        Style="{StaticResource MenuButtonStyle}" Click="btnPcManager_Click"/>
+                <Button Name="btnEncounterBuilder"  Content="Encounter Builder" Style="{StaticResource MenuButtonStyle}" Click="btnEncounterBuilder_Click"/>
+
+                <!-- Footer -->
+                <TextBlock Text="v1.0" FontFamily="Georgia" FontSize="11"
+                           Foreground="#55E69A28" HorizontalAlignment="Right" Margin="0,22,18,16"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Page>

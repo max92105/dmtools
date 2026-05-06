@@ -99,7 +99,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>DNDIcon.ico</ApplicationIcon>
+    <ApplicationIcon>Ressource\DNDIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>ECA890B436F474AE742CABD1D9494F9995368D0E</ManifestCertificateThumbprint>
@@ -175,6 +175,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Helpers\EncounterService.cs" />
     <Compile Include="Helpers\MonsterFileHelper.cs" />
     <Compile Include="Helpers\NotificationHelper.cs" />
     <Compile Include="Helpers\StatBlockHelper.cs" />
@@ -203,6 +204,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\PcEditionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\PcEditionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -258,6 +263,9 @@
     <Compile Include="Pages\PcEditionPage.xaml.cs">
       <DependentUpon>PcEditionPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\PcEditionWindow.xaml.cs">
+      <DependentUpon>PcEditionWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\PcManagerPage.xaml.cs">
       <DependentUpon>PcManagerPage.xaml</DependentUpon>
     </Compile>
@@ -303,12 +311,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="icudtl.dat">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="natives_blob.bin">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Resource Include="Ressource\HtmlPop.png" />
     <Resource Include="Ressource\AddIcon.png" />
     <Resource Include="Ressource\ArrowDown.png" />
@@ -318,12 +320,6 @@
     <Resource Include="Ressource\Reset.png" />
     <Resource Include="Ressource\NextArrow.png" />
     <Resource Include="Ressource\PreviousArrow.png" />
-    <Content Include="snapshot_blob.bin">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="v8_context_snapshot.bin">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="DMTools\DMTools.csproj" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -338,7 +334,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Ressource\DNDBackground.png" />
-    <Content Include="DNDIcon.ico">
+    <Content Include="Ressource\DNDIcon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Html\StatBlockTemplate.html">
@@ -366,14 +362,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="x64\SQLite.Interop.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\SQLite.Interop.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <PublishFile Include="Controllers">
@@ -406,7 +394,7 @@
       <IncludeHash>True</IncludeHash>
       <FileType>File</FileType>
     </PublishFile>
-    <PublishFile Include="DNDIcon.ico">
+    <PublishFile Include="Ressource\DNDIcon.ico">
       <Visible>False</Visible>
       <Group>
       </Group>

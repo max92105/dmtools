@@ -1,128 +1,165 @@
-﻿using Controllers.Controllers;
-using Data.DataModels.PcManagerPage;
+using Controllers.Factories;
 using Data.Objects;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
 
 namespace DMTools.Pages
 {
-    /// <summary>
-    /// Interaction logic for PcManagerPage.xaml
-    /// </summary>
     public partial class PcManagerPage : Page
     {
-        private PcManagerPageDataModel _PcManagerPageDataModel;
-
-        private static readonly DependencyProperty _SelectedPlayerCharacterProperty =
-        DependencyProperty.Register(
-        "SelectedPlayerCharacter", typeof(PlayerCharacter),
-        typeof(PcManagerPage));
-
-        public PlayerCharacter SelectedPlayerCharacter
-        {
-            get { return (PlayerCharacter)GetValue(_SelectedPlayerCharacterProperty); }
-            set { SetValue(_SelectedPlayerCharacterProperty, value); }
-        }
+        private List<PlayerCharacter> _allPcs = new List<PlayerCharacter>();
+        private bool _suppressFilter = false;
+        private bool _sidebarExpanded = true;
 
         public PcManagerPage()
         {
-            try
-            {
-                InitializeComponent();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            InitializeComponent();
         }
 
-        private void FilterPlayerCharacter()
+        private void btnToggleSidebar_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                PcManagerPageDataModel pcManagerPageDataModel = PcManagerPageDataController.SearchMonster(txtSearchName.Text);
-                _PcManagerPageDataModel.PlayerCharaters = pcManagerPageDataModel.PlayerCharaters;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+            _sidebarExpanded = !_sidebarExpanded;
+            tbSidebarArrow.Text = _sidebarExpanded ? "❮" : "❯";
 
-        private void EditPlayerCharacter()
-        {
-            try
+            var anim = new DoubleAnimation
             {
-                if (SelectedPlayerCharacter != null)
-                    NavigationService.Navigate(new PcEditionPage(SelectedPlayerCharacter.Id));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+                To = _sidebarExpanded ? 200 : 0,
+                Duration = TimeSpan.FromMilliseconds(220),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
+            };
+            sidebarWrapper.BeginAnimation(FrameworkElement.WidthProperty, anim);
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
-                _PcManagerPageDataModel = PcManagerPageDataController.Load();
-                DataContext = _PcManagerPageDataModel;
+                tbSidebarArrow.Text = "❮";
+                Refresh();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void txtSearchName_TextChanged(object sender, TextChangedEventArgs e)
+        private void Refresh()
+        {
+            _allPcs = new List<PlayerCharacter>(new PlayerCharacterFactory().GetObjects());
+            ApplyFilter();
+        }
+
+        private void ApplyFilter()
+        {
+            IEnumerable<PlayerCharacter> filtered = _allPcs;
+
+            string name = txtSearchName.Text?.Trim() ?? string.Empty;
+            if (!string.IsNullOrEmpty(name))
+                filtered = filtered.Where(pc => pc.Name != null &&
+                    pc.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0);
+
+            if (short.TryParse(txtMinLevel.Text, out short minLvl))
+                filtered = filtered.Where(pc => pc.Level >= minLvl);
+            if (short.TryParse(txtMaxLevel.Text, out short maxLvl))
+                filtered = filtered.Where(pc => pc.Level <= maxLvl);
+
+            if (short.TryParse(txtMinAC.Text, out short minAC))
+                filtered = filtered.Where(pc => pc.ArmorClass >= minAC);
+            if (short.TryParse(txtMaxAC.Text, out short maxAC))
+                filtered = filtered.Where(pc => pc.ArmorClass <= maxAC);
+
+            if (short.TryParse(txtMinInit.Text, out short minInit))
+                filtered = filtered.Where(pc => pc.InitiativeBonus >= minInit);
+            if (short.TryParse(txtMaxInit.Text, out short maxInit))
+                filtered = filtered.Where(pc => pc.InitiativeBonus <= maxInit);
+
+            if (short.TryParse(txtMinPP.Text, out short minPP))
+                filtered = filtered.Where(pc => pc.PassivePerception >= minPP);
+            if (short.TryParse(txtMaxPP.Text, out short maxPP))
+                filtered = filtered.Where(pc => pc.PassivePerception <= maxPP);
+
+            if (short.TryParse(txtMinHP.Text, out short minHP))
+                filtered = filtered.Where(pc => pc.MaxHp >= minHP);
+            if (short.TryParse(txtMaxHP.Text, out short maxHP))
+                filtered = filtered.Where(pc => pc.MaxHp <= maxHP);
+
+            lbPcs.ItemsSource = new ObservableCollection<PlayerCharacter>(filtered);
+            btnEdit.IsEnabled = false;
+        }
+
+        private void OpenEditor(Guid id)
         {
             try
             {
-                FilterPlayerCharacter();
+                var window = new PcEditionWindow(id);
+                window.Owner = Application.Current.MainWindow;
+                if (window.ShowDialog() == true)
+                    Refresh();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void btnNewPc_Click(object sender, RoutedEventArgs e)
+        private void Filter_Changed(object sender, TextChangedEventArgs e)
         {
-            try
-            {
-                NavigationService.Navigate(new PcEditionPage(Guid.Empty));
-            }
+            if (_suppressFilter) return;
+            try { ApplyFilter(); }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void btnEditPc_Click(object sender, RoutedEventArgs e)
+        private void btnClear_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                EditPlayerCharacter();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            _suppressFilter = true;
+            txtSearchName.Text = string.Empty;
+            txtMinLevel.Text = string.Empty;
+            txtMaxLevel.Text = string.Empty;
+            txtMinAC.Text = string.Empty;
+            txtMaxAC.Text = string.Empty;
+            txtMinInit.Text = string.Empty;
+            txtMaxInit.Text = string.Empty;
+            txtMinPP.Text = string.Empty;
+            txtMaxPP.Text = string.Empty;
+            txtMinHP.Text = string.Empty;
+            txtMaxHP.Text = string.Empty;
+            _suppressFilter = false;
+            ApplyFilter();
         }
 
-        private void dgPlayerCharacters_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void lbPcs_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            try
-            {
-                EditPlayerCharacter();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            mainScroll.ScrollToVerticalOffset(mainScroll.VerticalOffset - e.Delta * 0.5);
+            e.Handled = true;
+        }
+
+        private void lbPcs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            btnEdit.IsEnabled = lbPcs.SelectedItem != null;
+        }
+
+        private void lbPcs_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (lbPcs.SelectedItem is PlayerCharacter pc)
+                OpenEditor(pc.Id);
+        }
+
+        private void btnNew_Click(object sender, RoutedEventArgs e)
+            => OpenEditor(Guid.Empty);
+
+        private void btnEdit_Click(object sender, RoutedEventArgs e)
+        {
+            if (lbPcs.SelectedItem is PlayerCharacter pc)
+                OpenEditor(pc.Id);
         }
     }
 }

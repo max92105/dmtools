@@ -111,6 +111,8 @@
     <Compile Include="DataModels\SkillWindow\SkillWindowDataModel.cs" />
     <Compile Include="DataModels\StatBlockHelper\StatBlockHelperDataModel.cs" />
     <Compile Include="Objects\ArmorClassEntry.cs" />
+    <Compile Include="Objects\Encounter.cs" />
+    <Compile Include="Objects\EncounterEntry.cs" />
     <Compile Include="Objects\DamageModifier.cs" />
     <Compile Include="Objects\InitiativeEntry.cs" />
     <Compile Include="Objects\Action.cs" />

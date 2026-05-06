@@ -1,57 +1,383 @@
-﻿<Page x:Class="DMTools.Pages.PcManagerPage"
+<Page x:Class="DMTools.Pages.PcManagerPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      mc:Ignorable="d" 
+      mc:Ignorable="d"
       d:DesignHeight="720" d:DesignWidth="1280"
-      Loaded="Page_Loaded"  Title="Pc Manager">
+      Loaded="Page_Loaded" Title="PC Manager">
+
+    <Page.Resources>
+
+        <!-- Slim amber ScrollBar (implicit) -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Vertical">
+                    <Setter Property="Width" Value="6"/>
+                    <Setter Property="MinWidth" Value="6"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ScrollBar">
+                                <Grid>
+                                    <Border Background="#18FFFFFF" CornerRadius="3" Margin="2,0"/>
+                                    <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" IsTabStop="False"/>
+                                        </Track.DecreaseRepeatButton>
+                                        <Track.Thumb>
+                                            <Thumb>
+                                                <Thumb.Template>
+                                                    <ControlTemplate TargetType="Thumb">
+                                                        <Border x:Name="thumb" Background="#55E69A28" CornerRadius="3" Margin="1,3"/>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="thumb" Property="Background" Value="#99E69A28"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsDragging" Value="True">
+                                                                <Setter TargetName="thumb" Property="Background" Value="#CCE69A28"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Thumb.Template>
+                                            </Thumb>
+                                        </Track.Thumb>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" IsTabStop="False"/>
+                                        </Track.IncreaseRepeatButton>
+                                    </Track>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Sidebar field label -->
+        <Style x:Key="SidebarLabel" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Foreground" Value="#88E69A28"/>
+            <Setter Property="Margin" Value="0,14,0,4"/>
+        </Style>
+
+        <!-- Sidebar text box -->
+        <Style x:Key="SidebarBox" TargetType="TextBox">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#F0E6D3"/>
+            <Setter Property="Background" Value="#22FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#44E69A28"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="CaretBrush" Value="#E69A28"/>
+        </Style>
+
+        <!-- Range dash -->
+        <Style x:Key="RangeDash" TargetType="TextBlock">
+            <Setter Property="Text" Value="–"/>
+            <Setter Property="Foreground" Value="#44E69A28"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="6,0"/>
+        </Style>
+
+        <!-- Sidebar button -->
+        <Style x:Key="SidebarButton" TargetType="Button">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#E69A28"/>
+            <Setter Property="Background" Value="#33E69A28"/>
+            <Setter Property="BorderBrush" Value="#55E69A28"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="0,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#55E69A28"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#88E69A28"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#33E69A28"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#22E69A28"/>
+                                <Setter TargetName="bd" Property="Background" Value="#11E69A28"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- PC card item container -->
+        <Style x:Key="PcCardContainer" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,16,16"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="card" Width="210"
+                                Background="#CC100800"
+                                BorderBrush="#44E69A28" BorderThickness="1"
+                                Cursor="Hand">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="card" Property="BorderBrush" Value="#AAE69A28"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="card" Property="BorderBrush" Value="#E69A28"/>
+                                <Setter TargetName="card" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="StatLabel" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="Foreground" Value="#88E69A28"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+        </Style>
+
+        <Style x:Key="StatValue" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#F0E6D3"/>
+        </Style>
+
+        <DataTemplate x:Key="PcCardTemplate">
+            <StackPanel>
+                <Border Background="#33E69A28" Padding="12,9">
+                    <TextBlock Text="{Binding Name}"
+                               FontFamily="Georgia" FontSize="15" FontWeight="Bold"
+                               Foreground="#F0E6D3" TextTrimming="CharacterEllipsis"/>
+                </Border>
+                <Grid Margin="12,10,12,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="1"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock Text="LEVEL" Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding Level}" Style="{StaticResource StatValue}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="0" Grid.Column="1">
+                        <TextBlock Text="ARMOR CLASS" Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding ArmorClass}" Style="{StaticResource StatValue}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
+                        <TextBlock Text="INITIATIVE" Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding InitiativeBonus}" Style="{StaticResource StatValue}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,10">
+                        <TextBlock Text="PASSIVE PERC." Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding PassivePerception}" Style="{StaticResource StatValue}"/>
+                    </StackPanel>
+                    <Rectangle Grid.Row="3" Grid.ColumnSpan="2" Fill="#22E69A28"/>
+                    <StackPanel Grid.Row="5" Grid.Column="0">
+                        <TextBlock Text="MAX HP" Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding MaxHp}" Style="{StaticResource StatValue}"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+
+    </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10*" />
-            <RowDefinition Height="90*" />
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Image Grid.Row="0" Source="/Ressource/Header.png" Stretch="Fill"/>
-        <Label Grid.Row="0" Content="Player Characters" FontWeight="Bold" FontSize="50" 
-               HorizontalAlignment="Center" VerticalAlignment="top" Foreground="White"/>
+        <!-- Background -->
+        <Image Grid.RowSpan="2" Source="/Ressource/DNDBackground.png" Stretch="UniformToFill"/>
 
-        <Grid  Grid.Row="1" Grid.ColumnSpan="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="8*" />
-                <RowDefinition Height="89*" />
-                <RowDefinition Height="5*" />
-            </Grid.RowDefinitions>
+        <!-- Header -->
+        <Rectangle Grid.Row="0" Fill="#CC0A0000"/>
+        <TextBlock Grid.Row="0" Text="Player Characters"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontFamily="Georgia" FontSize="36" FontWeight="Bold"
+                   Foreground="#E69A28"/>
+
+        <!-- Content row: collapsible sidebar + toggle tab + cards -->
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="10*"/>
-                <ColumnDefinition Width="90*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="22"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Name="gbSearch" Grid.Column="1" Grid.Row="0" Header="Filters">
+            <!-- Sidebar wrapper — width-animated for smooth slide -->
+            <Border x:Name="sidebarWrapper" Grid.Column="0" Width="200"
+                    ClipToBounds="True" Background="Transparent">
+
+            <!-- Floating sidebar panel -->
+            <Border Width="200"
+                    Background="#CC0A0000"
+                    BorderBrush="#55E69A28" BorderThickness="0,1,0,1"
+                    Margin="0,12,0,12">
                 <DockPanel>
-                    <Label Grid.Column="0" Grid.Row="3" Content="Name"/>
-                    <TextBox Name="txtSearchName" Margin="0,0,2,0" HorizontalAlignment="Left" 
-                                 Width="{Binding ElementName=gbSearch,Path=ActualWidth}" TextChanged="txtSearchName_TextChanged"/>
+
+                    <!-- Action buttons pinned to bottom -->
+                    <StackPanel DockPanel.Dock="Bottom" Margin="14,0,14,14">
+                        <Rectangle Height="1" Fill="#22E69A28" Margin="0,0,0,12"/>
+                        <Button x:Name="btnNew" Content="New PC"
+                                Style="{StaticResource SidebarButton}"
+                                Click="btnNew_Click"/>
+                        <Button x:Name="btnEdit" Content="Edit Selected"
+                                Style="{StaticResource SidebarButton}"
+                                IsEnabled="False" Margin="0"
+                                Click="btnEdit_Click"/>
+                    </StackPanel>
+
+                    <!-- Scrollable filter fields -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="14,14,14,8">
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,6">
+                                <Rectangle Width="20" Height="1" Fill="#66E69A28" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBlock Text="FILTERS" FontFamily="Georgia" FontSize="11"
+                                           FontWeight="Bold" Foreground="#E69A28"/>
+                                <Rectangle Width="20" Height="1" Fill="#66E69A28" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            </StackPanel>
+
+                            <TextBlock Text="NAME" Style="{StaticResource SidebarLabel}" Margin="0,8,0,4"/>
+                            <TextBox x:Name="txtSearchName" Style="{StaticResource SidebarBox}" TextChanged="Filter_Changed"/>
+
+                            <TextBlock Text="LEVEL" Style="{StaticResource SidebarLabel}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                <TextBox x:Name="txtMinLevel" Grid.Column="0" Style="{StaticResource SidebarBox}" TextChanged="Filter_Changed"/>
+                                <TextBlock Grid.Column="1" Style="{StaticResource RangeDash}"/>
+                                <TextBox x:Name="txtMaxLevel" Grid.Column="2" Style="{StaticResource SidebarBox}" TextChanged="Filter_Changed"/>
+                            </Grid>
+
+                            <TextBlock Text="ARMOR CLASS" Style="{StaticResource SidebarLabel}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                <TextBox x:Name="txtMinAC" Grid.Column="0" Style="{StaticResource SidebarBox}" TextChanged="Filter_Changed"/>
+                                <TextBlock Grid.Column="1" Style="{StaticResource RangeDash}"/>
+                                <TextBox x:Name="txtMaxAC" Grid.Column="2" Style="{StaticResource SidebarBox}" TextChanged="Filter_Changed"/>
+                            </Grid>
+
+                            <TextBlock Text="INITIATIVE" Style="{StaticResource SidebarLabel}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                <TextBox x:Name="txtMinInit" Grid.Column="0" Style="{StaticResource SidebarBox}" TextChanged="Filter_Changed"/>
+                                <TextBlock Grid.Column="1" Style="{StaticResource RangeDash}"/>
+                                <TextBox x:Name="txtMaxInit" Grid.Column="2" Style="{StaticResource SidebarBox}" TextChanged="Filter_Changed"/>
+                            </Grid>
+
+                            <TextBlock Text="PASSIVE PERC." Style="{StaticResource SidebarLabel}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                <TextBox x:Name="txtMinPP" Grid.Column="0" Style="{StaticResource SidebarBox}" TextChanged="Filter_Changed"/>
+                                <TextBlock Grid.Column="1" Style="{StaticResource RangeDash}"/>
+                                <TextBox x:Name="txtMaxPP" Grid.Column="2" Style="{StaticResource SidebarBox}" TextChanged="Filter_Changed"/>
+                            </Grid>
+
+                            <TextBlock Text="MAX HP" Style="{StaticResource SidebarLabel}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                <TextBox x:Name="txtMinHP" Grid.Column="0" Style="{StaticResource SidebarBox}" TextChanged="Filter_Changed"/>
+                                <TextBlock Grid.Column="1" Style="{StaticResource RangeDash}"/>
+                                <TextBox x:Name="txtMaxHP" Grid.Column="2" Style="{StaticResource SidebarBox}" TextChanged="Filter_Changed"/>
+                            </Grid>
+
+                            <Button Content="Clear Filters" Margin="0,18,0,0"
+                                    Style="{StaticResource SidebarButton}"
+                                    Background="Transparent" BorderBrush="#33E69A28"
+                                    Foreground="#66E69A28"
+                                    Click="btnClear_Click"/>
+                        </StackPanel>
+                    </ScrollViewer>
                 </DockPanel>
-            </GroupBox>
+            </Border>
+            </Border><!-- /sidebarWrapper -->
 
-            <StackPanel Grid.Column="0" Grid.Row="1">
-                <Button Name="btnNewPc" Content="New" Click="btnNewPc_Click"/>
-                <Button Name="btnEditPc" Content="Edit" Click="btnEditPc_Click"/>
-            </StackPanel>
+            <!-- Collapse / expand tab -->
+            <Button x:Name="btnToggleSidebar" Grid.Column="1"
+                    Margin="0,12,8,12" Cursor="Hand"
+                    Click="btnToggleSidebar_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="tab" Background="#CC0A0000"
+                                BorderBrush="#55E69A28" BorderThickness="1,1,1,1"
+                                CornerRadius="0,4,4,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="tab" Property="Background" Value="#E6100800"/>
+                                <Setter TargetName="tab" Property="BorderBrush" Value="#99E69A28"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="tab" Property="Background" Value="#55E69A28"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+                <TextBlock x:Name="tbSidebarArrow"
+                           FontFamily="Segoe UI" FontSize="11"
+                           LineHeight="11"
+                           Foreground="#88E69A28">
+                    <TextBlock.RenderTransform>
+                        <TranslateTransform Y="-1"/>
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+            </Button>
 
-            <DataGrid Name="dgPlayerCharacters" Grid.Row="1" Grid.Column="1" ColumnWidth="*" 
-                      SelectedItem="{Binding Path=SelectedPlayerCharacter,
-                      RelativeSource={RelativeSource AncestorType={x:Type Page}}}" SelectionMode="Single"
-                      CanUserResizeColumns="False" MouseDoubleClick="dgPlayerCharacters_MouseDoubleClick"
-                      ItemsSource="{Binding PlayerCharaters}" AutoGenerateColumns="False" CanUserAddRows="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Armor Class" Binding="{Binding ArmorClass}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Initiative Bonus" Binding="{Binding InitiativeBonus}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="True"/>
-                </DataGrid.Columns>
-            </DataGrid>
+            <!-- Cards -->
+            <ScrollViewer x:Name="mainScroll" Grid.Column="2"
+                          Padding="20,20,14,20"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Background="Transparent">
+                <ListBox x:Name="lbPcs"
+                         Background="Transparent" BorderThickness="0"
+                         ItemContainerStyle="{StaticResource PcCardContainer}"
+                         ItemTemplate="{StaticResource PcCardTemplate}"
+                         SelectionChanged="lbPcs_SelectionChanged"
+                         MouseDoubleClick="lbPcs_MouseDoubleClick"
+                         ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         PreviewMouseWheel="lbPcs_PreviewMouseWheel">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Page>
