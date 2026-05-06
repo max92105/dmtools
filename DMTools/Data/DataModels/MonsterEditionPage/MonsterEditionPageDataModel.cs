@@ -16,6 +16,11 @@ namespace Data.DataModels.MonsterEditionPage
         private ObservableCollection<DisplaySkill> _DisplaySkills;
         private ObservableCollection<SpecialAbility> _SpecialAbilities;
         private ObservableCollection<Action> _Actions;
+        private ObservableCollection<Speed> _Speeds;
+        private ObservableCollection<Sense> _Senses;
+        private ObservableCollection<DamageModifier> _DamageModifiers;
+        private ObservableCollection<ArmorClassEntry> _ArmorClassEntries;
+        private ObservableCollection<string> _Languages;
 
         public Monster Monster
         {
@@ -177,11 +182,96 @@ namespace Data.DataModels.MonsterEditionPage
             }
         }
 
+        public ObservableCollection<Speed> Speeds
+        {
+            get
+            {
+                return _Speeds;
+            }
+            set
+            {
+                if (_Speeds != value)
+                {
+                    _Speeds = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public ObservableCollection<Sense> Senses
+        {
+            get
+            {
+                return _Senses;
+            }
+            set
+            {
+                if (_Senses != value)
+                {
+                    _Senses = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public ObservableCollection<DamageModifier> DamageModifiers
+        {
+            get
+            {
+                return _DamageModifiers;
+            }
+            set
+            {
+                if (_DamageModifiers != value)
+                {
+                    _DamageModifiers = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public ObservableCollection<ArmorClassEntry> ArmorClassEntries
+        {
+            get
+            {
+                return _ArmorClassEntries;
+            }
+            set
+            {
+                if (_ArmorClassEntries != value)
+                {
+                    _ArmorClassEntries = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public ObservableCollection<string> Languages
+        {
+            get
+            {
+                return _Languages;
+            }
+            set
+            {
+                if (_Languages != value)
+                {
+                    _Languages = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public MonsterEditionPageDataModel()
         {
             _DisplaySkills = new ObservableCollection<DisplaySkill>();
             _SpecialAbilities = new ObservableCollection<SpecialAbility>();
             _Actions = new ObservableCollection<Action>();
+            _Speeds = new ObservableCollection<Speed>();
+            _Senses = new ObservableCollection<Sense>();
+            _DamageModifiers = new ObservableCollection<DamageModifier>();
+            _ArmorClassEntries = new ObservableCollection<ArmorClassEntry>();
+            _Languages = new ObservableCollection<string>();
         }
     }
 }

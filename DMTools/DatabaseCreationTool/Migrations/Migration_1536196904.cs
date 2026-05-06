@@ -23,7 +23,7 @@ namespace DatabaseCreationTool.Migrations
             var specialAbilitiesCollection = db.GetCollection<SpecialAbility>("specialAbilities");
             var actionsCollection = db.GetCollection<Data.Objects.Action>("actions");
 
-            // Insert CharacteristicTypes
+            // Upsert CharacteristicTypes (fixed GUIDs — safe to re-run)
             InsertCharacteristicType(characteristicTypesCollection, Characteristics.StrenghtId, "Strength");
             InsertCharacteristicType(characteristicTypesCollection, Characteristics.DexterityId, "Dexterity");
             InsertCharacteristicType(characteristicTypesCollection, Characteristics.ConstitutionId, "Constitution");
@@ -31,7 +31,7 @@ namespace DatabaseCreationTool.Migrations
             InsertCharacteristicType(characteristicTypesCollection, Characteristics.WisdomId, "Wisdom");
             InsertCharacteristicType(characteristicTypesCollection, Characteristics.CharismaId, "Charisma");
 
-            // Insert SkillTypes
+            // Upsert SkillTypes (fixed GUIDs — safe to re-run)
             InsertSkillType(skillTypesCollection, SkillTypes.AcrobaticsId, "Acrobatics");
             InsertSkillType(skillTypesCollection, SkillTypes.AnimalHandlingId, "AnimalHandling");
             InsertSkillType(skillTypesCollection, SkillTypes.ArcanaId, "Arcana");
@@ -50,6 +50,18 @@ namespace DatabaseCreationTool.Migrations
             InsertSkillType(skillTypesCollection, SkillTypes.SleightOfHandId, "SleightOfHand");
             InsertSkillType(skillTypesCollection, SkillTypes.StealthId, "Stealth");
             InsertSkillType(skillTypesCollection, SkillTypes.SurvivalId, "Survival");
+
+            // Skip monster JSON import if monsters already exist in the database
+            if (monstersCollection.Count() > 0)
+            {
+                Console.WriteLine("  Monsters already present — skipping JSON import.");
+                monstersCollection.EnsureIndex(m => m.Name);
+                characteristicsCollection.EnsureIndex(c => c.MonsterId);
+                skillsCollection.EnsureIndex(s => s.MonsterId);
+                specialAbilitiesCollection.EnsureIndex(sa => sa.MonsterId);
+                actionsCollection.EnsureIndex(a => a.MonsterId);
+                return;
+            }
 
             // Import monsters from JSON
             using (StreamReader streamReader = new StreamReader("5e-SRD-Monsters.json"))
@@ -203,14 +215,12 @@ namespace DatabaseCreationTool.Migrations
 
         private void InsertCharacteristicType(ILiteCollection<CharacteristicType> collection, Guid id, string name)
         {
-            var ct = new CharacteristicType { Id = id, Name = name };
-            collection.Insert(ct);
+            collection.Upsert(new CharacteristicType { Id = id, Name = name });
         }
 
         private void InsertSkillType(ILiteCollection<SkillType> collection, Guid id, string name)
         {
-            var st = new SkillType { Id = id, Name = name };
-            collection.Insert(st);
+            collection.Upsert(new SkillType { Id = id, Name = name });
         }
 
         private void InsertCharacteristic(ILiteCollection<Characteristic> collection, Guid monsterId, Guid characteristicTypeId, short score, short save)

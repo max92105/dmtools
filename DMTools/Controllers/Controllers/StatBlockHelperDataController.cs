@@ -22,10 +22,14 @@ namespace Controllers.Controllers
         {
             StatBlockHelperDataModel statBlockDataModel = new StatBlockHelperDataModel();
 
-            statBlockDataModel.Characteristics = new ObservableCollection<Characteristic>(new CharacteristicFactory().GetObjectsByMonsterId(monsterId));         
+            statBlockDataModel.Characteristics = new ObservableCollection<Characteristic>(new CharacteristicFactory().GetObjectsByMonsterId(monsterId));
             statBlockDataModel.Skills = new ObservableCollection<Skill>(new SkillFactory().GetObjectsByMonsterId(monsterId));
             statBlockDataModel.SpecialAbilities = new ObservableCollection<SpecialAbility>(new SpecialAbilityFactory().GetObjectsByMonsterId(monsterId));
             statBlockDataModel.Actions = new ObservableCollection<Data.Objects.Action>(new ActionFactory().GetObjectsMonsterId(monsterId));
+            statBlockDataModel.Speeds = new ObservableCollection<Speed>(new SpeedFactory().GetObjectsByMonsterId(monsterId));
+            statBlockDataModel.Senses = new ObservableCollection<Sense>(new SenseFactory().GetObjectsByMonsterId(monsterId));
+            statBlockDataModel.DamageModifiers = new ObservableCollection<DamageModifier>(new DamageModifierFactory().GetObjectsByMonsterId(monsterId));
+            statBlockDataModel.ArmorClassEntries = new ObservableCollection<ArmorClassEntry>(new ArmorClassEntryFactory().GetObjectsByMonsterId(monsterId));
 
             return statBlockDataModel;
         }

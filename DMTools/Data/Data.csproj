@@ -78,10 +78,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotations\Annotations.cs" />
+    <Compile Include="Constants\ActionNames.cs" />
+    <Compile Include="Constants\ActionRanges.cs" />
+    <Compile Include="Constants\Alignments.cs" />
     <Compile Include="Constants\Characteristics.cs" />
+    <Compile Include="Constants\Conditions.cs" />
+    <Compile Include="Constants\DamageModifierDefaults.cs" />
+    <Compile Include="Constants\DamageTypes.cs" />
     <Compile Include="Constants\DatabaseInfo.cs" />
     <Compile Include="Constants\InternalStates.cs" />
+    <Compile Include="Constants\Languages.cs" />
+    <Compile Include="Constants\MonsterSizes.cs" />
+    <Compile Include="Constants\MonsterSubtypes.cs" />
+    <Compile Include="Constants\MonsterTypes.cs" />
+    <Compile Include="Constants\SenseTypes.cs" />
     <Compile Include="Constants\SkillTypes.cs" />
+    <Compile Include="Constants\SpeedTypes.cs" />
     <Compile Include="Constants\StateTransitions.cs" />
     <Compile Include="DataModels\DataModel.cs" />
     <Compile Include="DataModels\InitiativeManagerPage\InitiativeManagerPageDataModel.cs" />
@@ -98,6 +110,8 @@
     <Compile Include="DataModels\SkillWindow\SaveSkillDataQuery.cs" />
     <Compile Include="DataModels\SkillWindow\SkillWindowDataModel.cs" />
     <Compile Include="DataModels\StatBlockHelper\StatBlockHelperDataModel.cs" />
+    <Compile Include="Objects\ArmorClassEntry.cs" />
+    <Compile Include="Objects\DamageModifier.cs" />
     <Compile Include="Objects\InitiativeEntry.cs" />
     <Compile Include="Objects\Action.cs" />
     <Compile Include="Objects\Characteristic.cs" />
@@ -106,9 +120,11 @@
     <Compile Include="Objects\MonsterJsonImport.cs" />
     <Compile Include="Objects\ObjectBase.cs" />
     <Compile Include="Objects\PlayerCharacter.cs" />
+    <Compile Include="Objects\Sense.cs" />
     <Compile Include="Objects\Skill.cs" />
     <Compile Include="Objects\SkillType.cs" />
     <Compile Include="Objects\SpecialAbility.cs" />
+    <Compile Include="Objects\Speed.cs" />
     <Compile Include="Objects\Type.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VirtualObject\DisplayMonster.cs" />

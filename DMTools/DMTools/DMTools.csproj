@@ -222,6 +222,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\ArmorClassEditorWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\DamageModifierEditorWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\SpeedSenseEditorWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Pages\StatBlockWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -257,6 +269,15 @@
     </Compile>
     <Compile Include="Pages\SkillWindow.xaml.cs">
       <DependentUpon>SkillWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ArmorClassEditorWindow.xaml.cs">
+      <DependentUpon>ArmorClassEditorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DamageModifierEditorWindow.xaml.cs">
+      <DependentUpon>DamageModifierEditorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SpeedSenseEditorWindow.xaml.cs">
+      <DependentUpon>SpeedSenseEditorWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\StatBlockWindow.xaml.cs">
       <DependentUpon>StatBlockWindow.xaml</DependentUpon>

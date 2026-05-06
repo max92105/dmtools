@@ -1,4 +1,5 @@
 ﻿using Controllers.Factories;
+using Data.Constant;
 using Data.Constants;
 using Data.DataModels.MonsterEditionPage;
 using Data.Objects;
@@ -6,6 +7,7 @@ using Data.VirtualObject;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Controllers.Controllers
 {
@@ -39,17 +41,27 @@ namespace Controllers.Controllers
             monsterEditionPageDataModel.SpecialAbilities = new ObservableCollection<SpecialAbility>(new SpecialAbilityFactory().GetObjectsByMonsterId(monsterId));
             monsterEditionPageDataModel.Actions = new ObservableCollection<Data.Objects.Action>(new ActionFactory().GetObjectsMonsterId(monsterId));
 
+            // Load new structured data
+            monsterEditionPageDataModel.Speeds = new ObservableCollection<Speed>(new SpeedFactory().GetObjectsByMonsterId(monsterId));
+            monsterEditionPageDataModel.Senses = new ObservableCollection<Sense>(new SenseFactory().GetObjectsByMonsterId(monsterId));
+            monsterEditionPageDataModel.DamageModifiers = new ObservableCollection<DamageModifier>(new DamageModifierFactory().GetObjectsByMonsterId(monsterId));
+            monsterEditionPageDataModel.ArmorClassEntries = new ObservableCollection<ArmorClassEntry>(new ArmorClassEntryFactory().GetObjectsByMonsterId(monsterId));
+
+            // Parse languages from the monster's Languages string into the collection
+            monsterEditionPageDataModel.Languages = ParseLanguages(monsterEditionPageDataModel.Monster.Languages);
+
             return monsterEditionPageDataModel;
         }
 
         public static MonsterEditionPageDataModel NewMonster(MonsterEditionPageDataModel monsterEditionPageDataModel)
         {
-            monsterEditionPageDataModel.Monster = new Monster() { Id = Guid.NewGuid(), Name = "New Monster" };
+            Guid monsterId = Guid.NewGuid();
+            monsterEditionPageDataModel.Monster = new Monster() { Id = monsterId, Name = "New Monster", Size = "Medium", Type = "Humanoid", Alignment = "Neutral" };
 
             monsterEditionPageDataModel.Strength = new Characteristic()
             {
                 Id = Guid.NewGuid(),
-                MonsterId = monsterEditionPageDataModel.Monster.Id,
+                MonsterId = monsterId,
                 CharacteristicTypeId = Characteristics.StrenghtId,
                 Score = 10,
                 Save = 0
@@ -58,7 +70,7 @@ namespace Controllers.Controllers
             monsterEditionPageDataModel.Dexterity = new Characteristic()
             {
                 Id = Guid.NewGuid(),
-                MonsterId = monsterEditionPageDataModel.Monster.Id,
+                MonsterId = monsterId,
                 CharacteristicTypeId = Characteristics.DexterityId,
                 Score = 10,
                 Save = 0
@@ -67,7 +79,7 @@ namespace Controllers.Controllers
             monsterEditionPageDataModel.Constitution = new Characteristic()
             {
                 Id = Guid.NewGuid(),
-                MonsterId = monsterEditionPageDataModel.Monster.Id,
+                MonsterId = monsterId,
                 CharacteristicTypeId = Characteristics.ConstitutionId,
                 Score = 10,
                 Save = 0
@@ -76,7 +88,7 @@ namespace Controllers.Controllers
             monsterEditionPageDataModel.Intelligence = new Characteristic()
             {
                 Id = Guid.NewGuid(),
-                MonsterId = monsterEditionPageDataModel.Monster.Id,
+                MonsterId = monsterId,
                 CharacteristicTypeId = Characteristics.IntelligenceId,
                 Score = 10,
                 Save = 0
@@ -85,7 +97,7 @@ namespace Controllers.Controllers
             monsterEditionPageDataModel.Wisdom = new Characteristic()
             {
                 Id = Guid.NewGuid(),
-                MonsterId = monsterEditionPageDataModel.Monster.Id,
+                MonsterId = monsterId,
                 CharacteristicTypeId = Characteristics.WisdomId,
                 Score = 10,
                 Save = 0
@@ -94,11 +106,19 @@ namespace Controllers.Controllers
             monsterEditionPageDataModel.Charisma = new Characteristic()
             {
                 Id = Guid.NewGuid(),
-                MonsterId = monsterEditionPageDataModel.Monster.Id,
+                MonsterId = monsterId,
                 CharacteristicTypeId = Characteristics.CharismaId,
                 Score = 10,
                 Save = 0
             };
+
+            // Add a default walking speed
+            var defaultSpeed = new Speed() { Id = Guid.NewGuid(), MonsterId = monsterId, SpeedType = "Walk", Value = 30 };
+            monsterEditionPageDataModel.Speeds = new ObservableCollection<Speed> { defaultSpeed };
+
+            // Add a default AC entry
+            var defaultAc = new ArmorClassEntry() { Id = Guid.NewGuid(), MonsterId = monsterId, Label = "Default", Value = 10 };
+            monsterEditionPageDataModel.ArmorClassEntries = new ObservableCollection<ArmorClassEntry> { defaultAc };
 
             return monsterEditionPageDataModel;
         }
@@ -109,6 +129,13 @@ namespace Controllers.Controllers
             SkillFactory skillFactory = new SkillFactory();
             SpecialAbilityFactory specialAbilityFactory = new SpecialAbilityFactory();
             ActionFactory actionFactory = new ActionFactory();
+            SpeedFactory speedFactory = new SpeedFactory();
+            SenseFactory senseFactory = new SenseFactory();
+            DamageModifierFactory damageModifierFactory = new DamageModifierFactory();
+            ArmorClassEntryFactory armorClassEntryFactory = new ArmorClassEntryFactory();
+
+            // Build Languages string from collection before saving
+            monsterEditionPageDataModel.Monster.Languages = String.Join(", ", monsterEditionPageDataModel.Languages);
 
             new MonsterFactory().SaveObject(monsterEditionPageDataModel.Monster);
             characteristicFactory.SaveObject(monsterEditionPageDataModel.Strength);
@@ -125,7 +152,19 @@ namespace Controllers.Controllers
                 specialAbilityFactory.SaveObject(specialAbility);
 
             foreach (Data.Objects.Action action in monsterEditionPageDataModel.Actions)
-                actionFactory.SaveObject(action); 
+                actionFactory.SaveObject(action);
+
+            foreach (Speed speed in monsterEditionPageDataModel.Speeds)
+                speedFactory.SaveObject(speed);
+
+            foreach (Sense sense in monsterEditionPageDataModel.Senses)
+                senseFactory.SaveObject(sense);
+
+            foreach (DamageModifier damageModifier in monsterEditionPageDataModel.DamageModifiers)
+                damageModifierFactory.SaveObject(damageModifier);
+
+            foreach (ArmorClassEntry armorClassEntry in monsterEditionPageDataModel.ArmorClassEntries)
+                armorClassEntryFactory.SaveObject(armorClassEntry);
         }
 
         public static void Copy(MonsterEditionPageDataModel monsterEditionPageDataModel)
@@ -133,52 +172,79 @@ namespace Controllers.Controllers
             Guid monsterId = Guid.NewGuid();
             monsterEditionPageDataModel.Monster.Name = String.Empty;
             monsterEditionPageDataModel.Monster.Id = monsterId;
-            monsterEditionPageDataModel.Monster.SetInternalState(Data.Constant.InternalStates.New, true);
+            monsterEditionPageDataModel.Monster.SetInternalState(InternalStates.New, true);
 
             monsterEditionPageDataModel.Strength.Id = Guid.NewGuid();
             monsterEditionPageDataModel.Strength.MonsterId = monsterId;
-            monsterEditionPageDataModel.Strength.SetInternalState(Data.Constant.InternalStates.New, true);
+            monsterEditionPageDataModel.Strength.SetInternalState(InternalStates.New, true);
 
             monsterEditionPageDataModel.Dexterity.Id = Guid.NewGuid();
             monsterEditionPageDataModel.Dexterity.MonsterId = monsterId;
-            monsterEditionPageDataModel.Dexterity.SetInternalState(Data.Constant.InternalStates.New, true);
+            monsterEditionPageDataModel.Dexterity.SetInternalState(InternalStates.New, true);
 
             monsterEditionPageDataModel.Constitution.Id = Guid.NewGuid();
             monsterEditionPageDataModel.Constitution.MonsterId = monsterId;
-            monsterEditionPageDataModel.Constitution.SetInternalState(Data.Constant.InternalStates.New, true);
+            monsterEditionPageDataModel.Constitution.SetInternalState(InternalStates.New, true);
 
             monsterEditionPageDataModel.Intelligence.Id = Guid.NewGuid();
             monsterEditionPageDataModel.Intelligence.MonsterId = monsterId;
-            monsterEditionPageDataModel.Intelligence.SetInternalState(Data.Constant.InternalStates.New, true);
+            monsterEditionPageDataModel.Intelligence.SetInternalState(InternalStates.New, true);
 
             monsterEditionPageDataModel.Wisdom.Id = Guid.NewGuid();
             monsterEditionPageDataModel.Wisdom.MonsterId = monsterId;
-            monsterEditionPageDataModel.Wisdom.SetInternalState(Data.Constant.InternalStates.New, true);
+            monsterEditionPageDataModel.Wisdom.SetInternalState(InternalStates.New, true);
 
             monsterEditionPageDataModel.Charisma.Id = Guid.NewGuid();
             monsterEditionPageDataModel.Charisma.MonsterId = monsterId;
-            monsterEditionPageDataModel.Charisma.SetInternalState(Data.Constant.InternalStates.New, true);
-
+            monsterEditionPageDataModel.Charisma.SetInternalState(InternalStates.New, true);
 
             foreach (Skill skill in monsterEditionPageDataModel.DisplaySkills)
             {
                 skill.Id = Guid.NewGuid();
                 skill.MonsterId = monsterId;
-                skill.SetInternalState(Data.Constant.InternalStates.New, true);
+                skill.SetInternalState(InternalStates.New, true);
             }
 
             foreach (SpecialAbility specialAbility in monsterEditionPageDataModel.SpecialAbilities)
             {
                 specialAbility.Id = Guid.NewGuid();
                 specialAbility.MonsterId = monsterId;
-                specialAbility.SetInternalState(Data.Constant.InternalStates.New, true);
+                specialAbility.SetInternalState(InternalStates.New, true);
             }
 
             foreach (Data.Objects.Action action in monsterEditionPageDataModel.Actions)
             {
                 action.Id = Guid.NewGuid();
                 action.MonsterId = monsterId;
-                action.SetInternalState(Data.Constant.InternalStates.New, true);
+                action.SetInternalState(InternalStates.New, true);
+            }
+
+            foreach (Speed speed in monsterEditionPageDataModel.Speeds)
+            {
+                speed.Id = Guid.NewGuid();
+                speed.MonsterId = monsterId;
+                speed.SetInternalState(InternalStates.New, true);
+            }
+
+            foreach (Sense sense in monsterEditionPageDataModel.Senses)
+            {
+                sense.Id = Guid.NewGuid();
+                sense.MonsterId = monsterId;
+                sense.SetInternalState(InternalStates.New, true);
+            }
+
+            foreach (DamageModifier damageModifier in monsterEditionPageDataModel.DamageModifiers)
+            {
+                damageModifier.Id = Guid.NewGuid();
+                damageModifier.MonsterId = monsterId;
+                damageModifier.SetInternalState(InternalStates.New, true);
+            }
+
+            foreach (ArmorClassEntry armorClassEntry in monsterEditionPageDataModel.ArmorClassEntries)
+            {
+                armorClassEntry.Id = Guid.NewGuid();
+                armorClassEntry.MonsterId = monsterId;
+                armorClassEntry.SetInternalState(InternalStates.New, true);
             }
         }
 
@@ -191,14 +257,12 @@ namespace Controllers.Controllers
         public static SpecialAbility GetSpecialAbility(Guid specialAbilityId)
         {
             SpecialAbilityFactory specialAbilityFactory = new SpecialAbilityFactory();
-
             return specialAbilityFactory.GetObject(specialAbilityId);
         }
 
         public static List<DisplaySpecialAbility> GetSpecialAbilities()
         {
             DisplaySpecialAbilityFactory displaySpecialAbilityFactory = new DisplaySpecialAbilityFactory();
-
             return displaySpecialAbilityFactory.GetObjects();
         }
 
@@ -211,14 +275,12 @@ namespace Controllers.Controllers
         public static Data.Objects.Action GetAction(Guid actionId)
         {
             ActionFactory actionFactory = new ActionFactory();
-
             return actionFactory.GetObject(actionId);
         }
 
         public static List<DisplayAction> GetActions()
         {
             DisplayActionFactory displayActionFactory = new DisplayActionFactory();
-
             return displayActionFactory.GetObjects();
         }
 
@@ -226,6 +288,49 @@ namespace Controllers.Controllers
         {
             ActionFactory actionFactory = new ActionFactory();
             actionFactory.SaveObject(action);
+        }
+
+        public static void DeleteSpeed(Speed speed)
+        {
+            speed.Delete();
+            new SpeedFactory().SaveObject(speed);
+        }
+
+        public static void DeleteSense(Sense sense)
+        {
+            sense.Delete();
+            new SenseFactory().SaveObject(sense);
+        }
+
+        public static void DeleteDamageModifier(DamageModifier damageModifier)
+        {
+            damageModifier.Delete();
+            new DamageModifierFactory().SaveObject(damageModifier);
+        }
+
+        public static void DeleteArmorClassEntry(ArmorClassEntry armorClassEntry)
+        {
+            armorClassEntry.Delete();
+            new ArmorClassEntryFactory().SaveObject(armorClassEntry);
+        }
+
+        /// <summary>
+        /// Parses a comma-separated languages string into an ObservableCollection.
+        /// </summary>
+        private static ObservableCollection<string> ParseLanguages(string languages)
+        {
+            var result = new ObservableCollection<string>();
+            if (!String.IsNullOrWhiteSpace(languages))
+            {
+                var parts = languages.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var part in parts)
+                {
+                    string trimmed = part.Trim();
+                    if (!String.IsNullOrEmpty(trimmed))
+                        result.Add(trimmed);
+                }
+            }
+            return result;
         }
     }
 }

@@ -1,0 +1,34 @@
+using System.Windows;
+
+namespace DMTools.Pages
+{
+    public partial class SpeedSenseEditorWindow : Window
+    {
+        public string SelectedType => cboType.SelectedItem as string;
+
+        public short SelectedValue
+        {
+            get
+            {
+                if (short.TryParse(txtValue.Text, out short v))
+                    return v;
+                return 0;
+            }
+        }
+
+        public SpeedSenseEditorWindow(string title, string[] types)
+        {
+            InitializeComponent();
+            Title = title;
+            cboType.ItemsSource = types;
+            if (types.Length > 0)
+                cboType.SelectedIndex = 0;
+        }
+
+        private void btnOk_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
+            Close();
+        }
+    }
+}

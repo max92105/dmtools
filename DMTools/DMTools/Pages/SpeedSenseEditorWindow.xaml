@@ -1,0 +1,24 @@
+<Window x:Class="DMTools.Pages.SpeedSenseEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Entry" Height="150" Width="350" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Content="Type" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+        <ComboBox Name="cboType" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center"/>
+
+        <Label Content="Value (ft.)" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"/>
+        <TextBox Name="txtValue" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="30"/>
+
+        <Button Content="OK" Grid.Row="2" Grid.Column="1" Width="80" HorizontalAlignment="Right" Click="btnOk_Click"/>
+    </Grid>
+</Window>

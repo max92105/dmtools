@@ -1,0 +1,26 @@
+<Window x:Class="DMTools.Pages.ArmorClassEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Armor Class" Height="175" Width="350" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="90"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Content="Label" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+        <TextBox Name="txtLabel" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="Default"/>
+
+        <Label Content="Value" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"/>
+        <TextBox Name="txtValue" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="10"/>
+
+        <Button Content="OK" Grid.Row="3" Grid.Column="1" Width="80" HorizontalAlignment="Right"
+                VerticalAlignment="Center" Click="btnOk_Click"/>
+    </Grid>
+</Window>

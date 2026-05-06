@@ -3,171 +3,304 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      mc:Ignorable="d" d:DesignHeight="720" d:DesignWidth="1280"
+      mc:Ignorable="d" d:DesignHeight="900" d:DesignWidth="1280"
       Loaded="Page_Loaded" Title="Monster Manager" >
+    <Page.Resources>
+        <Style TargetType="Label">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+    </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10*" />
-            <RowDefinition Height="90*" />
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Image Grid.Row="0" Source="/Ressource/Header.png" Stretch="Fill"/>
-        <Label Grid.Row="0" Content="Monsters" FontWeight="Bold" FontSize="50" 
-               HorizontalAlignment="Center" VerticalAlignment="top" Foreground="White"/>
-        <GroupBox Name="gbNewMonster" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
-            <Grid>
+        <!-- Header -->
+        <Grid Grid.Row="0">
+            <Image Source="/Ressource/Header.png" Stretch="Fill"/>
+            <Label Content="Monsters" FontWeight="Bold" FontSize="50" 
+                   HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White"/>
+        </Grid>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Grid Margin="10">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="5*" />
-                    <RowDefinition Height="5*" />
-                    <RowDefinition Height="5*" />
-                    <RowDefinition Height="5*" />
-                    <RowDefinition Height="5*" />
-                    <RowDefinition Height="5*" />
-                    <RowDefinition Height="5*" />
-                    <RowDefinition Height="5*" />
-                    <RowDefinition Height="60*" />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="10*"/>
-                    <ColumnDefinition Width="10*"/>
-                    <ColumnDefinition Width="35*"/>
-                    <ColumnDefinition Width="10*"/>
-                    <ColumnDefinition Width="35*"/>
-                </Grid.ColumnDefinitions>
 
-                <Button Name="btnSave" Content="Save" Grid.Row="0" Grid.Column="0" Click="btnSave_Click"/>
-                <Button Name="btnCopy" Content="Copy" Grid.Row="1" Grid.Column="0" Click="btnCopy_Click"/>
-                <Button Name="btnDelete" Content="Delete" Grid.Row="2" Grid.Column="0" Click="btnDelete_Click"/>
-                <Button Name="btnSeeHtml" Grid.Row="3" Grid.Column="0" Click="btnSeeHtml_Click">
-                    <DockPanel>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="20*"/>
-                                <ColumnDefinition Width="80*"/>
-                            </Grid.ColumnDefinitions>
-                            <Image Grid.Column="0"  Source="/Ressource/HtmlPop.png"/>
-                            <TextBlock Grid.Column="1" VerticalAlignment="Center">See StatBlock</TextBlock>
-                        </Grid>
-                    </DockPanel>
-                </Button>
+                <!-- Toolbar -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,5">
+                    <Button Name="btnSave" Content="Save" Width="80" Margin="2" Click="btnSave_Click"/>
+                    <Button Name="btnCopy" Content="Copy" Width="80" Margin="2" Click="btnCopy_Click"/>
+                    <Button Name="btnDelete" Content="Delete" Width="80" Margin="2" Click="btnDelete_Click"/>
+                    <Button Name="btnSeeHtml" Width="120" Margin="2" Click="btnSeeHtml_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Ressource/HtmlPop.png" Width="16" Height="16"/>
+                            <TextBlock Text="See StatBlock" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
 
-                <Label Content="Name" Grid.Row="0" Grid.Column="1"/>
-                <TextBox Name="txtName" Text="{Binding Monster.Name}" Grid.Row="0" Grid.Column="2"/>
+                <!-- Basic Info -->
+                <GroupBox Grid.Row="1" Header="Basic Information" Margin="0,5">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                <Label Content="Size" Grid.Row="0" Grid.Column="3"/>
-                <TextBox Name="txtSize" Text="{Binding Monster.Size}" Grid.Row="0" Grid.Column="4"/>
+                        <Label Content="Name" Grid.Row="0" Grid.Column="0"/>
+                        <TextBox Text="{Binding Monster.Name}" Grid.Row="0" Grid.Column="1"/>
 
-                <Label Content="Type" Grid.Row="1" Grid.Column="1"/>
-                <TextBox Name="txtType" Text="{Binding Monster.Type}" Grid.Row="1" Grid.Column="2" />
+                        <Label Content="Size" Grid.Row="0" Grid.Column="2"/>
+                        <ComboBox Name="cboSize" SelectedItem="{Binding Monster.Size}" Grid.Row="0" Grid.Column="3"/>
 
-                <Label Content="SubType" Grid.Row="1" Grid.Column="3"/>
-                <TextBox Name="txtSubType" Text="{Binding Monster.Subtype}" Grid.Row="1" Grid.Column="4"/>
+                        <Label Content="Challenge" Grid.Row="0" Grid.Column="4"/>
+                        <TextBox Text="{Binding Monster.ChallengeRating}" Grid.Row="0" Grid.Column="5"/>
 
-                <Label Content="Alignment" Grid.Row="2" Grid.Column="1"/>
-                <TextBox Name="txtAlignment" Text="{Binding Monster.Alignment}" Grid.Row="2" Grid.Column="2"/>
+                        <Label Content="Type" Grid.Row="1" Grid.Column="0"/>
+                        <ComboBox Name="cboType" SelectedItem="{Binding Monster.Type}" Grid.Row="1" Grid.Column="1" IsEditable="True"/>
 
-                <Label Content="Armor Class" Grid.Row="2" Grid.Column="3"/>
-                <TextBox Name="txtArmorClass" Text="{Binding Monster.ArmorClass}" Grid.Row="2" Grid.Column="4"/>
+                        <Label Content="Subtype" Grid.Row="1" Grid.Column="2"/>
+                        <ComboBox Name="cboSubtype" SelectedItem="{Binding Monster.Subtype}" Grid.Row="1" Grid.Column="3" IsEditable="True"/>
 
-                <Label Content="Hit Points" Grid.Row="3" Grid.Column="1"/>
-                <TextBox Name="txtHitPoints" Text="{Binding Monster.HitPoints}" Grid.Row="3" Grid.Column="2"/>
+                        <Label Content="Alignment" Grid.Row="1" Grid.Column="4"/>
+                        <ComboBox Name="cboAlignment" SelectedItem="{Binding Monster.Alignment}" Grid.Row="1" Grid.Column="5" IsEditable="True"/>
 
-                <Label Content="Hit Dice" Grid.Row="3" Grid.Column="3"/>
-                <TextBox Name="txtHitDice" Text="{Binding Monster.HitDice}" Grid.Row="3" Grid.Column="4"/>
+                        <Label Content="Hit Points" Grid.Row="2" Grid.Column="0"/>
+                        <TextBox Text="{Binding Monster.HitPoints}" Grid.Row="2" Grid.Column="1"/>
+                    </Grid>
+                </GroupBox>
 
-                <Label Content="Speed" Grid.Row="4" Grid.Column="1"/>
-                <TextBox Name="txtSpeed" Text="{Binding Monster.Speed}" Grid.Row="4" Grid.Column="2"/>
+                <!-- AC, Speeds, Senses -->
+                <GroupBox Grid.Row="2" Header="Combat Stats" Margin="0,5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                <Label Content="Condition Immunity" Grid.Row="4" Grid.Column="3"/>
-                <TextBox Name="txtConditionImmunity" Text="{Binding Monster.ConditionImmunities}" Grid.Row="4" Grid.Column="4"/>
+                        <!-- Armor Class -->
+                        <GroupBox Header="Armor Class" Grid.Column="0" Margin="2">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="30"/>
+                                </Grid.RowDefinitions>
+                                <ListBox Name="lbArmorClass" ItemsSource="{Binding ArmorClassEntries}" DisplayMemberPath="Display" 
+                                         Grid.Row="0" MinHeight="80"/>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                    <Button Content="Add" Width="60" Margin="2" Click="btnAddAc_Click"/>
+                                    <Button Content="Remove" Width="60" Margin="2" Click="btnRemoveAc_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
 
-                <Label Content="Damage Vulnerability" Grid.Row="5" Grid.Column="1"/>
-                <TextBox Name="txtDamageVulnerability" Text="{Binding Monster.DamageVulnerabilities}" Grid.Row="5" Grid.Column="2"/>
+                        <!-- Speeds -->
+                        <GroupBox Header="Speed" Grid.Column="1" Margin="2">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="30"/>
+                                </Grid.RowDefinitions>
+                                <ListBox Name="lbSpeeds" ItemsSource="{Binding Speeds}" DisplayMemberPath="Display" 
+                                         Grid.Row="0" MinHeight="80"/>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                    <Button Content="Add" Width="60" Margin="2" Click="btnAddSpeed_Click"/>
+                                    <Button Content="Remove" Width="60" Margin="2" Click="btnRemoveSpeed_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
 
-                <Label Content="Damage Resistance" Grid.Row="5" Grid.Column="3"/>
-                <TextBox Name="txtDamageResistance" Text="{Binding Monster.DamageResistances}" Grid.Row="5" Grid.Column="4"/>
+                        <!-- Senses -->
+                        <GroupBox Header="Senses" Grid.Column="2" Margin="2">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="30"/>
+                                </Grid.RowDefinitions>
+                                <ListBox Name="lbSenses" ItemsSource="{Binding Senses}" DisplayMemberPath="Display" 
+                                         Grid.Row="0" MinHeight="80"/>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                    <Button Content="Add" Width="60" Margin="2" Click="btnAddSense_Click"/>
+                                    <Button Content="Remove" Width="60" Margin="2" Click="btnRemoveSense_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
 
-                <Label Content="Damage Immunity" Grid.Row="6" Grid.Column="1"/>
-                <TextBox Name="txtDamageImmunity" Text="{Binding Monster.DamageImmunities}" Grid.Row="6" Grid.Column="2"/>
+                <!-- Damage Modifiers, Condition Immunities, Languages -->
+                <GroupBox Grid.Row="3" Header="Defenses &amp; Languages" Margin="0,5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                <Label Content="Challenge Rating" Grid.Row="6" Grid.Column="3"/>
-                <TextBox Name="txtChallengeRating" Text="{Binding Monster.ChallengeRating}" Grid.Row="6" Grid.Column="4"/>
+                        <!-- Damage Modifiers -->
+                        <GroupBox Header="Damage Modifiers (Homebrew)" Grid.Column="0" Margin="2">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="30"/>
+                                </Grid.RowDefinitions>
+                                <ListBox Name="lbDamageModifiers" ItemsSource="{Binding DamageModifiers}" DisplayMemberPath="Display" 
+                                         Grid.Row="0" MinHeight="100"/>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                    <Button Content="Add" Width="60" Margin="2" Click="btnAddDamageModifier_Click"/>
+                                    <Button Content="Remove" Width="60" Margin="2" Click="btnRemoveDamageModifier_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
 
-                <Label Content="Senses" Grid.Row="7" Grid.Column="1"/>
-                <TextBox Name="txtSenses" Text="{Binding Monster.Senses}" Grid.Row="7" Grid.Column="2"/>
+                        <!-- Condition Immunities -->
+                        <GroupBox Header="Condition Immunities" Grid.Column="1" Margin="2">
+                            <ListBox Name="lbConditionImmunities" MinHeight="100" SelectionMode="Multiple"
+                                     SelectionChanged="lbConditionImmunities_SelectionChanged"/>
+                        </GroupBox>
 
-                <Label Content="Language" Grid.Row="7" Grid.Column="3"/>
-                <TextBox Name="txtLanguages" Text="{Binding Monster.Languages}" Grid.Row="7" Grid.Column="4"/>
+                        <!-- Languages -->
+                        <GroupBox Header="Languages" Grid.Column="2" Margin="2">
+                            <ListBox Name="lbLanguages" MinHeight="100" SelectionMode="Multiple"
+                                     SelectionChanged="lbLanguages_SelectionChanged"/>
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
 
-                <Grid Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="5">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="7*" />
-                        <RowDefinition Height="7*" />
-                        <RowDefinition Height="7*" />
-                        <RowDefinition Height="7*" />
-                        <RowDefinition Height="65*" />
-                        <RowDefinition Height="7*" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="10*"/>
-                        <ColumnDefinition Width="10*"/>
-                        <ColumnDefinition Width="10*"/>
-                        <ColumnDefinition Width="10*"/>
-                        <ColumnDefinition Width="10*"/>
-                        <ColumnDefinition Width="10*"/>
-                        <ColumnDefinition Width="10*"/>
-                        <ColumnDefinition Width="10*"/>
-                        <ColumnDefinition Width="10*"/>
-                        <ColumnDefinition Width="10*"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="Score" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left"/>
-                    <Label Content="Save" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left"/>
+                <!-- Characteristics -->
+                <GroupBox Grid.Row="4" Header="Ability Scores" Margin="0,5">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                    <Label Content="Strength" Grid.Row="0" Grid.Column="2"/>
-                    <TextBox Name="txtStrength" Text="{Binding Strength.Score}" Grid.Row="1" Grid.Column="2"/>
-                    <TextBox Name="txtStrengthSave" Text="{Binding Strength.Save}" Grid.Row="2" Grid.Column="2"/>
+                        <Label Content="" Grid.Row="0" Grid.Column="0"/>
+                        <Label Content="STR" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
+                        <Label Content="DEX" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"/>
+                        <Label Content="CON" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Center"/>
+                        <Label Content="INT" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Center"/>
+                        <Label Content="WIS" Grid.Row="0" Grid.Column="5" HorizontalAlignment="Center"/>
+                        <Label Content="CHA" Grid.Row="0" Grid.Column="6" HorizontalAlignment="Center"/>
 
-                    <Label Content="Dexterity" Grid.Row="0" Grid.Column="3"/>
-                    <TextBox Name="txtDexterity" Text="{Binding Dexterity.Score}" Grid.Row="1" Grid.Column="3"/>
-                    <TextBox Name="txtDexteritySave" Text="{Binding Dexterity.Save}" Grid.Row="2" Grid.Column="3"/>
+                        <Label Content="Score" Grid.Row="1" Grid.Column="0"/>
+                        <TextBox Text="{Binding Strength.Score}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch"/>
+                        <TextBox Text="{Binding Dexterity.Score}" Grid.Row="1" Grid.Column="2"/>
+                        <TextBox Text="{Binding Constitution.Score}" Grid.Row="1" Grid.Column="3"/>
+                        <TextBox Text="{Binding Intelligence.Score}" Grid.Row="1" Grid.Column="4"/>
+                        <TextBox Text="{Binding Wisdom.Score}" Grid.Row="1" Grid.Column="5"/>
+                        <TextBox Text="{Binding Charisma.Score}" Grid.Row="1" Grid.Column="6"/>
 
-                    <Label Content="Constitution" Grid.Row="0" Grid.Column="4"/>
-                    <TextBox Name="txtConstitution" Text="{Binding Constitution.Score}" Grid.Row="1" Grid.Column="4"/>
-                    <TextBox Name="txtConstitutionSave" Text="{Binding Constitution.Save}" Grid.Row="2" Grid.Column="4"/>
+                        <Label Content="Save" Grid.Row="2" Grid.Column="0"/>
+                        <TextBox Text="{Binding Strength.Save}" Grid.Row="2" Grid.Column="1"/>
+                        <TextBox Text="{Binding Dexterity.Save}" Grid.Row="2" Grid.Column="2"/>
+                        <TextBox Text="{Binding Constitution.Save}" Grid.Row="2" Grid.Column="3"/>
+                        <TextBox Text="{Binding Intelligence.Save}" Grid.Row="2" Grid.Column="4"/>
+                        <TextBox Text="{Binding Wisdom.Save}" Grid.Row="2" Grid.Column="5"/>
+                        <TextBox Text="{Binding Charisma.Save}" Grid.Row="2" Grid.Column="6"/>
+                    </Grid>
+                </GroupBox>
 
-                    <Label Content="Intelligence" Grid.Row="0" Grid.Column="5"/>
-                    <TextBox Name="txtIntelligence" Text="{Binding Intelligence.Score}" Grid.Row="1" Grid.Column="5"/>
-                    <TextBox Name="txtIntelligenceSave" Text="{Binding Intelligence.Save}" Grid.Row="2" Grid.Column="5"/>
+                <!-- Skills, Special Abilities, Actions -->
+                <GroupBox Grid.Row="5" Header="Abilities" Margin="0,5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                    <Label Content="Wisdom" Grid.Row="0" Grid.Column="6"/>
-                    <TextBox Name="txtWisdom" Text="{Binding Wisdom.Score}" Grid.Row="1" Grid.Column="6"/>
-                    <TextBox Name="txtWisdomSave" Text="{Binding Wisdom.Save}" Grid.Row="2" Grid.Column="6"/>
+                        <!-- Skills -->
+                        <GroupBox Header="Skills" Grid.Column="0" Margin="2">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="30"/>
+                                </Grid.RowDefinitions>
+                                <ListBox Name="lbDisplaySkill" ItemsSource="{Binding DisplaySkills}" DisplayMemberPath="Name"
+                                         SelectedItem="{Binding Path=SelectedSkill, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                         Grid.Row="0" MinHeight="150"/>
+                                <Button Name="btnEditSkills" Content="Edit" Grid.Row="1" Width="80" HorizontalAlignment="Left" Margin="2" Click="btnEditSkills_Click"/>
+                            </Grid>
+                        </GroupBox>
 
-                    <Label Content="Charisma" Grid.Row="0" Grid.Column="7"/>
-                    <TextBox Name="txtCharisma" Text="{Binding Charisma.Score}" Grid.Row="1" Grid.Column="7"/>
-                    <TextBox Name="txtCharismaSave" Text="{Binding Charisma.Save}" Grid.Row="2" Grid.Column="7"/>
+                        <!-- Special Abilities -->
+                        <GroupBox Header="Special Abilities" Grid.Column="1" Margin="2">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="30"/>
+                                </Grid.RowDefinitions>
+                                <ListBox ItemsSource="{Binding SpecialAbilities}" DisplayMemberPath="Name"
+                                         SelectedItem="{Binding Path=SelectedSpecialAbility, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                         Grid.Row="0" MinHeight="150"/>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                    <Button Content="New" Width="60" Margin="2" Click="btnNewSpecialAbilities_Click"/>
+                                    <Button Content="Edit" Width="60" Margin="2" Click="btnEditSpecialAbilities_Click"/>
+                                    <Button Content="Delete" Width="60" Margin="2" Click="btnDeleteSpecialAbilities_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
 
-                    <Label Content="Skills" Grid.Row="3" Grid.Column="1"/>
-                    <ListBox Name="lbDisplaySkill" DisplayMemberPath="Name" SelectedItem="{Binding Path=SelectedSkill,
-                                RelativeSource={RelativeSource AncestorType={x:Type Page}}}" ItemsSource="{Binding DisplaySkills}" 
-                                     Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3"/>
-                    <Button Name="btnEditSkills" Content="Edit" Grid.Row="5" Grid.Column="1" Click="btnEditSkills_Click"/>
-
-                    <Label Content="Special Abilities" Grid.Row="3" Grid.Column="4"/>
-                    <ListBox ItemsSource="{Binding SpecialAbilities}" Grid.Row="4" Grid.Column="4" Grid.ColumnSpan="3" DisplayMemberPath="Name"  SelectedItem="{Binding Path=SelectedSpecialAbility,
-                                RelativeSource={RelativeSource AncestorType={x:Type Page}}}"/>
-                    <Button Name="btnNewSpecialAbilities" Content="New" Grid.Row="5" Grid.Column="4" Click="btnNewSpecialAbilities_Click"/>
-                    <Button Name="btnEditSpecialAbilities" Content="Edit" Grid.Row="5" Grid.Column="5" Click="btnEditSpecialAbilities_Click"/>
-                    <Button Name="btnDeleteSpecialAbilities" Content="Delete" Grid.Row="5" Grid.Column="6" Click="btnDeleteSpecialAbilities_Click"/>
-
-                    <Label Content="Actions" Grid.Row="3" Grid.Column="7"/>
-                    <ListBox ItemsSource="{Binding Actions}" Grid.Row="4" Grid.Column="7" Grid.ColumnSpan="3"  DisplayMemberPath="Name"  SelectedItem="{Binding Path=SelectedAction,
-                                RelativeSource={RelativeSource AncestorType={x:Type Page}}}"/>
-                    <Button Name="btnNewActions" Content="New" Grid.Row="5" Grid.Column="7" Click="btnNewActions_Click"/>
-                    <Button Name="btnEditActions" Content="Edit" Grid.Row="5" Grid.Column="8" Click="btnEditActions_Click"/>
-                    <Button Name="btnDeleteActions" Content="Delete" Grid.Row="5" Grid.Column="9" Click="btnDeleteActions_Click"/>
-                </Grid>
+                        <!-- Actions -->
+                        <GroupBox Header="Actions" Grid.Column="2" Margin="2">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="30"/>
+                                </Grid.RowDefinitions>
+                                <ListBox ItemsSource="{Binding Actions}" DisplayMemberPath="Name"
+                                         SelectedItem="{Binding Path=SelectedAction, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
+                                         Grid.Row="0" MinHeight="150"/>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                    <Button Content="New" Width="60" Margin="2" Click="btnNewActions_Click"/>
+                                    <Button Content="Edit" Width="60" Margin="2" Click="btnEditActions_Click"/>
+                                    <Button Content="Delete" Width="60" Margin="2" Click="btnDeleteActions_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
             </Grid>
-        </GroupBox>
+        </ScrollViewer>
     </Grid>
 </Page>
