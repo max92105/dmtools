@@ -20,6 +20,7 @@ namespace DMTools.Pages
         {
             InitializeComponent();
             Title = title;
+            lblHeader.Text = title;
             cboType.ItemsSource = types;
             if (types.Length > 0)
                 cboType.SelectedIndex = 0;
@@ -28,6 +29,12 @@ namespace DMTools.Pages
         private void btnOk_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
+            Close();
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
             Close();
         }
     }

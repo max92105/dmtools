@@ -114,6 +114,7 @@
     <Compile Include="Factories\ArmorClassEntryFactory.cs" />
     <Compile Include="Factories\DamageModifierFactory.cs" />
     <Compile Include="Factories\EncounterEntryFactory.cs" />
+    <Compile Include="Factories\InitiativeStateFactory.cs" />
     <Compile Include="Factories\EncounterFactory.cs" />
     <Compile Include="Factories\FactoryBase.cs" />
     <Compile Include="Factories\PlayerCharacterFactory.cs" />

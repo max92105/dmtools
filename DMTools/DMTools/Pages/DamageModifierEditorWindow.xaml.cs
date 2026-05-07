@@ -54,16 +54,18 @@ namespace DMTools.Pages
         private void cboModifierType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             bool isImmunity = cboModifierType.SelectedItem as string == "Immunity";
-            var hidden = isImmunity ? Visibility.Collapsed : Visibility.Visible;
-            lblDiceCount.Visibility = hidden;
-            txtDiceCount.Visibility = hidden;
-            lblDiceSize.Visibility = hidden;
-            cboDiceSize.Visibility = hidden;
+            pnlDice.Visibility = isImmunity ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void btnOk_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
+            Close();
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
             Close();
         }
     }

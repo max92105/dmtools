@@ -1,306 +1,989 @@
-﻿<Page x:Class="DMTools.Pages.MonsterEditionPage"
+<Page x:Class="DMTools.Pages.MonsterEditionPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:conv="clr-namespace:DMTools.Converters"
       mc:Ignorable="d" d:DesignHeight="900" d:DesignWidth="1280"
-      Loaded="Page_Loaded" Title="Monster Manager" >
+      Loaded="Page_Loaded" Title="Monster Edition"
+      Background="#F2080000">
+
     <Page.Resources>
-        <Style TargetType="Label">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+        <conv:ScoreToModifierConverter    x:Key="ScoreMod"/>
+        <conv:IsZeroToVisibilityConverter x:Key="IsZeroVis"/>
+        <conv:ZeroToEmptyStringConverter  x:Key="ZeroToEmpty"/>
+        <conv:CrToProficiencyConverter    x:Key="CrToProf"/>
+
+        <!-- Slim scrollbar -->
+        <Style x:Key="SlimScroll" TargetType="ScrollBar">
+            <Setter Property="Width" Value="4"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Height="0" Opacity="0"
+                                                  Background="Transparent" BorderThickness="0"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Background="#77E69A28" CornerRadius="2" Margin="1,3"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Height="0" Opacity="0"
+                                                  Background="Transparent" BorderThickness="0"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
-        <Style TargetType="TextBox">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="2"/>
+        <Style TargetType="ScrollBar" BasedOn="{StaticResource SlimScroll}"/>
+
+        <!-- Text helpers -->
+        <Style x:Key="Lbl" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#99E69A28"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
         </Style>
-        <Style TargetType="ComboBox">
+
+        <Style x:Key="AbilityHdr" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#FFE69A28"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Margin" Value="2,4,2,6"/>
         </Style>
+
+        <Style x:Key="AbilityRowLbl" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Foreground" Value="#77E69A28"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+
+        <!-- Inputs -->
+        <Style x:Key="DarkInput" TargetType="TextBox">
+            <Setter Property="Background" Value="#44FFFFFF"/>
+            <Setter Property="Foreground" Value="#F5E6D3"/>
+            <Setter Property="BorderBrush" Value="#77E69A28"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush" Value="#E69A28"/>
+            <Setter Property="SelectionBrush" Value="#66E69A28"/>
+        </Style>
+
+        <Style x:Key="AbilityBox" TargetType="TextBox" BasedOn="{StaticResource DarkInput}">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,0"/>
+            <Setter Property="Margin" Value="3,2"/>
+            <Setter Property="MinHeight" Value="30"/>
+        </Style>
+
+        <!-- Buttons -->
+        <Style x:Key="AmberBtn" TargetType="Button">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#FFE69A28"/>
+            <Setter Property="Background" Value="#66E69A28"/>
+            <Setter Property="BorderBrush" Value="#AAE69A28"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="2"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.3"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GhostBtn" TargetType="Button" BasedOn="{StaticResource AmberBtn}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#55E69A28"/>
+            <Setter Property="Foreground" Value="#CCE6D3B8"/>
+        </Style>
+
+        <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource AmberBtn}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#55FF5555"/>
+            <Setter Property="Foreground" Value="#CCFF9999"/>
+        </Style>
+
+        <Style x:Key="SmBtn" TargetType="Button" BasedOn="{StaticResource GhostBtn}">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="9,4"/>
+        </Style>
+
+        <Style x:Key="SmDangerBtn" TargetType="Button" BasedOn="{StaticResource DangerBtn}">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="9,4"/>
+        </Style>
+
+        <Style x:Key="SmAmberBtn" TargetType="Button" BasedOn="{StaticResource AmberBtn}">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="9,4"/>
+        </Style>
+
+        <!-- Dark list -->
+        <Style x:Key="DarkList" TargetType="ListBox">
+            <Setter Property="Background" Value="#22000000"/>
+            <Setter Property="BorderBrush" Value="#55E69A28"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#F0E6D3"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="8,5"/>
+                        <Setter Property="Foreground" Value="#F0E6D3"/>
+                        <Setter Property="FontFamily" Value="Georgia"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="bd" Background="Transparent" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#22E69A28"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#44E69A28"/>
+                                            <Setter Property="Foreground" Value="#FFE69A28"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Non-editable combo -->
+        <Style x:Key="DarkCombo" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="#F0E6D3"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="MaxDropDownHeight" Value="300"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="toggleButton" Cursor="Hand"
+                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay,
+                                            RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="bd" Background="#44FFFFFF" MinHeight="32"
+                                                BorderBrush="#77E69A28" BorderThickness="1" CornerRadius="2">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="22"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Rectangle Grid.Column="0"/>
+                                                <Border Grid.Column="1" BorderBrush="#33E69A28" BorderThickness="1,0,0,0">
+                                                    <TextBlock Text="▾" Foreground="#AAE69A28" FontSize="11"
+                                                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="BorderBrush" Value="#AAE69A28"/>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#66FFFFFF"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="contentPresenter" IsHitTestVisible="False"
+                                Content="{TemplateBinding SelectionBoxItem}"
+                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   Placement="Bottom" PopupAnimation="Slide">
+                                <Border Background="#F30A0000" BorderBrush="#88E69A28" BorderThickness="1" CornerRadius="2"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                        MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <ScrollViewer><ItemsPresenter/></ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="#F0E6D3"/>
+                        <Setter Property="FontFamily" Value="Georgia"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="Padding" Value="10,6"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsHighlighted" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#33E69A28"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#55E69A28"/>
+                                            <Setter Property="Foreground" Value="#FFE69A28"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Editable combo -->
+        <Style x:Key="DarkComboEditable" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="#F0E6D3"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="MaxDropDownHeight" Value="300"/>
+            <Setter Property="IsEditable" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="toggleButton" Cursor="Hand"
+                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay,
+                                            RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="bd" Background="#44FFFFFF" MinHeight="32"
+                                                BorderBrush="#77E69A28" BorderThickness="1" CornerRadius="2">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="22"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Rectangle Grid.Column="0"/>
+                                                <Border Grid.Column="1" BorderBrush="#33E69A28" BorderThickness="1,0,0,0">
+                                                    <TextBlock Text="▾" Foreground="#AAE69A28" FontSize="11"
+                                                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="BorderBrush" Value="#AAE69A28"/>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#66FFFFFF"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <TextBox x:Name="PART_EditableTextBox"
+                                     Background="Transparent" BorderThickness="0"
+                                     Foreground="#F0E6D3" FontFamily="Georgia" FontSize="12"
+                                     CaretBrush="#E69A28" SelectionBrush="#66E69A28"
+                                     Margin="8,0,26,0" VerticalAlignment="Center"
+                                     IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   Placement="Bottom" PopupAnimation="Slide">
+                                <Border Background="#F30A0000" BorderBrush="#88E69A28" BorderThickness="1" CornerRadius="2"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                        MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <ScrollViewer><ItemsPresenter/></ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="#F0E6D3"/>
+                        <Setter Property="FontFamily" Value="Georgia"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="Padding" Value="10,6"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsHighlighted" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#33E69A28"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#55E69A28"/>
+                                            <Setter Property="Foreground" Value="#FFE69A28"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Collapsible section expander -->
+        <Style x:Key="DarkExpander" TargetType="Expander">
+            <Setter Property="IsExpanded" Value="True"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <StackPanel>
+                            <!-- Section header / toggle -->
+                            <ToggleButton
+                                IsChecked="{Binding IsExpanded, Mode=TwoWay,
+                                            RelativeSource={RelativeSource TemplatedParent}}"
+                                Content="{TemplateBinding Header}"
+                                Margin="0,0,0,8"
+                                Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                HorizontalContentAlignment="Left">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock x:Name="arrow" Text="▼"
+                                                           FontFamily="Georgia" FontSize="9"
+                                                           Foreground="#88E69A28"
+                                                           VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                                <TextBlock Text="{TemplateBinding Content}"
+                                                           FontFamily="Georgia" FontSize="11" FontWeight="Bold"
+                                                           Foreground="#CCE69A28" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="False">
+                                                <Setter TargetName="arrow" Property="Text" Value="▶"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="arrow" Property="Foreground" Value="#CCE69A28"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <!-- Content -->
+                            <ContentPresenter x:Name="ExpanderContent"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="False">
+                                <Setter TargetName="ExpanderContent" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>
+            <RowDefinition Height="64"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Grid Grid.Row="0">
-            <Image Source="/Ressource/Header.png" Stretch="Fill"/>
-            <Label Content="Monsters" FontWeight="Bold" FontSize="50" 
-                   HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White"/>
-        </Grid>
+        <!-- ── Header ─────────────────────────────────────────────────── -->
+        <Border Grid.Row="0" Background="#F50A0000"
+                BorderBrush="#55E69A28" BorderThickness="0,0,0,1">
+            <TextBlock Text="Monster Edition"
+                       FontFamily="Georgia" FontSize="24" FontStyle="Italic"
+                       Foreground="#FFE69A28" VerticalAlignment="Center" Margin="24,0,0,0"/>
+        </Border>
 
-        <!-- Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <Grid Margin="10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+        <!-- ── Action bar ─────────────────────────────────────────────── -->
+        <Border Grid.Row="1" Background="#F50A0000"
+                BorderBrush="#33E69A28" BorderThickness="0,0,0,1" Padding="16,10">
+            <StackPanel Orientation="Horizontal">
+                <Button Name="btnSave"    Content="Save"       Style="{StaticResource AmberBtn}"  Margin="0,0,8,0" Click="btnSave_Click"/>
+                <Button Name="btnCopy"    Content="Copy"       Style="{StaticResource GhostBtn}"  Margin="0,0,8,0" Click="btnCopy_Click"/>
+                <Button Name="btnDelete"  Content="Delete"     Style="{StaticResource DangerBtn}" Margin="0,0,8,0" Click="btnDelete_Click"/>
+                <Button Name="btnSeeHtml" Content="Stat Block" Style="{StaticResource GhostBtn}"                   Click="btnSeeHtml_Click"/>
+            </StackPanel>
+        </Border>
 
-                <!-- Toolbar -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,5">
-                    <Button Name="btnSave" Content="Save" Width="80" Margin="2" Click="btnSave_Click"/>
-                    <Button Name="btnCopy" Content="Copy" Width="80" Margin="2" Click="btnCopy_Click"/>
-                    <Button Name="btnDelete" Content="Delete" Width="80" Margin="2" Click="btnDelete_Click"/>
-                    <Button Name="btnSeeHtml" Width="120" Margin="2" Click="btnSeeHtml_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="/Ressource/HtmlPop.png" Width="16" Height="16"/>
-                            <TextBlock Text="See StatBlock" VerticalAlignment="Center" Margin="4,0,0,0"/>
+        <!-- ── Content ────────────────────────────────────────────────── -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="20,16,20,28">
+
+                <!-- ══ BASIC INFORMATION ════════════════════════════════ -->
+                <Expander Header="BASIC INFORMATION" Style="{StaticResource DarkExpander}">
+                    <Border Background="#0DFFFFFF" BorderBrush="#33E69A28" BorderThickness="1" CornerRadius="3" Padding="14,12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="12"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="10"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Row 0: Name · Size · CR -->
+                            <StackPanel Grid.Row="0" Grid.Column="0">
+                                <TextBlock Text="NAME" Style="{StaticResource Lbl}"/>
+                                <TextBox Text="{Binding Monster.Name}" Style="{StaticResource DarkInput}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="0" Grid.Column="2">
+                                <TextBlock Text="SIZE" Style="{StaticResource Lbl}"/>
+                                <ComboBox Name="cboSize" SelectedItem="{Binding Monster.Size}"
+                                          Style="{StaticResource DarkCombo}"/>
+                            </StackPanel>
+                            <!-- CR + Prof. Bonus side by side -->
+                            <Grid Grid.Row="0" Grid.Column="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="68"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="CHALLENGE RATING" Style="{StaticResource Lbl}"/>
+                                    <TextBox Text="{Binding Monster.ChallengeRating}" Style="{StaticResource DarkInput}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="PROF. BONUS" Style="{StaticResource Lbl}"/>
+                                    <Grid>
+                                        <TextBox Text="{Binding Monster.ProficiencyBonus, Converter={StaticResource ZeroToEmpty}}"
+                                                 Style="{StaticResource DarkInput}" TextAlignment="Center"/>
+                                        <TextBlock IsHitTestVisible="False"
+                                                   Text="{Binding Monster.ChallengeRating, Converter={StaticResource CrToProf}}"
+                                                   Visibility="{Binding Monster.ProficiencyBonus, Converter={StaticResource IsZeroVis}}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   FontFamily="Georgia" FontSize="11" FontStyle="Italic" Foreground="#55E69A28"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Row 2: Type · Subtype · Alignment -->
+                            <StackPanel Grid.Row="2" Grid.Column="0">
+                                <TextBlock Text="TYPE" Style="{StaticResource Lbl}"/>
+                                <ComboBox Name="cboType" SelectedItem="{Binding Monster.Type}"
+                                          Style="{StaticResource DarkComboEditable}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" Grid.Column="2">
+                                <TextBlock Text="SUBTYPE" Style="{StaticResource Lbl}"/>
+                                <ComboBox Name="cboSubtype" SelectedItem="{Binding Monster.Subtype}"
+                                          Style="{StaticResource DarkComboEditable}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" Grid.Column="4">
+                                <TextBlock Text="ALIGNMENT" Style="{StaticResource Lbl}"/>
+                                <ComboBox Name="cboAlignment" SelectedItem="{Binding Monster.Alignment}"
+                                          Style="{StaticResource DarkComboEditable}"/>
+                            </StackPanel>
+
+                            <!-- Row 4: Languages (full width, bounded height + scrollbar) -->
+                            <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="LANGUAGES" Style="{StaticResource Lbl}"/>
+                                <ListBox Name="lbLanguages" Grid.Row="1"
+                                         SelectionMode="Multiple"
+                                         Style="{StaticResource DarkList}"
+                                         MaxHeight="110"
+                                         SelectionChanged="lbLanguages_SelectionChanged"/>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Expander>
+
+                <!-- ══ COMBAT STATS ══════════════════════════════════════ -->
+                <Expander Header="COMBAT STATS" Style="{StaticResource DarkExpander}">
+                    <Border Background="#0DFFFFFF" BorderBrush="#33E69A28" BorderThickness="1" CornerRadius="3" Padding="14,12">
+                        <StackPanel>
+                            <!-- HP -->
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="HIT POINTS" Style="{StaticResource Lbl}"
+                                           VerticalAlignment="Center" Margin="0,0,10,3"/>
+                                <TextBox Grid.Column="1" Text="{Binding Monster.HitPoints}" Style="{StaticResource DarkInput}"/>
+                            </Grid>
+                            <!-- AC / Speed / Senses -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="8"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="ARMOR CLASS" Style="{StaticResource Lbl}" Margin="0,0,0,6"/>
+                                    <ListBox Name="lbArmorClass" Grid.Row="1"
+                                             ItemsSource="{Binding ArmorClassEntries}" DisplayMemberPath="Display"
+                                             Style="{StaticResource DarkList}" MinHeight="70" MaxHeight="150"/>
+                                    <StackPanel Grid.Row="3" Orientation="Horizontal">
+                                        <Button Content="+ Add"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnAddAc_Click"/>
+                                        <Button Content="Remove" Style="{StaticResource SmBtn}"      Click="btnRemoveAc_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Column="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="8"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="SPEED" Style="{StaticResource Lbl}" Margin="0,0,0,6"/>
+                                    <ListBox Name="lbSpeeds" Grid.Row="1"
+                                             ItemsSource="{Binding Speeds}" DisplayMemberPath="Display"
+                                             Style="{StaticResource DarkList}" MinHeight="70" MaxHeight="150"/>
+                                    <StackPanel Grid.Row="3" Orientation="Horizontal">
+                                        <Button Content="+ Add"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnAddSpeed_Click"/>
+                                        <Button Content="Remove" Style="{StaticResource SmBtn}"      Click="btnRemoveSpeed_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid Grid.Column="4">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="8"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="SENSES" Style="{StaticResource Lbl}" Margin="0,0,0,6"/>
+                                    <ListBox Name="lbSenses" Grid.Row="1"
+                                             ItemsSource="{Binding Senses}" DisplayMemberPath="Display"
+                                             Style="{StaticResource DarkList}" MinHeight="70" MaxHeight="150"/>
+                                    <StackPanel Grid.Row="3" Orientation="Horizontal">
+                                        <Button Content="+ Add"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnAddSense_Click"/>
+                                        <Button Content="Remove" Style="{StaticResource SmBtn}"      Click="btnRemoveSense_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
                         </StackPanel>
-                    </Button>
-                </StackPanel>
+                    </Border>
+                </Expander>
 
-                <!-- Basic Info -->
-                <GroupBox Grid.Row="1" Header="Basic Information" Margin="0,5">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="30"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Label Content="Name" Grid.Row="0" Grid.Column="0"/>
-                        <TextBox Text="{Binding Monster.Name}" Grid.Row="0" Grid.Column="1"/>
-
-                        <Label Content="Size" Grid.Row="0" Grid.Column="2"/>
-                        <ComboBox Name="cboSize" SelectedItem="{Binding Monster.Size}" Grid.Row="0" Grid.Column="3"/>
-
-                        <Label Content="Challenge" Grid.Row="0" Grid.Column="4"/>
-                        <TextBox Text="{Binding Monster.ChallengeRating}" Grid.Row="0" Grid.Column="5"/>
-
-                        <Label Content="Type" Grid.Row="1" Grid.Column="0"/>
-                        <ComboBox Name="cboType" SelectedItem="{Binding Monster.Type}" Grid.Row="1" Grid.Column="1" IsEditable="True"/>
-
-                        <Label Content="Subtype" Grid.Row="1" Grid.Column="2"/>
-                        <ComboBox Name="cboSubtype" SelectedItem="{Binding Monster.Subtype}" Grid.Row="1" Grid.Column="3" IsEditable="True"/>
-
-                        <Label Content="Alignment" Grid.Row="1" Grid.Column="4"/>
-                        <ComboBox Name="cboAlignment" SelectedItem="{Binding Monster.Alignment}" Grid.Row="1" Grid.Column="5" IsEditable="True"/>
-
-                        <Label Content="Hit Points" Grid.Row="2" Grid.Column="0"/>
-                        <TextBox Text="{Binding Monster.HitPoints}" Grid.Row="2" Grid.Column="1"/>
-                    </Grid>
-                </GroupBox>
-
-                <!-- AC, Speeds, Senses -->
-                <GroupBox Grid.Row="2" Header="Combat Stats" Margin="0,5">
+                <!-- ══ DEFENSES & IMMUNITIES ════════════════════════════ -->
+                <Expander Header="DEFENSES &amp; IMMUNITIES" Style="{StaticResource DarkExpander}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-
-                        <!-- Armor Class -->
-                        <GroupBox Header="Armor Class" Grid.Column="0" Margin="2">
+                        <Border Grid.Column="0" Background="#0DFFFFFF" BorderBrush="#33E69A28" BorderThickness="1" CornerRadius="3" Padding="12,10">
                             <Grid>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
-                                    <RowDefinition Height="30"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <ListBox Name="lbArmorClass" ItemsSource="{Binding ArmorClassEntries}" DisplayMemberPath="Display" 
-                                         Grid.Row="0" MinHeight="80"/>
-                                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                    <Button Content="Add" Width="60" Margin="2" Click="btnAddAc_Click"/>
-                                    <Button Content="Remove" Width="60" Margin="2" Click="btnRemoveAc_Click"/>
+                                <TextBlock Grid.Row="0" Text="DAMAGE MODIFIERS (HOMEBREW)" Style="{StaticResource Lbl}" Margin="0,0,0,6"/>
+                                <ListBox Name="lbDamageModifiers" Grid.Row="1"
+                                         ItemsSource="{Binding DamageModifiers}" DisplayMemberPath="Display"
+                                         Style="{StaticResource DarkList}" MinHeight="90" MaxHeight="180"/>
+                                <StackPanel Grid.Row="3" Orientation="Horizontal">
+                                    <Button Content="+ Add"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnAddDamageModifier_Click"/>
+                                    <Button Content="Remove" Style="{StaticResource SmBtn}"      Click="btnRemoveDamageModifier_Click"/>
                                 </StackPanel>
                             </Grid>
-                        </GroupBox>
-
-                        <!-- Speeds -->
-                        <GroupBox Header="Speed" Grid.Column="1" Margin="2">
+                        </Border>
+                        <Border Grid.Column="2" Background="#0DFFFFFF" BorderBrush="#33E69A28" BorderThickness="1" CornerRadius="3" Padding="12,10">
                             <Grid>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
-                                    <RowDefinition Height="30"/>
                                 </Grid.RowDefinitions>
-                                <ListBox Name="lbSpeeds" ItemsSource="{Binding Speeds}" DisplayMemberPath="Display" 
-                                         Grid.Row="0" MinHeight="80"/>
-                                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                    <Button Content="Add" Width="60" Margin="2" Click="btnAddSpeed_Click"/>
-                                    <Button Content="Remove" Width="60" Margin="2" Click="btnRemoveSpeed_Click"/>
-                                </StackPanel>
+                                <TextBlock Grid.Row="0" Text="CONDITION IMMUNITIES" Style="{StaticResource Lbl}" Margin="0,0,0,6"/>
+                                <ListBox Name="lbConditionImmunities" Grid.Row="1"
+                                         SelectionMode="Multiple"
+                                         Style="{StaticResource DarkList}" MinHeight="90" MaxHeight="180"
+                                         SelectionChanged="lbConditionImmunities_SelectionChanged"/>
                             </Grid>
-                        </GroupBox>
-
-                        <!-- Senses -->
-                        <GroupBox Header="Senses" Grid.Column="2" Margin="2">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="30"/>
-                                </Grid.RowDefinitions>
-                                <ListBox Name="lbSenses" ItemsSource="{Binding Senses}" DisplayMemberPath="Display" 
-                                         Grid.Row="0" MinHeight="80"/>
-                                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                    <Button Content="Add" Width="60" Margin="2" Click="btnAddSense_Click"/>
-                                    <Button Content="Remove" Width="60" Margin="2" Click="btnRemoveSense_Click"/>
-                                </StackPanel>
-                            </Grid>
-                        </GroupBox>
+                        </Border>
                     </Grid>
-                </GroupBox>
+                </Expander>
 
-                <!-- Damage Modifiers, Condition Immunities, Languages -->
-                <GroupBox Grid.Row="3" Header="Defenses &amp; Languages" Margin="0,5">
+                <!-- ══ ABILITY SCORES ════════════════════════════════════ -->
+                <Expander Header="ABILITY SCORES" Style="{StaticResource DarkExpander}">
+                    <Border Background="#0DFFFFFF" BorderBrush="#33E69A28" BorderThickness="1" CornerRadius="3" Padding="14,12">
+                        <StackPanel>
+                            <TextBlock FontFamily="Georgia" FontSize="9" FontStyle="Italic"
+                                       Foreground="#55E69A28" Margin="0,0,0,10"
+                                       Text="Saves: blank = ability mod  ·  P = proficiency (mod + PB)  ·  or type any value"/>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="4"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="52"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Stat headers -->
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="STR" Style="{StaticResource AbilityHdr}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="DEX" Style="{StaticResource AbilityHdr}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="3" Text="CON" Style="{StaticResource AbilityHdr}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="4" Text="INT" Style="{StaticResource AbilityHdr}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="5" Text="WIS" Style="{StaticResource AbilityHdr}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="6" Text="CHA" Style="{StaticResource AbilityHdr}"/>
+
+                                <!-- Scores -->
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Score" Style="{StaticResource AbilityRowLbl}"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Strength.Score}"     Style="{StaticResource AbilityBox}"/>
+                                <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Dexterity.Score}"    Style="{StaticResource AbilityBox}"/>
+                                <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding Constitution.Score}" Style="{StaticResource AbilityBox}"/>
+                                <TextBox Grid.Row="1" Grid.Column="4" Text="{Binding Intelligence.Score}" Style="{StaticResource AbilityBox}"/>
+                                <TextBox Grid.Row="1" Grid.Column="5" Text="{Binding Wisdom.Score}"       Style="{StaticResource AbilityBox}"/>
+                                <TextBox Grid.Row="1" Grid.Column="6" Text="{Binding Charisma.Score}"     Style="{StaticResource AbilityBox}"/>
+
+                                <!-- Modifiers (computed, read-only) -->
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Mod" Style="{StaticResource AbilityRowLbl}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" Margin="3,4"
+                                           Text="{Binding Strength.Score,     Converter={StaticResource ScoreMod}}"
+                                           FontFamily="Georgia" FontSize="13" FontWeight="Bold" Foreground="#CCE69A28"/>
+                                <TextBlock Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" Margin="3,4"
+                                           Text="{Binding Dexterity.Score,    Converter={StaticResource ScoreMod}}"
+                                           FontFamily="Georgia" FontSize="13" FontWeight="Bold" Foreground="#CCE69A28"/>
+                                <TextBlock Grid.Row="2" Grid.Column="3" HorizontalAlignment="Center" Margin="3,4"
+                                           Text="{Binding Constitution.Score, Converter={StaticResource ScoreMod}}"
+                                           FontFamily="Georgia" FontSize="13" FontWeight="Bold" Foreground="#CCE69A28"/>
+                                <TextBlock Grid.Row="2" Grid.Column="4" HorizontalAlignment="Center" Margin="3,4"
+                                           Text="{Binding Intelligence.Score, Converter={StaticResource ScoreMod}}"
+                                           FontFamily="Georgia" FontSize="13" FontWeight="Bold" Foreground="#CCE69A28"/>
+                                <TextBlock Grid.Row="2" Grid.Column="5" HorizontalAlignment="Center" Margin="3,4"
+                                           Text="{Binding Wisdom.Score,       Converter={StaticResource ScoreMod}}"
+                                           FontFamily="Georgia" FontSize="13" FontWeight="Bold" Foreground="#CCE69A28"/>
+                                <TextBlock Grid.Row="2" Grid.Column="6" HorizontalAlignment="Center" Margin="3,4"
+                                           Text="{Binding Charisma.Score,     Converter={StaticResource ScoreMod}}"
+                                           FontFamily="Georgia" FontSize="13" FontWeight="Bold" Foreground="#CCE69A28"/>
+
+                                <!-- Divider -->
+                                <Rectangle Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="7"
+                                           Fill="#22E69A28" Height="1" VerticalAlignment="Center"/>
+
+                                <!-- Saves — blank when 0, amber-highlighted when non-zero, modifier shown as placeholder -->
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Save" Style="{StaticResource AbilityRowLbl}"/>
+
+                                <Grid Grid.Row="4" Grid.Column="1" Margin="3,2">
+                                    <TextBox Text="{Binding Strength.Save, Converter={StaticResource ZeroToEmpty}}"
+                                             TextAlignment="Center" FontFamily="Georgia" FontSize="13" MinHeight="30"
+                                             VerticalContentAlignment="Center" CaretBrush="#E69A28" SelectionBrush="#66E69A28">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="Background"   Value="#44E69A28"/>
+                                                <Setter Property="BorderBrush"  Value="#88E69A28"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                                <Setter Property="Foreground"   Value="#F5E6D3"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Strength.Save}" Value="0">
+                                                        <Setter Property="Background"  Value="#22FFFFFF"/>
+                                                        <Setter Property="BorderBrush" Value="#33E69A28"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <TextBlock IsHitTestVisible="False"
+                                               Text="{Binding Strength.Score, Converter={StaticResource ScoreMod}}"
+                                               Visibility="{Binding Strength.Save, Converter={StaticResource IsZeroVis}}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               FontFamily="Georgia" FontSize="11" FontStyle="Italic" Foreground="#55E69A28"/>
+                                </Grid>
+
+                                <Grid Grid.Row="4" Grid.Column="2" Margin="3,2">
+                                    <TextBox Text="{Binding Dexterity.Save, Converter={StaticResource ZeroToEmpty}}"
+                                             TextAlignment="Center" FontFamily="Georgia" FontSize="13" MinHeight="30"
+                                             VerticalContentAlignment="Center" CaretBrush="#E69A28" SelectionBrush="#66E69A28">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="Background"   Value="#44E69A28"/>
+                                                <Setter Property="BorderBrush"  Value="#88E69A28"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                                <Setter Property="Foreground"   Value="#F5E6D3"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Dexterity.Save}" Value="0">
+                                                        <Setter Property="Background"  Value="#22FFFFFF"/>
+                                                        <Setter Property="BorderBrush" Value="#33E69A28"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <TextBlock IsHitTestVisible="False"
+                                               Text="{Binding Dexterity.Score, Converter={StaticResource ScoreMod}}"
+                                               Visibility="{Binding Dexterity.Save, Converter={StaticResource IsZeroVis}}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               FontFamily="Georgia" FontSize="11" FontStyle="Italic" Foreground="#55E69A28"/>
+                                </Grid>
+
+                                <Grid Grid.Row="4" Grid.Column="3" Margin="3,2">
+                                    <TextBox Text="{Binding Constitution.Save, Converter={StaticResource ZeroToEmpty}}"
+                                             TextAlignment="Center" FontFamily="Georgia" FontSize="13" MinHeight="30"
+                                             VerticalContentAlignment="Center" CaretBrush="#E69A28" SelectionBrush="#66E69A28">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="Background"   Value="#44E69A28"/>
+                                                <Setter Property="BorderBrush"  Value="#88E69A28"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                                <Setter Property="Foreground"   Value="#F5E6D3"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Constitution.Save}" Value="0">
+                                                        <Setter Property="Background"  Value="#22FFFFFF"/>
+                                                        <Setter Property="BorderBrush" Value="#33E69A28"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <TextBlock IsHitTestVisible="False"
+                                               Text="{Binding Constitution.Score, Converter={StaticResource ScoreMod}}"
+                                               Visibility="{Binding Constitution.Save, Converter={StaticResource IsZeroVis}}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               FontFamily="Georgia" FontSize="11" FontStyle="Italic" Foreground="#55E69A28"/>
+                                </Grid>
+
+                                <Grid Grid.Row="4" Grid.Column="4" Margin="3,2">
+                                    <TextBox Text="{Binding Intelligence.Save, Converter={StaticResource ZeroToEmpty}}"
+                                             TextAlignment="Center" FontFamily="Georgia" FontSize="13" MinHeight="30"
+                                             VerticalContentAlignment="Center" CaretBrush="#E69A28" SelectionBrush="#66E69A28">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="Background"   Value="#44E69A28"/>
+                                                <Setter Property="BorderBrush"  Value="#88E69A28"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                                <Setter Property="Foreground"   Value="#F5E6D3"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Intelligence.Save}" Value="0">
+                                                        <Setter Property="Background"  Value="#22FFFFFF"/>
+                                                        <Setter Property="BorderBrush" Value="#33E69A28"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <TextBlock IsHitTestVisible="False"
+                                               Text="{Binding Intelligence.Score, Converter={StaticResource ScoreMod}}"
+                                               Visibility="{Binding Intelligence.Save, Converter={StaticResource IsZeroVis}}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               FontFamily="Georgia" FontSize="11" FontStyle="Italic" Foreground="#55E69A28"/>
+                                </Grid>
+
+                                <Grid Grid.Row="4" Grid.Column="5" Margin="3,2">
+                                    <TextBox Text="{Binding Wisdom.Save, Converter={StaticResource ZeroToEmpty}}"
+                                             TextAlignment="Center" FontFamily="Georgia" FontSize="13" MinHeight="30"
+                                             VerticalContentAlignment="Center" CaretBrush="#E69A28" SelectionBrush="#66E69A28">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="Background"   Value="#44E69A28"/>
+                                                <Setter Property="BorderBrush"  Value="#88E69A28"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                                <Setter Property="Foreground"   Value="#F5E6D3"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Wisdom.Save}" Value="0">
+                                                        <Setter Property="Background"  Value="#22FFFFFF"/>
+                                                        <Setter Property="BorderBrush" Value="#33E69A28"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <TextBlock IsHitTestVisible="False"
+                                               Text="{Binding Wisdom.Score, Converter={StaticResource ScoreMod}}"
+                                               Visibility="{Binding Wisdom.Save, Converter={StaticResource IsZeroVis}}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               FontFamily="Georgia" FontSize="11" FontStyle="Italic" Foreground="#55E69A28"/>
+                                </Grid>
+
+                                <Grid Grid.Row="4" Grid.Column="6" Margin="3,2">
+                                    <TextBox Text="{Binding Charisma.Save, Converter={StaticResource ZeroToEmpty}}"
+                                             TextAlignment="Center" FontFamily="Georgia" FontSize="13" MinHeight="30"
+                                             VerticalContentAlignment="Center" CaretBrush="#E69A28" SelectionBrush="#66E69A28">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="Background"   Value="#44E69A28"/>
+                                                <Setter Property="BorderBrush"  Value="#88E69A28"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                                <Setter Property="Foreground"   Value="#F5E6D3"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Charisma.Save}" Value="0">
+                                                        <Setter Property="Background"  Value="#22FFFFFF"/>
+                                                        <Setter Property="BorderBrush" Value="#33E69A28"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <TextBlock IsHitTestVisible="False"
+                                               Text="{Binding Charisma.Score, Converter={StaticResource ScoreMod}}"
+                                               Visibility="{Binding Charisma.Save, Converter={StaticResource IsZeroVis}}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               FontFamily="Georgia" FontSize="11" FontStyle="Italic" Foreground="#55E69A28"/>
+                                </Grid>
+
+                                <!-- P (Proficiency) buttons — sets save = abilityMod + PB -->
+                                <TextBlock Grid.Row="6" Grid.Column="0" Text="Prof." Style="{StaticResource AbilityRowLbl}"/>
+                                <Button Grid.Row="6" Grid.Column="1" Content="P" Style="{StaticResource SmAmberBtn}" Margin="3,1" Padding="0,3" Click="btnProfStr_Click" ToolTip="Set STR save = mod + proficiency bonus"/>
+                                <Button Grid.Row="6" Grid.Column="2" Content="P" Style="{StaticResource SmAmberBtn}" Margin="3,1" Padding="0,3" Click="btnProfDex_Click" ToolTip="Set DEX save = mod + proficiency bonus"/>
+                                <Button Grid.Row="6" Grid.Column="3" Content="P" Style="{StaticResource SmAmberBtn}" Margin="3,1" Padding="0,3" Click="btnProfCon_Click" ToolTip="Set CON save = mod + proficiency bonus"/>
+                                <Button Grid.Row="6" Grid.Column="4" Content="P" Style="{StaticResource SmAmberBtn}" Margin="3,1" Padding="0,3" Click="btnProfInt_Click" ToolTip="Set INT save = mod + proficiency bonus"/>
+                                <Button Grid.Row="6" Grid.Column="5" Content="P" Style="{StaticResource SmAmberBtn}" Margin="3,1" Padding="0,3" Click="btnProfWis_Click" ToolTip="Set WIS save = mod + proficiency bonus"/>
+                                <Button Grid.Row="6" Grid.Column="6" Content="P" Style="{StaticResource SmAmberBtn}" Margin="3,1" Padding="0,3" Click="btnProfCha_Click" ToolTip="Set CHA save = mod + proficiency bonus"/>
+
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Expander>
+
+                <!-- ══ ABILITIES ═════════════════════════════════════════ -->
+                <Expander Header="ABILITIES" Style="{StaticResource DarkExpander}" Margin="0,0,0,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Damage Modifiers -->
-                        <GroupBox Header="Damage Modifiers (Homebrew)" Grid.Column="0" Margin="2">
+                        <Border Grid.Column="0" Background="#0DFFFFFF" BorderBrush="#33E69A28" BorderThickness="1" CornerRadius="3" Padding="12,10">
                             <Grid>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
-                                    <RowDefinition Height="30"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <ListBox Name="lbDamageModifiers" ItemsSource="{Binding DamageModifiers}" DisplayMemberPath="Display" 
-                                         Grid.Row="0" MinHeight="100"/>
-                                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                    <Button Content="Add" Width="60" Margin="2" Click="btnAddDamageModifier_Click"/>
-                                    <Button Content="Remove" Width="60" Margin="2" Click="btnRemoveDamageModifier_Click"/>
-                                </StackPanel>
-                            </Grid>
-                        </GroupBox>
-
-                        <!-- Condition Immunities -->
-                        <GroupBox Header="Condition Immunities" Grid.Column="1" Margin="2">
-                            <ListBox Name="lbConditionImmunities" MinHeight="100" SelectionMode="Multiple"
-                                     SelectionChanged="lbConditionImmunities_SelectionChanged"/>
-                        </GroupBox>
-
-                        <!-- Languages -->
-                        <GroupBox Header="Languages" Grid.Column="2" Margin="2">
-                            <ListBox Name="lbLanguages" MinHeight="100" SelectionMode="Multiple"
-                                     SelectionChanged="lbLanguages_SelectionChanged"/>
-                        </GroupBox>
-                    </Grid>
-                </GroupBox>
-
-                <!-- Characteristics -->
-                <GroupBox Grid.Row="4" Header="Ability Scores" Margin="0,5">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="30"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Label Content="" Grid.Row="0" Grid.Column="0"/>
-                        <Label Content="STR" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
-                        <Label Content="DEX" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"/>
-                        <Label Content="CON" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Center"/>
-                        <Label Content="INT" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Center"/>
-                        <Label Content="WIS" Grid.Row="0" Grid.Column="5" HorizontalAlignment="Center"/>
-                        <Label Content="CHA" Grid.Row="0" Grid.Column="6" HorizontalAlignment="Center"/>
-
-                        <Label Content="Score" Grid.Row="1" Grid.Column="0"/>
-                        <TextBox Text="{Binding Strength.Score}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch"/>
-                        <TextBox Text="{Binding Dexterity.Score}" Grid.Row="1" Grid.Column="2"/>
-                        <TextBox Text="{Binding Constitution.Score}" Grid.Row="1" Grid.Column="3"/>
-                        <TextBox Text="{Binding Intelligence.Score}" Grid.Row="1" Grid.Column="4"/>
-                        <TextBox Text="{Binding Wisdom.Score}" Grid.Row="1" Grid.Column="5"/>
-                        <TextBox Text="{Binding Charisma.Score}" Grid.Row="1" Grid.Column="6"/>
-
-                        <Label Content="Save" Grid.Row="2" Grid.Column="0"/>
-                        <TextBox Text="{Binding Strength.Save}" Grid.Row="2" Grid.Column="1"/>
-                        <TextBox Text="{Binding Dexterity.Save}" Grid.Row="2" Grid.Column="2"/>
-                        <TextBox Text="{Binding Constitution.Save}" Grid.Row="2" Grid.Column="3"/>
-                        <TextBox Text="{Binding Intelligence.Save}" Grid.Row="2" Grid.Column="4"/>
-                        <TextBox Text="{Binding Wisdom.Save}" Grid.Row="2" Grid.Column="5"/>
-                        <TextBox Text="{Binding Charisma.Save}" Grid.Row="2" Grid.Column="6"/>
-                    </Grid>
-                </GroupBox>
-
-                <!-- Skills, Special Abilities, Actions -->
-                <GroupBox Grid.Row="5" Header="Abilities" Margin="0,5">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Skills -->
-                        <GroupBox Header="Skills" Grid.Column="0" Margin="2">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="30"/>
-                                </Grid.RowDefinitions>
-                                <ListBox Name="lbDisplaySkill" ItemsSource="{Binding DisplaySkills}" DisplayMemberPath="Name"
+                                <TextBlock Grid.Row="0" Text="SKILLS" Style="{StaticResource Lbl}" Margin="0,0,0,6"/>
+                                <ListBox Name="lbDisplaySkill" Grid.Row="1"
+                                         ItemsSource="{Binding DisplaySkills}" DisplayMemberPath="Name"
                                          SelectedItem="{Binding Path=SelectedSkill, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                         Grid.Row="0" MinHeight="150"/>
-                                <Button Name="btnEditSkills" Content="Edit" Grid.Row="1" Width="80" HorizontalAlignment="Left" Margin="2" Click="btnEditSkills_Click"/>
+                                         Style="{StaticResource DarkList}" MinHeight="120" MaxHeight="240"/>
+                                <Button Name="btnEditSkills" Grid.Row="3"
+                                        Content="Edit Skills" HorizontalAlignment="Left"
+                                        Style="{StaticResource SmBtn}" Click="btnEditSkills_Click"/>
                             </Grid>
-                        </GroupBox>
+                        </Border>
 
-                        <!-- Special Abilities -->
-                        <GroupBox Header="Special Abilities" Grid.Column="1" Margin="2">
+                        <Border Grid.Column="2" Background="#0DFFFFFF" BorderBrush="#33E69A28" BorderThickness="1" CornerRadius="3" Padding="12,10">
                             <Grid>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
-                                    <RowDefinition Height="30"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <ListBox ItemsSource="{Binding SpecialAbilities}" DisplayMemberPath="Name"
+                                <TextBlock Grid.Row="0" Text="SPECIAL ABILITIES" Style="{StaticResource Lbl}" Margin="0,0,0,6"/>
+                                <ListBox Grid.Row="1"
+                                         ItemsSource="{Binding SpecialAbilities}" DisplayMemberPath="Name"
                                          SelectedItem="{Binding Path=SelectedSpecialAbility, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                         Grid.Row="0" MinHeight="150"/>
-                                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                    <Button Content="New" Width="60" Margin="2" Click="btnNewSpecialAbilities_Click"/>
-                                    <Button Content="Edit" Width="60" Margin="2" Click="btnEditSpecialAbilities_Click"/>
-                                    <Button Content="Delete" Width="60" Margin="2" Click="btnDeleteSpecialAbilities_Click"/>
+                                         Style="{StaticResource DarkList}" MinHeight="120" MaxHeight="240"/>
+                                <StackPanel Grid.Row="3" Orientation="Horizontal">
+                                    <Button Content="+ New"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnNewSpecialAbilities_Click"/>
+                                    <Button Content="Edit"   Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnEditSpecialAbilities_Click"/>
+                                    <Button Content="Delete" Style="{StaticResource SmDangerBtn}"               Click="btnDeleteSpecialAbilities_Click"/>
                                 </StackPanel>
                             </Grid>
-                        </GroupBox>
+                        </Border>
 
-                        <!-- Actions -->
-                        <GroupBox Header="Actions" Grid.Column="2" Margin="2">
+                        <Border Grid.Column="4" Background="#0DFFFFFF" BorderBrush="#33E69A28" BorderThickness="1" CornerRadius="3" Padding="12,10">
                             <Grid>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
-                                    <RowDefinition Height="30"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <ListBox ItemsSource="{Binding Actions}" DisplayMemberPath="Name"
+                                <TextBlock Grid.Row="0" Text="ACTIONS" Style="{StaticResource Lbl}" Margin="0,0,0,6"/>
+                                <ListBox Grid.Row="1"
+                                         ItemsSource="{Binding Actions}" DisplayMemberPath="Name"
                                          SelectedItem="{Binding Path=SelectedAction, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                         Grid.Row="0" MinHeight="150"/>
-                                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                    <Button Content="New" Width="60" Margin="2" Click="btnNewActions_Click"/>
-                                    <Button Content="Edit" Width="60" Margin="2" Click="btnEditActions_Click"/>
-                                    <Button Content="Delete" Width="60" Margin="2" Click="btnDeleteActions_Click"/>
+                                         Style="{StaticResource DarkList}" MinHeight="120" MaxHeight="240"/>
+                                <StackPanel Grid.Row="3" Orientation="Horizontal">
+                                    <Button Content="+ New"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnNewActions_Click"/>
+                                    <Button Content="Edit"   Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnEditActions_Click"/>
+                                    <Button Content="Delete" Style="{StaticResource SmDangerBtn}"               Click="btnDeleteActions_Click"/>
                                 </StackPanel>
                             </Grid>
-                        </GroupBox>
+                        </Border>
                     </Grid>
-                </GroupBox>
-            </Grid>
+                </Expander>
+
+            </StackPanel>
         </ScrollViewer>
     </Grid>
 </Page>

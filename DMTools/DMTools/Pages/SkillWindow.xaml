@@ -1,32 +1,272 @@
-﻿<Window x:Class="DMTools.Pages.SkillWindow"
+<Window x:Class="DMTools.Pages.SkillWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" ResizeMode="NoResize" Loaded="Window_Loaded"
-        Title="Skill Window" Height="500" Width="800">
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:conv="clr-namespace:DMTools.Converters"
+        mc:Ignorable="d"
+        Title="Skills" Height="560" Width="700"
+        ResizeMode="CanResize" Loaded="Window_Loaded"
+        Background="#F2080000">
+
+    <Window.Resources>
+        <conv:ZeroToEmptyStringConverter  x:Key="ZeroToEmpty"/>
+        <conv:IsZeroToVisibilityConverter x:Key="IsZeroVis"/>
+
+        <!-- Slim amber scrollbar -->
+        <Style x:Key="SlimScroll" TargetType="ScrollBar">
+            <Setter Property="Width" Value="4"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Height="0" Opacity="0"
+                                                  Background="Transparent" BorderThickness="0"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Background="#77E69A28" CornerRadius="2" Margin="1,3"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Height="0" Opacity="0"
+                                                  Background="Transparent" BorderThickness="0"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ScrollBar" BasedOn="{StaticResource SlimScroll}"/>
+
+        <Style x:Key="AmberBtn" TargetType="Button">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#FFE69A28"/>
+            <Setter Property="Background" Value="#66E69A28"/>
+            <Setter Property="BorderBrush" Value="#AAE69A28"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="2"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GhostBtn" TargetType="Button" BasedOn="{StaticResource AmberBtn}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#55E69A28"/>
+            <Setter Property="Foreground" Value="#CCE6D3B8"/>
+        </Style>
+
+        <!-- Per-ability badge colors -->
+        <SolidColorBrush x:Key="BrushSTR" Color="#FFCC8888"/>
+        <SolidColorBrush x:Key="BrushDEX" Color="#FF88CC88"/>
+        <SolidColorBrush x:Key="BrushINT" Color="#FF88AAEE"/>
+        <SolidColorBrush x:Key="BrushWIS" Color="#FFCC99EE"/>
+        <SolidColorBrush x:Key="BrushCHA" Color="#FFE6C46E"/>
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="90*"/>
-            <RowDefinition Height="5*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <DataGrid Name="dgmonsters" Grid.Row="0" ColumnWidth="*" 
-                              CanUserResizeColumns="False"
-                              ItemsSource="{Binding DisplaySkills}" AutoGenerateColumns="False" CanUserAddRows="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Save" Binding="{Binding Save}" IsReadOnly="False"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <!-- ── Header ──────────────────────────────────────────────── -->
+        <Border Grid.Row="0" Background="#F50A0000"
+                BorderBrush="#55E69A28" BorderThickness="0,0,0,1" Padding="20,12">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Skills"
+                           FontFamily="Georgia" FontSize="20" FontStyle="Italic"
+                           Foreground="#FFE69A28"/>
+                <TextBlock Text="  ·  set a bonus to override, leave blank to use the ability modifier"
+                           FontFamily="Georgia" FontSize="10" FontStyle="Italic"
+                           Foreground="#55E69A28" VerticalAlignment="Bottom" Margin="0,0,0,2"/>
+            </StackPanel>
+        </Border>
 
-        <!--<Label Content="Skill" Grid.Column="0" Grid.Row="0"/>
-        <ComboBox ItemsSource="{Binding SkillTypes}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Path=DisplaySkill.SkillTypeId}"
-                  SelectedItem="{Binding Path=SelectedSkillType, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Grid.Column="1" Grid.Row="0"/>
+        <!-- ── Skill list ───────────────────────────────────────────── -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="14,10,14,6">
+            <ItemsControl ItemsSource="{Binding DisplaySkills}" ButtonBase.Click="OnProfButtonClick">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="2"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="3,2" CornerRadius="2" Padding="8,5">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#0AE69A28"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="34"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="58"/>
+                                    <ColumnDefinition Width="26"/>
+                                </Grid.ColumnDefinitions>
 
-        <Label Content="Save" Grid.Column="0" Grid.Row="1"/>
-        <TextBox Text="{Binding DisplaySkill.Save}" Grid.Column="1" Grid.Row="1"/>-->
+                                <!-- Ability badge — colour-coded per ability -->
+                                <Border Grid.Column="0" CornerRadius="2" Padding="3,2"
+                                        Margin="0,0,8,0" VerticalAlignment="Center">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#22E69A28"/>
+                                            <Setter Property="BorderBrush" Value="#44E69A28"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding AbilityKey}" Value="STR">
+                                                    <Setter Property="Background" Value="#22CC8888"/>
+                                                    <Setter Property="BorderBrush" Value="#55CC8888"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding AbilityKey}" Value="DEX">
+                                                    <Setter Property="Background" Value="#2288CC88"/>
+                                                    <Setter Property="BorderBrush" Value="#5588CC88"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding AbilityKey}" Value="INT">
+                                                    <Setter Property="Background" Value="#2288AAEE"/>
+                                                    <Setter Property="BorderBrush" Value="#5588AAEE"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding AbilityKey}" Value="WIS">
+                                                    <Setter Property="Background" Value="#22CC99EE"/>
+                                                    <Setter Property="BorderBrush" Value="#55CC99EE"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding AbilityKey}" Value="CHA">
+                                                    <Setter Property="Background" Value="#22E6C46E"/>
+                                                    <Setter Property="BorderBrush" Value="#55E6C46E"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding AbilityKey}"
+                                               FontFamily="Georgia" FontSize="9" FontWeight="Bold"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#AAE69A28"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding AbilityKey}" Value="STR">
+                                                        <Setter Property="Foreground" Value="#AACC8888"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding AbilityKey}" Value="DEX">
+                                                        <Setter Property="Foreground" Value="#AA88CC88"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding AbilityKey}" Value="INT">
+                                                        <Setter Property="Foreground" Value="#AA88AAEE"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding AbilityKey}" Value="WIS">
+                                                        <Setter Property="Foreground" Value="#AACC99EE"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding AbilityKey}" Value="CHA">
+                                                        <Setter Property="Foreground" Value="#AAE6C46E"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
 
-        <Button Name="btnSave" Content="Save" Grid.Column="1" Grid.Row="2" Width="210" HorizontalAlignment="Right" Click="btnSave_Click"/>
+                                <!-- Skill name -->
+                                <TextBlock Grid.Column="1" Text="{Binding Name}"
+                                           FontFamily="Georgia" FontSize="12"
+                                           Foreground="#CCE6D3B8" VerticalAlignment="Center"/>
+
+                                <!-- Save input + default-modifier placeholder -->
+                                <Grid Grid.Column="2" Margin="0,0,2,0">
+                                    <TextBox Text="{Binding Save, Converter={StaticResource ZeroToEmpty}, UpdateSourceTrigger=LostFocus}"
+                                             TextAlignment="Center" FontFamily="Georgia" FontSize="12"
+                                             MinHeight="28" VerticalContentAlignment="Center"
+                                             CaretBrush="#E69A28" SelectionBrush="#66E69A28">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="Background"      Value="#44E69A28"/>
+                                                <Setter Property="BorderBrush"     Value="#88E69A28"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                                <Setter Property="Foreground"      Value="#F5E6D3"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Save}" Value="0">
+                                                        <Setter Property="Background"  Value="#22FFFFFF"/>
+                                                        <Setter Property="BorderBrush" Value="#33E69A28"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <!-- Default modifier shown as placeholder when Save is 0 -->
+                                    <TextBlock IsHitTestVisible="False"
+                                               Text="{Binding DefaultModifier}"
+                                               Visibility="{Binding Save, Converter={StaticResource IsZeroVis}}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               FontFamily="Georgia" FontSize="10" FontStyle="Italic"
+                                               Foreground="#55E69A28"/>
+                                </Grid>
+
+                                <!-- P: set save = abilityMod + PB -->
+                                <Button Grid.Column="3" Content="P" Tag="{Binding}"
+                                        FontFamily="Georgia" FontSize="9" FontWeight="Bold"
+                                        Foreground="#BBE69A28" Background="Transparent"
+                                        BorderBrush="#44E69A28" BorderThickness="1"
+                                        Padding="0" Margin="2,0,0,0" Cursor="Hand"
+                                        ToolTip="Apply proficiency: mod + PB">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="2">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="bd" Property="Background" Value="#33E69A28"/>
+                                                    <Setter TargetName="bd" Property="BorderBrush" Value="#88E69A28"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- ── Footer ──────────────────────────────────────────────── -->
+        <Border Grid.Row="2" Background="#F50A0000"
+                BorderBrush="#33E69A28" BorderThickness="0,1,0,0" Padding="14,10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Cancel" Style="{StaticResource GhostBtn}" Margin="0,0,8,0" Click="btnCancel_Click"/>
+                <Button Name="btnSave" Content="Save" Style="{StaticResource AmberBtn}" Click="btnSave_Click"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

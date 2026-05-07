@@ -17,7 +17,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>C:\Users\Administrator\Desktop\Publish\</PublishUrl>
+    <PublishUrl>C:\Users\Utilisateur2\Desktop\Publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -175,6 +175,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Converters\HexToBrushConverter.cs" />
+    <Compile Include="Converters\ScoreToModifierConverter.cs" />
     <Compile Include="Helpers\EncounterService.cs" />
     <Compile Include="Helpers\MonsterFileHelper.cs" />
     <Compile Include="Helpers\NotificationHelper.cs" />
@@ -183,7 +185,15 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Pages\ConditionsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\EncounterBuilderPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\LoadEncounterWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -245,8 +255,16 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\GuidToVisibilityConverter.cs" />
+    <Compile Include="Converters\IntGreaterThanZeroToVisibilityConverter.cs" />
+    <Compile Include="Pages\ConditionsWindow.xaml.cs">
+      <DependentUpon>ConditionsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\EncounterBuilderPage.xaml.cs">
       <DependentUpon>EncounterBuilderPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\LoadEncounterWindow.xaml.cs">
+      <DependentUpon>LoadEncounterWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\InitiativeManagerPage.xaml.cs">
       <DependentUpon>InitiativeManagerPage.xaml</DependentUpon>
@@ -320,7 +338,6 @@
     <Resource Include="Ressource\Reset.png" />
     <Resource Include="Ressource\NextArrow.png" />
     <Resource Include="Ressource\PreviousArrow.png" />
-    <None Include="DMTools\DMTools.csproj" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

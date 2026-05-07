@@ -23,9 +23,11 @@ namespace Controllers.Factories
 
                 return specialAbilities.Select(s => new DisplaySpecialAbility
                 {
-                    Id = s.Id,
-                    DisplayName = (monsters.ContainsKey(s.MonsterId) ? monsters[s.MonsterId] : "Unknown") + " - " + s.Name
-                }).ToList();
+                    Id          = s.Id,
+                    MonsterName = monsters.ContainsKey(s.MonsterId) ? monsters[s.MonsterId] : "",
+                    AbilityName = s.Name ?? "",
+                    Description = s.Description ?? "",
+                }).OrderBy(d => d.MonsterName).ThenBy(d => d.AbilityName).ToList();
             }
         }
     }

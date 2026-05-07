@@ -23,9 +23,11 @@ namespace Controllers.Factories
 
                 return actions.Select(a => new DisplayAction
                 {
-                    Id = a.Id,
-                    DisplayName = (monsters.ContainsKey(a.MonsterId) ? monsters[a.MonsterId] : "Unknown") + " - " + a.Name
-                }).ToList();
+                    Id          = a.Id,
+                    MonsterName = monsters.ContainsKey(a.MonsterId) ? monsters[a.MonsterId] : "",
+                    ActionName  = a.Name        ?? "",
+                    Description = a.Description ?? "",
+                }).OrderBy(d => d.MonsterName).ThenBy(d => d.ActionName).ToList();
             }
         }
     }

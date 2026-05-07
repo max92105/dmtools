@@ -1,8 +1,6 @@
-﻿using Controllers.Helpers;
-using Data.Constants;
+using Controllers.Helpers;
 using Data.Objects;
 using Data.VirtualObject;
-using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,18 +14,10 @@ namespace Controllers.VirtualFactories
             using (var db = DatabaseHelper.GetDatabase())
             {
                 var collection = db.GetCollection<Monster>("monsters");
-                var monsters = collection.FindAll().OrderBy(m => m.Name).ToList();
-
-                return monsters.Select(m => new DisplayMonster
-                {
-                    Id = m.Id,
-                    Name = m.Name,
-                    Type = m.Type,
-                    Subtype = m.Subtype,
-                    ArmorClass = m.ArmorClass,
-                    HitPoints = m.HitPoints,
-                    ChallengeRating = m.ChallengeRating
-                }).ToList();
+                return collection.FindAll()
+                    .OrderBy(m => m.Name)
+                    .Select(Map)
+                    .ToList();
             }
         }
 
@@ -36,19 +26,24 @@ namespace Controllers.VirtualFactories
             using (var db = DatabaseHelper.GetDatabase())
             {
                 var collection = db.GetCollection<Monster>("monsters");
-                var monsters = collection.Find(m => m.Name.Contains(name)).OrderBy(m => m.Name).ToList();
-
-                return monsters.Select(m => new DisplayMonster
-                {
-                    Id = m.Id,
-                    Name = m.Name,
-                    Type = m.Type,
-                    Subtype = m.Subtype,
-                    ArmorClass = m.ArmorClass,
-                    HitPoints = m.HitPoints,
-                    ChallengeRating = m.ChallengeRating
-                }).ToList();
+                return collection.Find(m => m.Name.Contains(name))
+                    .OrderBy(m => m.Name)
+                    .Select(Map)
+                    .ToList();
             }
         }
+
+        private static DisplayMonster Map(Monster m) => new DisplayMonster
+        {
+            Id             = m.Id,
+            Name           = m.Name,
+            Type           = m.Type,
+            Subtype        = m.Subtype,
+            Size           = m.Size,
+            Alignment      = m.Alignment,
+            ArmorClass     = m.ArmorClass,
+            HitPoints      = m.HitPoints,
+            ChallengeRating = m.ChallengeRating
+        };
     }
 }

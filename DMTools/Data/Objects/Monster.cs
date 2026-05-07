@@ -292,5 +292,21 @@ namespace Data.Objects
                 }
             }
         }
+
+        private Int16 _ProficiencyBonus;
+
+        // 0 = auto-compute from CR (D&D 5e table). Set to a non-zero value to override.
+        public Int16 ProficiencyBonus
+        {
+            get { return _ProficiencyBonus; }
+            set
+            {
+                if (value != _ProficiencyBonus)
+                {
+                    _ProficiencyBonus = value;
+                    NotifyPropertyChanged("ProficiencyBonus");
+                }
+            }
+        }
     }
 }

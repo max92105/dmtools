@@ -1,371 +1,1070 @@
-﻿<Page x:Class="DMTools.Pages.InitiativeManagerPage"
+<Page x:Class="DMTools.Pages.InitiativeManagerPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      Loaded="Page_Loaded" KeyUp="Page_KeyUp"
-      mc:Ignorable="d" 
+      xmlns:conv="clr-namespace:DMTools.Converters"
+      Loaded="Page_Loaded" Unloaded="Page_Unloaded" KeyUp="Page_KeyUp"
       d:DesignHeight="720" d:DesignWidth="1280"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Background="#F2080000"
       Title="Initiative Manager">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="10*" />
-            <RowDefinition Height="90*" />
-        </Grid.RowDefinitions>
-        <Image Grid.Row="0" Source="/Ressource/Header.png" Stretch="Fill"/>
-        <Label Grid.Row="0" Content="Initiative" FontWeight="Bold" FontSize="50" 
-               HorizontalAlignment="Center" VerticalAlignment="top" Foreground="White"/>
 
-        <TabControl Grid.Row="1">
-            <TabItem Header="Initiative - New Monster">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="8*" />
-                        <RowDefinition Height="92*" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="25*"/>
-                        <ColumnDefinition Width="25*"/>
-                        <ColumnDefinition Width="50*"/>
-                    </Grid.ColumnDefinitions>
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolVis"/>
+        <conv:GuidToVisibilityConverter x:Key="GuidVis"/>
+        <conv:GuidEmptyToVisibilityConverter x:Key="GuidEmptyVis"/>
+        <conv:IntGreaterThanZeroToVisibilityConverter x:Key="IntGtZeroVis"/>
+        <conv:HpPercentToWidthConverter x:Key="HpWidthConv"/>
+        <conv:HexToBrushConverter x:Key="HexToBrushConv"/>
 
-                    <GroupBox Name="gbSearch" Grid.Column="0" Grid.Row="0" Header="Search">
-                        <TextBox Name="txtSearchName" Margin="0,0,2,0" HorizontalAlignment="Left" 
-                                 Width="{Binding ElementName=gbSearch, Path=ActualWidth}" TextChanged="txtSearchName_TextChanged"/>
-                    </GroupBox>
+        <!-- Ultra-slim 2px scrollbar, no arrows -->
+        <Style x:Key="SlimScroll" TargetType="ScrollBar">
+            <Setter Property="Width" Value="2"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand"
+                                                  Height="0" Opacity="0"
+                                                  Background="Transparent" BorderThickness="0"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Background="#77E69A28" CornerRadius="2" Margin="0,3"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand"
+                                                  Height="0" Opacity="0"
+                                                  Background="Transparent" BorderThickness="0"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ScrollBar" BasedOn="{StaticResource SlimScroll}"/>
 
-                    <ListBox Name="lbMonsters" Grid.Column="0" Grid.Row="1" SelectedItem="{Binding Path=SelectedMonster, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" ItemsSource="{Binding Monsters, Mode=OneWay}" 
-                             DisplayMemberPath="Name" SelectedValuePath="Id" SelectionChanged="lbMonsters_SelectionChanged"/>
+        <!-- Text input -->
+        <Style x:Key="DarkInput" TargetType="TextBox">
+            <Setter Property="Background" Value="#44FFFFFF"/>
+            <Setter Property="Foreground" Value="#F5E6D3"/>
+            <Setter Property="BorderBrush" Value="#77E69A28"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,5"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="CaretBrush" Value="#E69A28"/>
+            <Setter Property="SelectionBrush" Value="#66E69A28"/>
+        </Style>
 
-                    <GroupBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Header="Initiative Entry">
-                        <StackPanel>
-                            <Label Content="Quantity" HorizontalAlignment="Left"/>
-                            <TextBox Name="txtQuantity" PreviewTextInput="txt_PreviewTextInput" Text="{Binding Path=MonsterQuantity,
-                                RelativeSource={RelativeSource AncestorType={x:Type Page}}}"/>
+        <!-- Section label -->
+        <Style x:Key="Lbl" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#99E69A28"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+        </Style>
 
-                            <Label Content="Name" HorizontalAlignment="Left"/>
-                            <TextBox Name="txtMonsterName" Text="{Binding Path=SelectedMonster.Name, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" />
+        <!-- Amber filled button -->
+        <Style x:Key="AmberBtn" TargetType="Button">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#FFE69A28"/>
+            <Setter Property="Background" Value="#66E69A28"/>
+            <Setter Property="BorderBrush" Value="#AAE69A28"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="2"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.3"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
+        <!-- Ghost / outline button -->
+        <Style x:Key="GhostBtn" TargetType="Button" BasedOn="{StaticResource AmberBtn}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#55E69A28"/>
+            <Setter Property="Foreground" Value="#CCE6D3B8"/>
+        </Style>
 
-                            <Label Content="Hit Points" HorizontalAlignment="Left"/>
-                            <TextBox Name="txtHitPoint" Text="{Binding Path=SelectedMonster.HitPoints, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" 
-                                         PreviewTextInput="txt_PreviewTextInput"/>
+        <!-- Tiny icon button used inside initiative box -->
+        <Style x:Key="InitBtn" TargetType="Button">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="#CCE69A28"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#33FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-                            <Label Content="Armor Class" HorizontalAlignment="Left"/>
-                            <TextBox Name="txtArmorClass" Text="{Binding Path=SelectedMonster.ArmorClass, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" 
-                                         PreviewTextInput="txt_PreviewTextInput"/>
+        <!-- Small icon button (remove, stat block, etc.) -->
+        <Style x:Key="IconBtn" TargetType="Button">
+            <Setter Property="Width" Value="26"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="#BBE6D3B8"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#33E69A28"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-                            <DockPanel Margin="0,20,0,0" Height="30">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="50*"/>
-                                        <ColumnDefinition Width="50*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Name="btnAdd" Content="Add"  Click="btnAdd_Click"/>
-                                    <Button Grid.Column="1" Name="btnSeeHtml" Click="btnSeeHtml_Click">
-                                        <DockPanel>
+        <!-- Condition chip -->
+        <Style x:Key="CondChip" TargetType="Border">
+            <Setter Property="Background" Value="#66E69A28"/>
+            <Setter Property="BorderBrush" Value="#AAE69A28"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="5,2"/>
+            <Setter Property="Margin" Value="2,2"/>
+        </Style>
+
+        <!-- Mode toggle tab -->
+        <Style x:Key="ModeBtn" TargetType="ToggleButton">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#77E6D3B8"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0,0,0,2"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#E69A28"/>
+                                <Setter Property="Foreground" Value="#FFE69A28"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#18E69A28"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Combat nav button -->
+        <Style x:Key="NavBtn" TargetType="Button">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#FFE69A28"/>
+            <Setter Property="Background" Value="#55E69A28"/>
+            <Setter Property="BorderBrush" Value="#88E69A28"/>
+            <Setter Property="Padding" Value="18,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="2"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#88E69A28"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Dark-themed ComboBox -->
+        <Style x:Key="DarkCombo" TargetType="ComboBox">
+            <Setter Property="Background" Value="#44FFFFFF"/>
+            <Setter Property="Foreground" Value="#F0E6D3"/>
+            <Setter Property="BorderBrush" Value="#77E69A28"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="6,5"/>
+            <Setter Property="MaxDropDownHeight" Value="300"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="toggleButton" Cursor="Hand"
+                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay,
+                                            RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="bd"
+                                                Background="#44FFFFFF"
+                                                BorderBrush="#77E69A28"
+                                                BorderThickness="1" CornerRadius="2">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="20*"/>
-                                                    <ColumnDefinition Width="80*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="22"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Image Grid.Column="0" Source="/Ressource/HtmlPop.png"/>
-                                                <TextBlock Grid.Column="1" VerticalAlignment="Center">See StatBlock</TextBlock>
+                                                <Rectangle Grid.Column="0"/>
+                                                <Border Grid.Column="1"
+                                                        BorderBrush="#33E69A28" BorderThickness="1,0,0,0">
+                                                    <TextBlock Text="▾" Foreground="#AAE69A28"
+                                                               FontSize="11" VerticalAlignment="Center"
+                                                               HorizontalAlignment="Center"/>
+                                                </Border>
                                             </Grid>
-                                        </DockPanel>
-                                    </Button>
-                                </Grid>
-                            </DockPanel>
-                        </StackPanel>
-                    </GroupBox>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Initiative - New Player">
-                <Grid>
-                    <DataGrid Name="dgPlayers" ColumnWidth="*" SelectedItem="{Binding Path=SelectedDisplayPlayerCharacter,
-                                RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                              CanUserResizeColumns="False" 
-                              ItemsSource="{Binding DisplayPlayerCharacters}" AutoGenerateColumns="False" CanUserAddRows="False">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Level" Binding="{Binding Level}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Armor Class" Binding="{Binding ArmorClass}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Initiative Bonus" Binding="{Binding InitiativeBonus}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Initiative" Binding="{Binding Initiative}"/>
-                            <DataGridTemplateColumn Header="Add To Initiative">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Button Name="btnAddToInitiative" Click="btnAddToInitiative_Click" Height="24" Width="24">
-                                            <Image Source="/Ressource/AddIcon.png"/>
-                                        </Button>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Initiative - List">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*"/>
-                        <ColumnDefinition Width="97*"/>
-                    </Grid.ColumnDefinitions>
-                    <DataGrid Name="dgInitiativeEntries" Grid.Column="1" ColumnWidth="*" SelectedItem="{Binding Path=SelectedInitativeEntry,
-                                RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                              CanUserResizeColumns="False" RowEditEnding="dgInitiativeEntries_RowEditEnding"
-                              ItemsSource="{Binding InitiativeEntries}" AutoGenerateColumns="False" CanUserAddRows="False">
-                        <DataGrid.RowStyle>
-                            <Style TargetType="DataGridRow">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ItsTurn}" Value="true">
-                                        <Setter Property="Background" Value="#FFFF2B2B"></Setter>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </DataGrid.RowStyle>
-                        <DataGrid.CellStyle>
-                            <Style TargetType="{x:Type DataGridCell}">
-                                <Setter Property="Foreground" Value="Black" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="{x:Null}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </DataGrid.CellStyle>
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Initiative" Binding="{Binding Initiative}"/>
-                            <DataGridTextColumn Header="TieBreaker" Binding="{Binding TieBreaker}"/>
-                            <DataGridTextColumn Width="4*"  Header="Name" Binding="{Binding Name}"/>
-                            <DataGridTextColumn Header="Hp" Binding="{Binding HitPoints}" />
-                            <DataGridTextColumn Header="Ac" Binding="{Binding ArmorClass}"/>
-                            <DataGridCheckBoxColumn Header="Blinded" Binding="{Binding IsBlinded}">
-                                <DataGridCheckBoxColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip">
-                                            <Setter.Value>
-                                                <TextBlock>
-                                                    - A blinded creature can't see and automatically fails any ability check that requires sight. 
-                                                    <LineBreak /> 
-                                                    - Attack rolls against the creature have advantage, and the creature's attack rolls have disadvantage.
-                                                </TextBlock>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridCheckBoxColumn.HeaderStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridCheckBoxColumn Header="Charmed" Binding="{Binding IsCharmed}">
-                                <DataGridCheckBoxColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip">
-                                            <Setter.Value>
-                                                <TextBlock>
-                                                    - A charmed creature can't attack the charmer or target the charmer with harmful abilities or magical effects.
-                                                    <LineBreak /> 
-                                                    - The charmer has advantage on any ability check to interact socially with the creature.
-                                                </TextBlock>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridCheckBoxColumn.HeaderStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridCheckBoxColumn Header="Deafened" Binding="{Binding IsDeafened}">
-                                <DataGridCheckBoxColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip">
-                                            <Setter.Value>
-                                                <TextBlock>
-                                                    - A deafened creature can't hear and automatically fails any ability check that requires hearing.
-                                                </TextBlock>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridCheckBoxColumn.HeaderStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridCheckBoxColumn Header="Frightened" Binding="{Binding IsFrightened}">
-                                <DataGridCheckBoxColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip">
-                                            <Setter.Value>
-                                                <TextBlock>
-                                                    - A frightened creature has disadvantage on ability checks and attack rolls while the source of its fear is within line of sight.
-                                                    <LineBreak /> 
-                                                    - The creature can't willingly move closer to the source of its fear.
-                                                </TextBlock>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridCheckBoxColumn.HeaderStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridCheckBoxColumn Header="Incapacitated" Binding="{Binding IsIncapacitated}">
-                                <DataGridCheckBoxColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip">
-                                            <Setter.Value>
-                                                <TextBlock>
-                                                    - An incapacitated creature can't take actions or reactions.
-                                                </TextBlock>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridCheckBoxColumn.HeaderStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridCheckBoxColumn Header="Invisible" Binding="{Binding IsInvisible}">
-                                <DataGridCheckBoxColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip">
-                                            <Setter.Value>
-                                                <TextBlock>
-                                                    - An invisible creature is impossible to see without the aid of magic or a special sense. For the purpose of hiding, the creature is heavily obscured. The creature's location can be detected by any noise it makes or any tracks it leaves.
-                                                    <LineBreak /> 
-                                                    - Attack rolls against the creature have disadvantage, and the creature's attack rolls have advantage.
-                                                </TextBlock>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridCheckBoxColumn.HeaderStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridCheckBoxColumn Header="Paralyzed" Binding="{Binding IsParalyzed}">
-                                <DataGridCheckBoxColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip">
-                                            <Setter.Value>
-                                                <TextBlock>
-                                                    - A paralyzed creature is incapacitated and can't move or speak.
-                                                    <LineBreak /> 
-                                                    - The creature automatically fails Strength and Dexterity saving throws.
-                                                    <LineBreak /> 
-                                                    - Attack rolls against the creature have advantage.
-                                                    <LineBreak /> 
-                                                    - Any attack that hits the creature is a critical hit if the attacker is within 5 feet of the creature.
-                                                </TextBlock>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridCheckBoxColumn.HeaderStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridCheckBoxColumn Header="Petrified" Binding="{Binding IsPetrified}">
-                                <DataGridCheckBoxColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip">
-                                            <Setter.Value>
-                                                <TextBlock>
-                                                    - A petrified creature is transformed, along with any nonmagical object it is wearing or carrying, into a solid inanimate substance (usually stone). Its weight increases by a factor of ten, and it ceases aging.
-                                                    <LineBreak /> 
-                                                    - The creature is incapacitated, can't move or speak, and is unaware of its surroundings.
-                                                    <LineBreak /> 
-                                                    - Attack rolls against the creature have advantage.
-                                                    <LineBreak /> 
-                                                    - The creature automatically fails Strength and Dexterity saving throws.
-                                                    <LineBreak /> 
-                                                    - The creature has resistance to all damage.
-                                                     <LineBreak /> 
-                                                    - The creature is immune to poison and disease, although a poison or disease already in its system is suspended, not neutralized.
-                                                </TextBlock>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridCheckBoxColumn.HeaderStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridCheckBoxColumn Header="Poisoned" Binding="{Binding IsPoisoned}">
-                                <DataGridCheckBoxColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip">
-                                            <Setter.Value>
-                                                <TextBlock>
-                                                    - A poisoned creature has disadvantage on attack rolls and ability checks.
-                                                </TextBlock>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridCheckBoxColumn.HeaderStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridCheckBoxColumn Header="Restrained" Binding="{Binding IsRestrained}">
-                                <DataGridCheckBoxColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip">
-                                            <Setter.Value>
-                                                <TextBlock>
-                                                    - A restrained creature's speed becomes 0, and it can't benefit from any bonus to its speed.
-                                                    <LineBreak /> 
-                                                    - Attack rolls against the creature have advantage, and the creature's attack rolls have disadvantage.
-                                                    <LineBreak /> 
-                                                    - The creature has disadvantage on Dexterity saving throws.
-                                                </TextBlock>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridCheckBoxColumn.HeaderStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridCheckBoxColumn Header="Stunned" Binding="{Binding IsStunned}">
-                                <DataGridCheckBoxColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="ToolTip">
-                                            <Setter.Value>
-                                                <TextBlock>
-                                                    - A stunned creature is incapacitated, can't move, and can speak only falteringly.
-                                                    <LineBreak /> 
-                                                    - The creature automatically fails Strength and Dexterity saving throws.
-                                                    <LineBreak /> 
-                                                    - Attack rolls against the creature have advantage.
-                                                </TextBlock>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </DataGridCheckBoxColumn.HeaderStyle>
-                            </DataGridCheckBoxColumn>
-                            <DataGridTemplateColumn Header="Stat Block">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Button Name="btnShowStatBlock" Click="btnShowStatBlock_Click" Height="16" Width="16">
-                                            <Image Source="/Ressource/HtmlPop.png"/>
-                                        </Button>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="BorderBrush" Value="#AAE69A28"/>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#66FFFFFF"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="contentPresenter"
+                                IsHitTestVisible="False"
+                                Content="{TemplateBinding SelectionBoxItem}"
+                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <Popup x:Name="PART_Popup"
+                                AllowsTransparency="True"
+                                IsOpen="{TemplateBinding IsDropDownOpen}"
+                                Placement="Bottom" PopupAnimation="Slide">
+                                <Border Background="#F30A0000"
+                                        BorderBrush="#88E69A28" BorderThickness="1" CornerRadius="2"
+                                        MinWidth="{Binding ActualWidth,
+                                                   RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                        MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <ScrollViewer>
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="#F0E6D3"/>
+                        <Setter Property="FontFamily" Value="Georgia"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="Padding" Value="10,6"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsHighlighted" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#33E69A28"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#55E69A28"/>
+                                            <Setter Property="Foreground" Value="#FFE69A28"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
 
-                    <StackPanel>
-                        <Button Name="btnPrevious" ToolTip="Previous" Click="btnPrevious_Click">
-                            <DockPanel>
-                                <Image Source="/Ressource/PreviousArrow.png"/>
-                            </DockPanel>
-                        </Button>
-                        <Button Name="btnNext" ToolTip="Next" Click="btnNext_Click">
-                            <DockPanel>
-                                <Image Source="/Ressource/NextArrow.png"/>
-                            </DockPanel>
-                        </Button>
-                        <Button Name="btnUp" ToolTip="Adds 1 to the initiative of the selected entry." Click="btnUp_Click">
-                            <DockPanel>
-                                <Image Source="/Ressource/ArrowUp.png"/>
-                            </DockPanel>
-                        </Button>
-                        <Button Name="btnDown" ToolTip="Reduces the initiative of the selected entry by 1." Click="btnDown_Click">
-                            <DockPanel>
-                                <Image Source="/Ressource/ArrowDown.png"/>
-                            </DockPanel>
-                        </Button>
-                        <Button Name="btnRerollInitiative" ToolTip="Reroll Initiative" Click="btnRerollInitiative_Click">
-                            <DockPanel>
-                                <Image Source="/Ressource/RefreshOne.png"/>
-                            </DockPanel>
-                        </Button>
-                        <Button Name="btnRerollAll" ToolTip="Reroll All" Click="btnRerollAll_Click">
-                            <DockPanel>
-                                <Image Source="/Ressource/RefreshTwo.png"/>
-                            </DockPanel>
-                        </Button>
-                        <Button Name="btnResetInitiative" ToolTip="Reset Initiative"  Click="btnResetInitiative_Click">
-                            <DockPanel>
-                                <Image Source="/Ressource/Reset.png"/>
-                            </DockPanel>
-                        </Button>
-                    </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="64"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#F50A0000"
+                BorderBrush="#55E69A28" BorderThickness="0,0,0,1">
+            <TextBlock Text="Initiative Manager"
+                       FontFamily="Georgia" FontSize="24" FontStyle="Italic"
+                       Foreground="#FFE69A28" VerticalAlignment="Center" Margin="24,0,0,0"/>
+        </Border>
+
+        <!-- Main row -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="18"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- === SIDEBAR === -->
+            <Border x:Name="sidebarWrapper" Width="440"
+                    Background="#F80A0000"
+                    BorderBrush="#55E69A28" BorderThickness="0,0,1,0"
+                    Grid.Column="0" ClipToBounds="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Mode tabs -->
+                    <Border Grid.Row="0" Background="#F50A0000"
+                            BorderBrush="#33E69A28" BorderThickness="0,0,0,1">
+                        <Grid Height="42">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <ToggleButton x:Name="tbMonsterMode" Grid.Column="0"
+                                          Content="MONSTERS" Style="{StaticResource ModeBtn}"
+                                          IsChecked="True" Click="tbMonsterMode_Click"/>
+                            <ToggleButton x:Name="tbPlayerMode" Grid.Column="1"
+                                          Content="PLAYERS" Style="{StaticResource ModeBtn}"
+                                          Click="tbPlayerMode_Click"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- ── MONSTER PANEL ── -->
+                    <Grid x:Name="panelMonsters" Grid.Row="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Filters -->
+                        <StackPanel Grid.Row="0" Margin="14,12,14,8">
+                            <TextBlock Text="SEARCH" Style="{StaticResource Lbl}"/>
+                            <TextBox x:Name="txtMonsterSearch" Style="{StaticResource DarkInput}"
+                                     TextChanged="txtMonsterSearch_TextChanged"/>
+
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="CR" Style="{StaticResource Lbl}" VerticalAlignment="Center"/>
+                                <TextBox x:Name="txtCrMin" Grid.Column="1" Style="{StaticResource DarkInput}"
+                                         Padding="6,4" FontSize="12"
+                                         TextChanged="txtCrFilter_TextChanged"/>
+                                <TextBlock Grid.Column="2" Text="–" Foreground="#77E69A28"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBox x:Name="txtCrMax" Grid.Column="3" Style="{StaticResource DarkInput}"
+                                         Padding="6,4" FontSize="12"
+                                         TextChanged="txtCrFilter_TextChanged"/>
+                            </Grid>
+
+                            <TextBlock Text="TYPE" Style="{StaticResource Lbl}" Margin="0,10,0,3"/>
+                            <ComboBox x:Name="cmbTypeFilter" Style="{StaticResource DarkCombo}"
+                                      SelectionChanged="cmbTypeFilter_SelectionChanged"/>
+                        </StackPanel>
+
+                        <!-- Monster list -->
+                        <ListBox x:Name="lbMonsters" Grid.Row="1"
+                                 Background="Transparent" BorderThickness="0"
+                                 Foreground="#F0E6D3" FontFamily="Georgia" FontSize="13"
+                                 SelectionChanged="lbMonsters_SelectionChanged"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="14,7"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="bg" Background="{TemplateBinding Background}"
+                                                        BorderThickness="0,0,0,1" BorderBrush="#18E69A28"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="bg" Property="Background" Value="#33E69A28"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="bg" Property="Background" Value="#55E69A28"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontFamily="Georgia" FontSize="13" Foreground="#F5E6D3"/>
+                                        <TextBlock FontFamily="Georgia" FontSize="10" Foreground="#BBE69A28">
+                                            <Run Text="{Binding Type}"/>
+                                            <Run Text=" · CR "/>
+                                            <Run Text="{Binding ChallengeRating}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <!-- Add controls -->
+                        <Border Grid.Row="2" Background="#F80A0000"
+                                BorderBrush="#44E69A28" BorderThickness="0,1,0,0"
+                                Padding="14,12,14,14">
+                            <StackPanel>
+                                <TextBlock x:Name="tbSelectedMonster" Text="— select a monster —"
+                                           FontFamily="Georgia" FontSize="12" FontStyle="Italic"
+                                           Foreground="#88E69A28" Margin="0,0,0,10"
+                                           TextTrimming="CharacterEllipsis"/>
+
+                                <!-- HP / AC override -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="HP" Style="{StaticResource Lbl}"/>
+                                        <TextBox x:Name="txtOverrideHp" Style="{StaticResource DarkInput}"
+                                                 Padding="6,4" FontSize="12"
+                                                 PreviewTextInput="NumericOnly_PreviewTextInput"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="AC" Style="{StaticResource Lbl}"/>
+                                        <TextBox x:Name="txtOverrideAc" Style="{StaticResource DarkInput}"
+                                                 Padding="6,4" FontSize="12"
+                                                 PreviewTextInput="NumericOnly_PreviewTextInput"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="NAME OVERRIDE" Style="{StaticResource Lbl}"/>
+                                <TextBox x:Name="txtOverrideName" Style="{StaticResource DarkInput}"
+                                         Padding="6,4" FontSize="12" Margin="0,0,0,10"/>
+
+                                <!-- QTY / WAVE / Add -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="28"/>
+                                        <ColumnDefinition Width="52"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="34"/>
+                                        <ColumnDefinition Width="46"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="QTY" Style="{StaticResource Lbl}" VerticalAlignment="Center"/>
+                                    <TextBox x:Name="txtMonsterQty" Grid.Column="1"
+                                             Style="{StaticResource DarkInput}" Text="1"
+                                             Padding="6,4" FontSize="13" TextAlignment="Center"
+                                             PreviewTextInput="NumericOnly_PreviewTextInput"/>
+                                    <TextBlock Grid.Column="3" Text="WAVE" Style="{StaticResource Lbl}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="txtWave" Grid.Column="4"
+                                             Style="{StaticResource DarkInput}" Text="1"
+                                             Padding="6,4" FontSize="13" TextAlignment="Center"
+                                             PreviewTextInput="NumericOnly_PreviewTextInput"/>
+                                    <Button x:Name="btnAddMonster" Grid.Column="6"
+                                            Content="Add to Combat" IsEnabled="False"
+                                            Style="{StaticResource AmberBtn}"
+                                            Click="btnAddMonster_Click"/>
+                                </Grid>
+
+                                <!-- Wave color selector -->
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <TextBlock Text="WAVE COLOR" Style="{StaticResource Lbl}"
+                                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <Border x:Name="wvColor1" Width="16" Height="16" CornerRadius="8"
+                                            Background="#55E69A28" BorderBrush="#E69A28" BorderThickness="2"
+                                            Cursor="Hand" Margin="0,0,4,0"
+                                            MouseLeftButtonDown="WaveColor_Click" Tag="#E69A28"/>
+                                    <Border x:Name="wvColor2" Width="16" Height="16" CornerRadius="8"
+                                            Background="#55CC4433" BorderBrush="#CC4433" BorderThickness="1"
+                                            Cursor="Hand" Margin="0,0,4,0"
+                                            MouseLeftButtonDown="WaveColor_Click" Tag="#CC4433"/>
+                                    <Border x:Name="wvColor3" Width="16" Height="16" CornerRadius="8"
+                                            Background="#555599CC" BorderBrush="#5599CC" BorderThickness="1"
+                                            Cursor="Hand" Margin="0,0,4,0"
+                                            MouseLeftButtonDown="WaveColor_Click" Tag="#5599CC"/>
+                                    <Border x:Name="wvColor4" Width="16" Height="16" CornerRadius="8"
+                                            Background="#5555BB66" BorderBrush="#55BB66" BorderThickness="1"
+                                            Cursor="Hand" Margin="0,0,4,0"
+                                            MouseLeftButtonDown="WaveColor_Click" Tag="#55BB66"/>
+                                    <Border x:Name="wvColor5" Width="16" Height="16" CornerRadius="8"
+                                            Background="#559955BB" BorderBrush="#9955BB" BorderThickness="1"
+                                            Cursor="Hand"
+                                            MouseLeftButtonDown="WaveColor_Click" Tag="#9955BB"/>
+                                </StackPanel>
+
+                                <Rectangle Height="1" Fill="#33E69A28" Margin="0,12,0,10"/>
+                                <Button Content="⚔  Load Encounter" Style="{StaticResource GhostBtn}"
+                                        HorizontalAlignment="Stretch"
+                                        Click="btnLoadEncounter_Click"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- ── PLAYER PANEL ── -->
+                    <Grid x:Name="panelPlayers" Grid.Row="1" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Player search -->
+                        <Border Grid.Row="0" Background="#F50A0000"
+                                BorderBrush="#22E69A28" BorderThickness="0,0,0,1"
+                                Padding="14,10">
+                            <StackPanel>
+                                <TextBlock Text="SEARCH" Style="{StaticResource Lbl}"/>
+                                <TextBox x:Name="txtPlayerSearch" Style="{StaticResource DarkInput}"
+                                         TextChanged="txtPlayerSearch_TextChanged"/>
+                            </StackPanel>
+                        </Border>
+
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="icPlayers" Margin="0,4,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#0DFFFFFF" BorderBrush="#22E69A28"
+                                                BorderThickness="0,0,0,1" Padding="14,10"
+                                                MouseLeftButtonDown="PlayerItem_MouseDown">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="54"/>
+                                                    <ColumnDefinition Width="32"/>
+                                                    <ColumnDefinition Width="28"/>
+                                                    <ColumnDefinition Width="28"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontFamily="Georgia" FontSize="14" Foreground="#F5E6D3"/>
+                                                    <TextBlock FontFamily="Georgia" FontSize="10" Foreground="#BBE69A28">
+                                                        <Run Text="AC "/>
+                                                        <Run Text="{Binding ArmorClass}"/>
+                                                        <Run Text="  Bonus +"/>
+                                                        <Run Text="{Binding InitiativeBonus}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding Initiative, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource DarkInput}"
+                                                         Padding="4,4" FontSize="13" TextAlignment="Center"
+                                                         VerticalAlignment="Center"
+                                                         PreviewTextInput="NumericOnly_PreviewTextInput"/>
+                                                <Button Grid.Column="2" Content="⚄" ToolTip="Roll d20 + bonus"
+                                                        Style="{StaticResource IconBtn}"
+                                                        Tag="{Binding}" Click="btnRollPlayerInit_Click"/>
+                                                <Button Grid.Column="3" Content="✎" ToolTip="Edit player"
+                                                        Style="{StaticResource IconBtn}" FontSize="14"
+                                                        Tag="{Binding}" Click="btnEditPlayer_Click"/>
+                                                <Button Grid.Column="4" Content="+" ToolTip="Add to combat"
+                                                        Style="{StaticResource IconBtn}" FontSize="16"
+                                                        Tag="{Binding}" Click="btnAddPlayer_Click"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <Border Grid.Row="2" Background="#F80A0000"
+                                BorderBrush="#44E69A28" BorderThickness="0,1,0,0"
+                                Padding="14,12">
+                            <Button Content="New Player" Style="{StaticResource GhostBtn}"
+                                    HorizontalAlignment="Stretch"
+                                    Click="btnNewPlayer_Click"/>
+                        </Border>
+                    </Grid>
                 </Grid>
-            </TabItem>
-        </TabControl>
+            </Border>
+
+            <!-- === SIDEBAR TOGGLE === -->
+            <Border Grid.Column="1" Background="#F50A0000"
+                    BorderBrush="#44E69A28" BorderThickness="0,0,1,0"
+                    Cursor="Hand" MouseLeftButtonDown="SidebarTab_MouseLeftButtonDown">
+                <TextBlock x:Name="tbSidebarArrow" Text="❮"
+                           FontFamily="Georgia" FontSize="12" Foreground="#AAE69A28"
+                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Border>
+
+            <!-- === MAIN COMBAT AREA === -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Combat control bar -->
+                <Border Grid.Row="0" Background="#F50A0000"
+                        BorderBrush="#55E69A28" BorderThickness="0,0,0,1"
+                        Padding="16,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="◀  Prev" Style="{StaticResource NavBtn}"
+                                Click="btnPrevious_Click"/>
+                        <Button Grid.Column="2" Content="Next  ▶" Style="{StaticResource NavBtn}"
+                                Click="btnNext_Click"/>
+<Button Grid.Column="4" Content="⟳ Monsters" Style="{StaticResource GhostBtn}"
+                                Click="btnRerollMonsters_Click"/>
+                        <Button Grid.Column="6" Content="⟳ Players" Style="{StaticResource GhostBtn}"
+                                Click="btnRerollPlayers_Click"/>
+                        <Button Grid.Column="8" Content="⟳ All" Style="{StaticResource GhostBtn}"
+                                Click="btnRerollAll_Click"/>
+                        <Button Grid.Column="10" Content="↺ Reset" Style="{StaticResource GhostBtn}"
+                                Foreground="#BBDD6644" BorderBrush="#55DD6644"
+                                Click="btnResetInitiative_Click"/>
+                    </Grid>
+                </Border>
+
+                <!-- Entry list -->
+                <ScrollViewer x:Name="svInitiative" Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl x:Name="icEntries" Margin="14,10,14,14">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <!-- Card -->
+                                <Border Margin="0,0,0,5" CornerRadius="3" BorderThickness="1">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#EE0A0000"/>
+                                            <Setter Property="BorderBrush" Value="#55E69A28"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ItsTurn}" Value="True">
+                                                    <Setter Property="Background" Value="#CC3D1800"/>
+                                                    <Setter Property="BorderBrush" Value="#FFE69A28"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <!-- Initiative box -->
+                                            <ColumnDefinition Width="72"/>
+                                            <!-- Card content -->
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- ── INITIATIVE BOX ── -->
+                                        <Border Grid.Column="0" CornerRadius="2,0,0,2"
+                                                BorderBrush="{Binding WaveColor, Converter={StaticResource HexToBrushConv}, ConverterParameter=44}"
+                                                BorderThickness="0,0,1,0"
+                                                Background="{Binding WaveColor, Converter={StaticResource HexToBrushConv}, ConverterParameter=55}">
+                                            <Grid>
+                                                <Border>
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="Transparent"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding ItsTurn}" Value="True">
+                                                                    <Setter Property="Background" Value="#44FFFFFF"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                </Border>
+                                                <StackPanel VerticalAlignment="Center"
+                                                            HorizontalAlignment="Center" Margin="4,8">
+                                                <!-- Turn arrow -->
+                                                <TextBlock Text="▶" FontSize="9" Foreground="#FFE69A28"
+                                                           HorizontalAlignment="Center" Margin="0,0,0,2"
+                                                           Visibility="{Binding ItsTurn, Converter={StaticResource BoolVis}}"/>
+                                                <!-- Editable initiative number -->
+                                                <TextBox Text="{Binding Initiative, UpdateSourceTrigger=LostFocus}"
+                                                         Background="Transparent" BorderThickness="0"
+                                                         Foreground="#FFE69A28"
+                                                         FontFamily="Georgia" FontSize="26" FontWeight="Bold"
+                                                         TextAlignment="Center" Width="58"
+                                                         CaretBrush="#E69A28"
+                                                         PreviewTextInput="NumericOnly_PreviewTextInput"
+                                                         LostFocus="InitiativeEdit_LostFocus"/>
+                                                <TextBlock Text="INIT" FontFamily="Georgia" FontSize="8"
+                                                           FontWeight="Bold" Foreground="#88E69A28"
+                                                           HorizontalAlignment="Center" Margin="0,1,0,5"/>
+                                                <!-- ± row -->
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <Button Content="−" Style="{StaticResource InitBtn}"
+                                                            Tag="{Binding}" Click="btnInitDown_Click"/>
+                                                    <Button Content="+" Style="{StaticResource InitBtn}"
+                                                            Tag="{Binding}" Click="btnInitUp_Click"/>
+                                                </StackPanel>
+                                                <!-- Reroll row -->
+                                                <Button Content="⚄" Style="{StaticResource InitBtn}"
+                                                        Foreground="#88E69A28" FontFamily="Segoe UI" FontSize="14"
+                                                        HorizontalAlignment="Center" Margin="0,2,0,0"
+                                                        Tag="{Binding}" Click="btnRerollOne_Click"/>
+                                            </StackPanel>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- ── CARD CONTENT ── -->
+                                        <Grid Grid.Column="1">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Row 0: badges + name + stat block + remove -->
+                                            <Grid Grid.Row="0" Margin="10,8,6,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="28"/>
+                                                    <ColumnDefinition Width="28"/>
+                                                </Grid.ColumnDefinitions>
+                                                <!-- Wave badge -->
+                                                <Border Grid.Column="0"
+                                                        Visibility="{Binding Wave, Converter={StaticResource IntGtZeroVis}}"
+                                                        Background="{Binding WaveColor, Converter={StaticResource HexToBrushConv}, ConverterParameter=55}"
+                                                        BorderBrush="{Binding WaveColor, Converter={StaticResource HexToBrushConv}, ConverterParameter=88}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="2" Padding="5,1" Margin="0,0,5,0" MinWidth="28">
+                                                    <TextBlock FontFamily="Georgia" FontSize="10" FontWeight="Bold"
+                                                               Foreground="{Binding WaveColor, Converter={StaticResource HexToBrushConv}, ConverterParameter=FF}"
+                                                               TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <Run Text="W"/><Run Text="{Binding Wave}"/>
+                                                    </TextBlock>
+                                                </Border>
+                                                <!-- PC badge -->
+                                                <Border Grid.Column="1"
+                                                        Visibility="{Binding MonsterId, Converter={StaticResource GuidEmptyVis}}"
+                                                        Background="#3366AAFF" BorderBrush="#5566AAFF" BorderThickness="1"
+                                                        CornerRadius="2" Padding="5,1" Margin="0,0,5,0">
+                                                    <TextBlock Text="PC" FontFamily="Georgia" FontSize="10"
+                                                               FontWeight="Bold" Foreground="#CC99CCFF"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+                                                <!-- Name -->
+                                                <TextBox Grid.Column="2"
+                                                         Text="{Binding Name, UpdateSourceTrigger=LostFocus}"
+                                                         FontFamily="Georgia" FontSize="15" FontWeight="Bold"
+                                                         Foreground="#FFF0E6D3" VerticalAlignment="Center"
+                                                         Background="Transparent" BorderThickness="0"
+                                                         CaretBrush="#E69A28" SelectionBrush="#66E69A28"
+                                                         Padding="0"/>
+                                                <!-- Stat block -->
+                                                <Button Grid.Column="3" Content="📋" ToolTip="Stat block"
+                                                        Style="{StaticResource IconBtn}"
+                                                        Visibility="{Binding MonsterId, Converter={StaticResource GuidVis}}"
+                                                        Tag="{Binding}" Click="btnShowStatBlock_Click"/>
+                                                <!-- Remove -->
+                                                <Button Grid.Column="4" Content="✕"
+                                                        Style="{StaticResource IconBtn}"
+                                                        Foreground="#88DD4422"
+                                                        Tag="{Binding}" Click="btnRemoveEntry_Click"/>
+                                            </Grid>
+
+                                            <!-- Row 1: HP bar + HP + AC + apply + DMG + HEAL -->
+                                            <Grid Grid.Row="1" Margin="10,0,10,6">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="6"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <!-- Bar bg -->
+                                                <Border Grid.Row="0" Background="#33FFFFFF" CornerRadius="2"/>
+                                                <!-- Bar fill -->
+                                                <Border Grid.Row="0" HorizontalAlignment="Left" CornerRadius="2">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#AACC3322"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding MonsterId, Converter={StaticResource GuidEmptyVis}}" Value="Visible">
+                                                                    <Setter Property="Background" Value="#AA4488CC"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <Border.Width>
+                                                        <MultiBinding Converter="{StaticResource HpWidthConv}">
+                                                            <Binding Path="HpPercent"/>
+                                                            <Binding RelativeSource="{RelativeSource AncestorType=Grid}" Path="ActualWidth"/>
+                                                            <Binding Source="0"/>
+                                                        </MultiBinding>
+                                                    </Border.Width>
+                                                </Border>
+                                                <!-- HP + AC + DMG/HEAL -->
+                                                <Grid Grid.Row="1" Margin="0,5,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="62"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <!-- HP text -->
+                                                    <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                                                               FontFamily="Georgia" FontSize="12" Margin="0,0,8,0">
+                                                        <Run Text="HP " Foreground="#AAE69A28"/>
+                                                        <Run Text="{Binding HitPoints}" Foreground="#F5E6D3"
+                                                             FontWeight="Bold" FontSize="14"/>
+                                                        <Run Text=" / " Foreground="#55E69A28"/>
+                                                        <Run Text="{Binding MaxHitPoints}" Foreground="#88E6D3B8"/>
+                                                    </TextBlock>
+                                                    <!-- AC chip (same line as HP) -->
+                                                    <Border Grid.Column="1" Background="#33FFFFFF"
+                                                            BorderBrush="#44E69A28" BorderThickness="1"
+                                                            CornerRadius="2" Padding="6,2" VerticalAlignment="Center">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="AC " FontFamily="Georgia" FontSize="10"
+                                                                       Foreground="#AAE69A28" VerticalAlignment="Center"/>
+                                                            <TextBlock Text="{Binding ArmorClass}"
+                                                                       FontFamily="Georgia" FontSize="13" FontWeight="Bold"
+                                                                       Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <!-- Apply input -->
+                                                    <TextBox Grid.Column="3"
+                                                             Text="{Binding ApplyValue, UpdateSourceTrigger=PropertyChanged}"
+                                                             Style="{StaticResource DarkInput}"
+                                                             Padding="4,3" FontSize="13" TextAlignment="Center"
+                                                             PreviewTextInput="NumericOnly_PreviewTextInput"/>
+                                                    <!-- DMG -->
+                                                    <Button Grid.Column="5" Content="DMG"
+                                                            Style="{StaticResource AmberBtn}"
+                                                            Background="#55CC3322" BorderBrush="#77CC3322"
+                                                            Foreground="#FFDDAA88" Padding="10,4"
+                                                            Tag="{Binding}" Click="btnApplyDamage_Click"/>
+                                                    <!-- HEAL -->
+                                                    <Button Grid.Column="7" Content="HEAL"
+                                                            Style="{StaticResource AmberBtn}"
+                                                            Background="#3344AA55" BorderBrush="#5544AA55"
+                                                            Foreground="#AA99DDAA" Padding="10,4"
+                                                            Tag="{Binding}" Click="btnApplyHeal_Click"/>
+                                                </Grid>
+                                            </Grid>
+
+                                            <!-- Row 2: condition chips + Conditions button -->
+                                            <Grid Grid.Row="2" Margin="10,0,6,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <WrapPanel Grid.Column="0" Orientation="Horizontal">
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsBlinded, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Blinded" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Blinded" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsCharmed, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Charmed" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Charmed" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsDeafened, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Deafened" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Deafened" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsFrightened, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Frightened" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Frightened" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsGrappled, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Grappled" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Grappled" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsIncapacitated, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Incapacitated" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Incapacitated" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsInvisible, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Invisible" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Invisible" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsParalyzed, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Paralyzed" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Paralyzed" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsPetrified, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Petrified" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Petrified" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsPoisoned, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Poisoned" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Poisoned" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsProne, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Prone" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Prone" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsRestrained, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Restrained" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Restrained" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsStunned, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Stunned" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Stunned" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource CondChip}" Visibility="{Binding IsUnconscious, Converter={StaticResource BoolVis}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Unconscious" FontFamily="Georgia" FontSize="10" Foreground="#F5E6D3" VerticalAlignment="Center"/>
+                                                            <Button Content="✕" Style="{StaticResource IconBtn}" Width="16" Height="16" CommandParameter="Unconscious" Tag="{Binding}" Click="btnRemoveCondition_Click" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <!-- Exhaustion chip -->
+                                                    <Border Background="#44AAAAFF" BorderBrush="#66AAAAFF" BorderThickness="1"
+                                                            CornerRadius="3" Padding="5,2" Margin="2,2"
+                                                            Visibility="{Binding ExhaustionLevel, Converter={StaticResource IntGtZeroVis}}">
+                                                        <TextBlock FontFamily="Georgia" FontSize="10" Foreground="#CCAAAAFF" VerticalAlignment="Center">
+                                                            <Run Text="Exhaustion "/>
+                                                            <Run Text="{Binding ExhaustionLevel}" FontWeight="Bold"/>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </WrapPanel>
+                                                <Button Grid.Column="1" Content="Conditions"
+                                                        Style="{StaticResource AmberBtn}"
+                                                        Padding="8,4" Margin="6,0,0,0"
+                                                        FontSize="11"
+                                                        VerticalAlignment="Top"
+                                                        Tag="{Binding}" Click="btnOpenConditions_Click"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- === STAT BLOCK PANEL === -->
+            <Border x:Name="statBlockPanel" Grid.Column="3" Width="370"
+                    Background="#F80A0000"
+                    BorderBrush="#55E69A28" BorderThickness="1,0,0,0"
+                    Visibility="Collapsed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="42"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <!-- Panel header -->
+                    <Border Grid.Row="0" Background="#F50A0000"
+                            BorderBrush="#33E69A28" BorderThickness="0,0,0,1">
+                        <Grid Margin="12,0,12,0">
+                            <TextBlock x:Name="tbStatBlockName"
+                                       FontFamily="Georgia" FontSize="14" FontStyle="Italic"
+                                       Foreground="#FFE69A28" VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </Grid>
+                    </Border>
+                    <!-- WebBrowser for HTML stat block -->
+                    <WebBrowser x:Name="wbStatBlock" Grid.Row="1"
+                                LoadCompleted="wbStatBlock_LoadCompleted"/>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

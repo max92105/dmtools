@@ -1,120 +1,203 @@
-﻿using Controllers.Controllers;
-using Data.DataModels.MonsterManagerPage;
-using Data.Objects;
+using Controllers.Controllers;
 using Data.VirtualObject;
 using DMTools.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace DMTools.Pages
 {
-    /// <summary>
-    /// Interaction logic for MonsterManagerPage.xaml
-    /// </summary>
     public partial class MonsterManagerPage : Page
     {
-        private MonsterManagerPageDataModel _MonsterManagerPageDataModel;
-
-        private static readonly DependencyProperty _SelectedMonsterProperty =
-        DependencyProperty.Register(
-        "SelectedMonster", typeof(DisplayMonster),
-        typeof(MonsterManagerPage));
-
-        public DisplayMonster SelectedMonster
-        {
-            get { return (DisplayMonster)GetValue(_SelectedMonsterProperty); }
-            set { SetValue(_SelectedMonsterProperty, value); }
-        }
+        private List<DisplayMonster> _allMonsters = new List<DisplayMonster>();
+        private ListCollectionView _view;
+        private bool _suppressFilter = false;
+        private DispatcherTimer _filterTimer;
 
         public MonsterManagerPage()
         {
-            try
-            {
-                InitializeComponent();
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            InitializeComponent();
+            _filterTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
+            _filterTimer.Tick += (s, e) => { _filterTimer.Stop(); ApplyFilter(); };
         }
 
-        private void Load()
-        {
-            try
-            {
-                _MonsterManagerPageDataModel = MonsterManagerPageDataController.Load();
-                DataContext = _MonsterManagerPageDataModel;
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        } 
-
-        private void FilterMonster()
-        {
-            try
-            {
-                MonsterManagerPageDataModel monsterManagerPageDataModel = MonsterManagerPageDataController.SearchMonster(txtSearchName.Text);
-                _MonsterManagerPageDataModel.Monsters = monsterManagerPageDataModel.Monsters;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+        // ── Load ─────────────────────────────────────────────────────────────
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
-                Load();
+                _allMonsters = MonsterManagerPageDataController.Load().Monsters.ToList();
+                _view = new ListCollectionView(_allMonsters) { Filter = FilterPredicate };
+                icMonsters.ItemsSource = _view;
+
+                PopulateFilterDropdowns();
+                UpdateCount();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void PopulateFilterDropdowns()
+        {
+            _suppressFilter = true;
+
+            var types = new List<string> { "" };
+            types.AddRange(_allMonsters
+                .Where(m => !string.IsNullOrWhiteSpace(m.Type))
+                .Select(m => m.Type).Distinct().OrderBy(t => t));
+            cmbType.ItemsSource = types;
+            cmbType.SelectedIndex = 0;
+
+            var sizes = new List<string> { "" };
+            sizes.AddRange(_allMonsters
+                .Where(m => !string.IsNullOrWhiteSpace(m.Size))
+                .Select(m => m.Size).Distinct()
+                .OrderBy(s => SizeOrder(s)));
+            cmbSize.ItemsSource = sizes;
+            cmbSize.SelectedIndex = 0;
+
+            var alignments = new List<string> { "" };
+            alignments.AddRange(_allMonsters
+                .Where(m => !string.IsNullOrWhiteSpace(m.Alignment))
+                .Select(m => m.Alignment).Distinct().OrderBy(a => a));
+            cmbAlignment.ItemsSource = alignments;
+            cmbAlignment.SelectedIndex = 0;
+
+            _suppressFilter = false;
+        }
+
+        private static int SizeOrder(string size)
+        {
+            switch (size?.ToLower())
+            {
+                case "tiny":       return 0;
+                case "small":      return 1;
+                case "medium":     return 2;
+                case "large":      return 3;
+                case "huge":       return 4;
+                case "gargantuan": return 5;
+                default:           return 6;
+            }
+        }
+
+        // ── Filtering ─────────────────────────────────────────────────────────
 
         private void txtSearchName_TextChanged(object sender, TextChangedEventArgs e)
         {
-            try
-            {
-                FilterMonster();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            _filterTimer.Stop();
+            _filterTimer.Start();
         }
 
-        private void dgmonsters_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void cmbFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            try
-            {
-                if (SelectedMonster != null)
-                    NavigationService.Navigate(new MonsterEditionPage(SelectedMonster.Id));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            if (!_suppressFilter) ApplyFilter();
         }
 
-        private void btnShowStatBlock_Click(object sender, RoutedEventArgs e)
+        private bool FilterPredicate(object obj)
         {
-            try
-            {
-                if(SelectedMonster != null)
-                    StatBlockHelper.ShowStatBlockWithMonsterId(SelectedMonster.Id);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            var m = obj as DisplayMonster;
+            if (m == null) return false;
+
+            string name = txtSearchName.Text?.Trim() ?? string.Empty;
+            if (!string.IsNullOrEmpty(name) &&
+                (m.Name == null || m.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) < 0))
+                return false;
+
+            string type = cmbType.SelectedItem as string;
+            if (!string.IsNullOrEmpty(type) &&
+                !string.Equals(m.Type, type, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            string subtype = txtSubtype.Text?.Trim() ?? string.Empty;
+            if (!string.IsNullOrEmpty(subtype) &&
+                (m.Subtype == null || m.Subtype.IndexOf(subtype, StringComparison.OrdinalIgnoreCase) < 0))
+                return false;
+
+            string size = cmbSize.SelectedItem as string;
+            if (!string.IsNullOrEmpty(size) &&
+                !string.Equals(m.Size, size, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            string alignment = cmbAlignment.SelectedItem as string;
+            if (!string.IsNullOrEmpty(alignment) &&
+                (m.Alignment == null || m.Alignment.IndexOf(alignment, StringComparison.OrdinalIgnoreCase) < 0))
+                return false;
+
+            if (decimal.TryParse(txtCrMin.Text, out decimal crMin) && m.ChallengeRating < crMin) return false;
+            if (decimal.TryParse(txtCrMax.Text, out decimal crMax) && m.ChallengeRating > crMax) return false;
+            if (int.TryParse(txtHpMin.Text, out int hpMin) && m.HitPoints < hpMin) return false;
+            if (int.TryParse(txtHpMax.Text, out int hpMax) && m.HitPoints > hpMax) return false;
+            if (int.TryParse(txtAcMin.Text, out int acMin) && m.ArmorClass < acMin) return false;
+            if (int.TryParse(txtAcMax.Text, out int acMax) && m.ArmorClass > acMax) return false;
+
+            return true;
         }
+
+        private void ApplyFilter()
+        {
+            if (_suppressFilter || _view == null) return;
+            _view.Refresh();
+            UpdateCount();
+        }
+
+        private void UpdateCount()
+        {
+            int count = _view?.Count ?? _allMonsters.Count;
+            tbCount.Text = $"{count} monster{(count != 1 ? "s" : "")}";
+        }
+
+        private void btnClearFilters_Click(object sender, RoutedEventArgs e)
+        {
+            _filterTimer.Stop();
+            _suppressFilter = true;
+            txtSearchName.Text = string.Empty;
+            txtSubtype.Text = string.Empty;
+            txtCrMin.Text = string.Empty;
+            txtCrMax.Text = string.Empty;
+            txtHpMin.Text = string.Empty;
+            txtHpMax.Text = string.Empty;
+            txtAcMin.Text = string.Empty;
+            txtAcMax.Text = string.Empty;
+            cmbType.SelectedIndex = 0;
+            cmbSize.SelectedIndex = 0;
+            cmbAlignment.SelectedIndex = 0;
+            _suppressFilter = false;
+            ApplyFilter();
+        }
+
+        // ── Row interaction ───────────────────────────────────────────────────
+
+        private void MonsterRow_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount != 2) return;
+            var dm = (sender as FrameworkElement)?.DataContext as DisplayMonster;
+            if (dm != null)
+                NavigationService.Navigate(new MonsterEditionPage(dm.Id));
+        }
+
+        private void btnEdit_Click(object sender, RoutedEventArgs e)
+        {
+            var dm = (sender as Button)?.Tag as DisplayMonster;
+            if (dm != null)
+                NavigationService.Navigate(new MonsterEditionPage(dm.Id));
+        }
+
+        private void btnStatBlock_Click(object sender, RoutedEventArgs e)
+        {
+            var dm = (sender as Button)?.Tag as DisplayMonster;
+            if (dm != null)
+                StatBlockHelper.ShowStatBlockWithMonsterId(dm.Id);
+        }
+
+        // ── Action bar ────────────────────────────────────────────────────────
 
         private void btnNewMonster_Click(object sender, RoutedEventArgs e)
         {
@@ -128,28 +211,13 @@ namespace DMTools.Pages
             }
         }
 
-        private void btnEditMonster_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if(SelectedMonster != null)
-                    NavigationService.Navigate(new MonsterEditionPage(SelectedMonster.Id));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
         private void btnExport_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                if(_MonsterManagerPageDataModel.Monsters.Any(obj => obj.IsSelected))
-                {
-                    MonsterFileHelper.ExportMonsters(_MonsterManagerPageDataModel.Monsters
-                        .Where(obj => obj.IsSelected).Select(obj => obj.Id).ToList());
-                }
+                var selected = _allMonsters.Where(m => m.IsSelected).Select(m => m.Id).ToList();
+                if (selected.Any())
+                    MonsterFileHelper.ExportMonsters(selected);
             }
             catch (Exception ex)
             {
@@ -162,9 +230,11 @@ namespace DMTools.Pages
             try
             {
                 MonsterFileHelper.ImportMonsters();
-
-                MonsterManagerPageDataModel monsterManagerPageDataModel = MonsterManagerPageDataController.SearchMonster(txtSearchName.Text);
-                _MonsterManagerPageDataModel.Monsters = monsterManagerPageDataModel.Monsters;
+                _allMonsters = MonsterManagerPageDataController.Load().Monsters.ToList();
+                _view = new ListCollectionView(_allMonsters) { Filter = FilterPredicate };
+                icMonsters.ItemsSource = _view;
+                PopulateFilterDropdowns();
+                UpdateCount();
             }
             catch (Exception ex)
             {

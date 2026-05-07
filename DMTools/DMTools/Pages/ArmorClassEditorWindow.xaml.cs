@@ -26,5 +26,11 @@ namespace DMTools.Pages
             DialogResult = true;
             Close();
         }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
+        }
     }
 }

@@ -282,7 +282,7 @@ namespace DMTools.Pages
             {
                 if (Save())
                 {
-                    SkillWindow skillWindow = new SkillWindow(_MonsterEditionPageDataModel.Monster.Id);
+                    SkillWindow skillWindow = new SkillWindow(_MonsterEditionPageDataModel.Monster.Id, GetAbilityModifiers(), GetEffectiveProficiencyBonus());
                     skillWindow.ShowDialog();
 
                     if (skillWindow.DialogResult != null && (Boolean)skillWindow.DialogResult)
@@ -302,7 +302,11 @@ namespace DMTools.Pages
             try
             {
                 SpecialAbility specialAbility = new SpecialAbility() { Id = Guid.NewGuid(), MonsterId = _MonsterEditionPageDataModel.Monster.Id };
-                SpecialAbilitiesWindow specialAbilitiesWindow = new SpecialAbilitiesWindow(specialAbility);
+                SpecialAbilitiesWindow specialAbilitiesWindow = new SpecialAbilitiesWindow(
+                    specialAbility,
+                    _MonsterEditionPageDataModel.Monster.Name,
+                    _MonsterEditionPageDataModel.Monster.ChallengeRating,
+                    GetAbilityModifiers());
                 specialAbilitiesWindow.ShowDialog();
 
                 if (specialAbilitiesWindow.DialogResult == true)
@@ -320,7 +324,11 @@ namespace DMTools.Pages
             {
                 if (SelectedSpecialAbility != null)
                 {
-                    SpecialAbilitiesWindow specialAbilitiesWindow = new SpecialAbilitiesWindow(SelectedSpecialAbility);
+                    SpecialAbilitiesWindow specialAbilitiesWindow = new SpecialAbilitiesWindow(
+                        SelectedSpecialAbility,
+                        _MonsterEditionPageDataModel.Monster.Name,
+                        _MonsterEditionPageDataModel.Monster.ChallengeRating,
+                        GetAbilityModifiers());
                     specialAbilitiesWindow.ShowDialog();
                 }
             }
@@ -366,13 +374,43 @@ namespace DMTools.Pages
             };
         }
 
+        private int GetEffectiveProficiencyBonus()
+        {
+            short stored = _MonsterEditionPageDataModel.Monster.ProficiencyBonus;
+            if (stored != 0) return stored;
+            decimal cr = _MonsterEditionPageDataModel.Monster.ChallengeRating;
+            if      (cr <= 4)  return 2;
+            if      (cr <= 8)  return 3;
+            if      (cr <= 12) return 4;
+            if      (cr <= 16) return 5;
+            if      (cr <= 20) return 6;
+            if      (cr <= 24) return 7;
+            if      (cr <= 28) return 8;
+            return 9;
+        }
+
+        #region Proficiency Save Buttons
+        private void btnProfStr_Click(object sender, RoutedEventArgs e)
+            => _MonsterEditionPageDataModel.Strength.Save    = (short)(AbilityModifier(_MonsterEditionPageDataModel.Strength.Score)    + GetEffectiveProficiencyBonus());
+        private void btnProfDex_Click(object sender, RoutedEventArgs e)
+            => _MonsterEditionPageDataModel.Dexterity.Save   = (short)(AbilityModifier(_MonsterEditionPageDataModel.Dexterity.Score)   + GetEffectiveProficiencyBonus());
+        private void btnProfCon_Click(object sender, RoutedEventArgs e)
+            => _MonsterEditionPageDataModel.Constitution.Save = (short)(AbilityModifier(_MonsterEditionPageDataModel.Constitution.Score) + GetEffectiveProficiencyBonus());
+        private void btnProfInt_Click(object sender, RoutedEventArgs e)
+            => _MonsterEditionPageDataModel.Intelligence.Save = (short)(AbilityModifier(_MonsterEditionPageDataModel.Intelligence.Score) + GetEffectiveProficiencyBonus());
+        private void btnProfWis_Click(object sender, RoutedEventArgs e)
+            => _MonsterEditionPageDataModel.Wisdom.Save      = (short)(AbilityModifier(_MonsterEditionPageDataModel.Wisdom.Score)      + GetEffectiveProficiencyBonus());
+        private void btnProfCha_Click(object sender, RoutedEventArgs e)
+            => _MonsterEditionPageDataModel.Charisma.Save    = (short)(AbilityModifier(_MonsterEditionPageDataModel.Charisma.Score)    + GetEffectiveProficiencyBonus());
+        #endregion
+
         #region Actions
         private void btnNewActions_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 Data.Objects.Action action = new Data.Objects.Action() { Id = Guid.NewGuid(), MonsterId = _MonsterEditionPageDataModel.Monster.Id };
-                ActionWindow actionWindow = new ActionWindow(action, GetAbilityModifiers());
+                ActionWindow actionWindow = new ActionWindow(action, _MonsterEditionPageDataModel.Monster.Name, GetEffectiveProficiencyBonus(), GetAbilityModifiers());
                 actionWindow.ShowDialog();
 
                 if (actionWindow.DialogResult == true)
@@ -390,7 +428,7 @@ namespace DMTools.Pages
             {
                 if (SelectedAction != null)
                 {
-                    ActionWindow actionWindow = new ActionWindow(SelectedAction, GetAbilityModifiers());
+                    ActionWindow actionWindow = new ActionWindow(SelectedAction, _MonsterEditionPageDataModel.Monster.Name, GetEffectiveProficiencyBonus(), GetAbilityModifiers());
                     actionWindow.ShowDialog();
                 }
             }
