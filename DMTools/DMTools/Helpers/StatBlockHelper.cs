@@ -95,7 +95,7 @@ namespace DMTools.Helpers
             var parts = new List<string>();
             foreach (var s in speeds)
             {
-                if (s.SpeedType == "Walk")
+                if (string.IsNullOrEmpty(s.SpeedType) || s.SpeedType == "Walk")
                     parts.Add(s.Value + " ft.");
                 else
                     parts.Add(s.SpeedType.ToLower() + " " + s.Value + " ft.");
