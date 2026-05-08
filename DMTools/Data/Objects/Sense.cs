@@ -31,6 +31,7 @@ namespace Data.Objects
                 {
                     _SenseType = value;
                     NotifyPropertyChanged("SenseType");
+                    NotifyPropertyChanged("Display");
                 }
             }
         }
@@ -44,6 +45,7 @@ namespace Data.Objects
                 {
                     _Value = value;
                     NotifyPropertyChanged("Value");
+                    NotifyPropertyChanged("Display");
                 }
             }
         }

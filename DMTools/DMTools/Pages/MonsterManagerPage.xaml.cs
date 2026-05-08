@@ -175,6 +175,18 @@ namespace DMTools.Pages
 
         // ── Row interaction ───────────────────────────────────────────────────
 
+        private void CheckboxColumn_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void chkSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            bool select = chkSelectAll.IsChecked == true;
+            foreach (DisplayMonster m in _view)
+                m.IsSelected = select;
+        }
+
         private void MonsterRow_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount != 2) return;

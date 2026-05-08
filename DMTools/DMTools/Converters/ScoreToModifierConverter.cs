@@ -50,6 +50,22 @@ namespace DMTools.Converters
             => throw new NotImplementedException();
     }
 
+    public class CrFormatConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                decimal cr = System.Convert.ToDecimal(value);
+                return cr == Math.Floor(cr) ? ((int)cr).ToString() : cr.ToString("G");
+            }
+            catch { return value?.ToString() ?? ""; }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
+
     // Converts a CR decimal to the D&D 5e proficiency bonus string (e.g. 5m → "+3").
     // Used as a placeholder so the PB field shows the computed default when empty.
     public class CrToProficiencyConverter : IValueConverter

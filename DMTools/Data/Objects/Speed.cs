@@ -31,6 +31,7 @@ namespace Data.Objects
                 {
                     _SpeedType = value;
                     NotifyPropertyChanged("SpeedType");
+                    NotifyPropertyChanged("Display");
                 }
             }
         }
@@ -44,6 +45,7 @@ namespace Data.Objects
                 {
                     _Value = value;
                     NotifyPropertyChanged("Value");
+                    NotifyPropertyChanged("Display");
                 }
             }
         }

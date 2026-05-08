@@ -134,6 +134,12 @@ namespace Controllers.Controllers
             DamageModifierFactory damageModifierFactory = new DamageModifierFactory();
             ArmorClassEntryFactory armorClassEntryFactory = new ArmorClassEntryFactory();
 
+            // Keep the denormalized ArmorClass in sync with the first live AC entry
+            var primaryAc = monsterEditionPageDataModel.ArmorClassEntries
+                .FirstOrDefault(e => e.InternalState != InternalStates.Deleted);
+            if (primaryAc != null)
+                monsterEditionPageDataModel.Monster.ArmorClass = primaryAc.Value;
+
             // Build Languages string from collection before saving
             monsterEditionPageDataModel.Monster.Languages = String.Join(", ", monsterEditionPageDataModel.Languages);
 

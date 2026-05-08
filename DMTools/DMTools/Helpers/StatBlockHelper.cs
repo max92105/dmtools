@@ -58,6 +58,9 @@ namespace DMTools.Helpers
             return GenerateMonster(statBlockHelperDataModel.Monster);
         }
 
+        private static string FormatCR(decimal cr)
+            => cr == Math.Floor(cr) ? ((int)cr).ToString() : cr.ToString("G");
+
         private static string FormatText(string text)
         {
             if (String.IsNullOrEmpty(text)) return text ?? "";
@@ -293,7 +296,7 @@ namespace DMTools.Helpers
 
             sb.Append("<div class=\"property-line\"><h4>Senses </h4><p>" + FormatSenseList(stats.Senses) + "</p></div>");
             sb.Append("<div class=\"property-line\"><h4>Languages </h4><p>" + (String.IsNullOrEmpty(monster.Languages) ? "\u2014" : monster.Languages) + "</p></div>");
-            sb.Append("<div class=\"property-line\"><h4>Challenge </h4><p>" + monster.ChallengeRating + " (proficiency +" + profBonus + ")</p></div>");
+            sb.Append("<div class=\"property-line\"><h4>Challenge </h4><p>" + FormatCR(monster.ChallengeRating) + " (proficiency +" + profBonus + ")</p></div>");
 
             sb.Append("</div>"); // end top-stats
 

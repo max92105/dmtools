@@ -14,6 +14,7 @@ namespace DMTools
             InitializeComponent();
             StatBlockHelper.Initialize();
             LegacyMigrationController.MigrateLegacyData();
+            LegacyMigrationController.MigrateArmorClass();
             LegacyMigrationController.MigrateTypesCasing();
         }
 

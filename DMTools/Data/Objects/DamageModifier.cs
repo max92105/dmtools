@@ -40,6 +40,7 @@ namespace Data.Objects
                 {
                     _DamageType = value;
                     NotifyPropertyChanged("DamageType");
+                    NotifyPropertyChanged("Display");
                 }
             }
         }
@@ -56,6 +57,8 @@ namespace Data.Objects
                 {
                     _ModifierType = value;
                     NotifyPropertyChanged("ModifierType");
+                    NotifyPropertyChanged("DiceNotation");
+                    NotifyPropertyChanged("Display");
                 }
             }
         }
@@ -72,6 +75,8 @@ namespace Data.Objects
                 {
                     _DiceCount = value;
                     NotifyPropertyChanged("DiceCount");
+                    NotifyPropertyChanged("DiceNotation");
+                    NotifyPropertyChanged("Display");
                 }
             }
         }
@@ -88,6 +93,8 @@ namespace Data.Objects
                 {
                     _DiceSize = value;
                     NotifyPropertyChanged("DiceSize");
+                    NotifyPropertyChanged("DiceNotation");
+                    NotifyPropertyChanged("Display");
                 }
             }
         }

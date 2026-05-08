@@ -17,6 +17,7 @@
         <conv:IntGreaterThanZeroToVisibilityConverter x:Key="IntGtZeroVis"/>
         <conv:HpPercentToWidthConverter x:Key="HpWidthConv"/>
         <conv:HexToBrushConverter x:Key="HexToBrushConv"/>
+        <conv:CrFormatConverter x:Key="CrFmt"/>
 
         <!-- Ultra-slim 2px scrollbar, no arrows -->
         <Style x:Key="SlimScroll" TargetType="ScrollBar">
@@ -469,7 +470,7 @@
                                         <TextBlock FontFamily="Georgia" FontSize="10" Foreground="#BBE69A28">
                                             <Run Text="{Binding Type}"/>
                                             <Run Text=" · CR "/>
-                                            <Run Text="{Binding ChallengeRating}"/>
+                                            <Run Text="{Binding ChallengeRating, Converter={StaticResource CrFmt}}"/>
                                         </TextBlock>
                                     </StackPanel>
                                 </DataTemplate>

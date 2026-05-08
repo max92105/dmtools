@@ -103,6 +103,11 @@
     <Compile Include="DataModels\MonsterFileHelper\ImportActionDataQuery.cs" />
     <Compile Include="DataModels\MonsterFileHelper\ImportCharacteristicDataQuery.cs" />
     <Compile Include="DataModels\MonsterFileHelper\ImportMonsterDataQuery.cs" />
+    <Compile Include="DataModels\MonsterFileHelper\ImportArmorClassEntryDataQuery.cs" />
+    <Compile Include="DataModels\MonsterFileHelper\ImportSpeedDataQuery.cs" />
+    <Compile Include="DataModels\MonsterFileHelper\ImportSenseDataQuery.cs" />
+    <Compile Include="DataModels\MonsterFileHelper\ImportDamageModifierDataQuery.cs" />
+    <Compile Include="DataModels\MonsterFileHelper\SkillExportEntry.cs" />
     <Compile Include="DataModels\MonsterFileHelper\MonsterFileHelperDataModel.cs" />
     <Compile Include="DataModels\MonsterManagerPage\MonsterManagerPageDataModel.cs" />
     <Compile Include="DataModels\PcEditionPage\PcEditionPageDataModel.cs" />

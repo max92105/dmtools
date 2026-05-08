@@ -38,6 +38,7 @@ namespace Data.Objects
                 {
                     _Label = value;
                     NotifyPropertyChanged("Label");
+                    NotifyPropertyChanged("Display");
                 }
             }
         }
@@ -51,6 +52,7 @@ namespace Data.Objects
                 {
                     _Value = value;
                     NotifyPropertyChanged("Value");
+                    NotifyPropertyChanged("Display");
                 }
             }
         }

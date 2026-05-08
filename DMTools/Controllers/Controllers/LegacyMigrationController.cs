@@ -14,6 +14,23 @@ namespace Controllers.Controllers
     /// </summary>
     public static class LegacyMigrationController
     {
+        public static void MigrateArmorClass()
+        {
+            var monsterFactory = new MonsterFactory();
+            var acFactory = new ArmorClassEntryFactory();
+
+            foreach (var monster in monsterFactory.GetObjects())
+            {
+                var entries = acFactory.GetObjectsByMonsterId(monster.Id);
+                var primary = entries.FirstOrDefault();
+                if (primary != null && monster.ArmorClass != primary.Value)
+                {
+                    monster.ArmorClass = primary.Value;
+                    monsterFactory.SaveObject(monster);
+                }
+            }
+        }
+
         public static void MigrateTypesCasing()
         {
             var typeMap    = ConfigurationPageDataController.LoadMonsterTypes()

@@ -3,12 +3,14 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:conv="clr-namespace:DMTools.Converters"
       mc:Ignorable="d" d:DesignHeight="720" d:DesignWidth="1280"
       Loaded="Page_Loaded" Title="Monster Manager"
       Background="#F2080000">
 
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolVis"/>
+        <conv:CrFormatConverter x:Key="CrFmt"/>
 
         <Style x:Key="SlimScroll" TargetType="ScrollBar">
             <Setter Property="Width" Value="2"/>
@@ -361,6 +363,8 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="10"/>
@@ -368,16 +372,21 @@
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="tbCount" Grid.Column="0"
+                        <CheckBox x:Name="chkSelectAll" Grid.Column="0"
+                                  Style="{StaticResource DarkCheck}"
+                                  VerticalAlignment="Center"
+                                  ToolTip="Select / deselect all visible"
+                                  Click="chkSelectAll_Click"/>
+                        <TextBlock x:Name="tbCount" Grid.Column="2"
                                    FontFamily="Georgia" FontSize="12" FontStyle="Italic"
                                    Foreground="#88E69A28" VerticalAlignment="Center"/>
-                        <Button Grid.Column="2" Content="+ New Monster"
+                        <Button Grid.Column="4" Content="+ New Monster"
                                 Style="{StaticResource AmberBtn}"
                                 Click="btnNewMonster_Click"/>
-                        <Button Grid.Column="4" Content="↑ Export Selected"
+                        <Button Grid.Column="6" Content="↑ Export Selected"
                                 Style="{StaticResource GhostBtn}"
                                 Click="btnExport_Click"/>
-                        <Button Grid.Column="6" Content="↓ Import"
+                        <Button Grid.Column="8" Content="↓ Import"
                                 Style="{StaticResource GhostBtn}"
                                 Click="btnImport_Click"/>
                     </Grid>
@@ -390,7 +399,8 @@
                     <ItemsControl.Template>
                         <ControlTemplate TargetType="ItemsControl">
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Disabled">
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          CanContentScroll="True">
                                 <ItemsPresenter Margin="10,6,10,14"/>
                             </ScrollViewer>
                         </ControlTemplate>
@@ -430,10 +440,13 @@
                                             <ColumnDefinition Width="28"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <!-- Select checkbox -->
-                                        <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
-                                                  Style="{StaticResource DarkCheck}"
-                                                  VerticalAlignment="Center"/>
+                                        <!-- Select checkbox — transparent border eats mouse events so double-click here never triggers edit -->
+                                        <Border Grid.Column="0" Background="Transparent"
+                                                MouseLeftButtonDown="CheckboxColumn_MouseDown">
+                                            <CheckBox IsChecked="{Binding IsSelected}"
+                                                      Style="{StaticResource DarkCheck}"
+                                                      VerticalAlignment="Center"/>
+                                        </Border>
 
                                         <!-- Name + type line -->
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center"
@@ -461,7 +474,7 @@
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="CR " FontFamily="Georgia" FontSize="10"
                                                                Foreground="#99E69A28" VerticalAlignment="Center"/>
-                                                    <TextBlock Text="{Binding ChallengeRating}"
+                                                    <TextBlock Text="{Binding ChallengeRating, Converter={StaticResource CrFmt}}"
                                                                FontFamily="Georgia" FontSize="12" FontWeight="Bold"
                                                                Foreground="#FFE69A28" VerticalAlignment="Center"/>
                                                 </StackPanel>

@@ -440,9 +440,17 @@
         <!-- ── Header ─────────────────────────────────────────────────── -->
         <Border Grid.Row="0" Background="#F50A0000"
                 BorderBrush="#55E69A28" BorderThickness="0,0,0,1">
-            <TextBlock Text="Monster Edition"
-                       FontFamily="Georgia" FontSize="24" FontStyle="Italic"
-                       Foreground="#FFE69A28" VerticalAlignment="Center" Margin="24,0,0,0"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="24,0,0,0">
+                <TextBlock Text="Monster Edition"
+                           FontFamily="Georgia" FontSize="24" FontStyle="Italic"
+                           Foreground="#66E69A28"/>
+                <TextBlock Text=" — "
+                           FontFamily="Georgia" FontSize="24" FontStyle="Italic"
+                           Foreground="#44E69A28"/>
+                <TextBlock Text="{Binding Monster.Name}"
+                           FontFamily="Georgia" FontSize="24" FontStyle="Italic"
+                           Foreground="#FFE69A28"/>
+            </StackPanel>
         </Border>
 
         <!-- ── Action bar ─────────────────────────────────────────────── -->

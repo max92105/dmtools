@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:conv="clr-namespace:DMTools.Converters"
       mc:Ignorable="d" d:DesignHeight="720" d:DesignWidth="1280"
       Background="#F2080000"
       Loaded="Page_Loaded" Title="Encounter Builder">
@@ -212,6 +213,7 @@
             </Setter>
         </Style>
 
+        <conv:CrFormatConverter x:Key="CrFmt"/>
     </Page.Resources>
 
     <Grid>
@@ -313,7 +315,7 @@
                                     <TextBlock FontFamily="Georgia" FontSize="10" Foreground="#BBE69A28">
                                         <Run Text="{Binding Type}"/>
                                         <Run Text=" · CR "/>
-                                        <Run Text="{Binding ChallengeRating}"/>
+                                        <Run Text="{Binding ChallengeRating, Converter={StaticResource CrFmt}}"/>
                                     </TextBlock>
                                 </StackPanel>
                             </DataTemplate>

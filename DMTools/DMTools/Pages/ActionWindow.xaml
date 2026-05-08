@@ -1,8 +1,8 @@
 <Window x:Class="DMTools.Pages.ActionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Action" Width="820" Height="700"
-        ResizeMode="CanResize" WindowStartupLocation="CenterOwner"
+        Title="Action" Width="820" Height="920"
+        ResizeMode="CanResize" WindowStartupLocation="CenterScreen"
         Background="#F2080000">
     <Window.Resources>
 
@@ -339,8 +339,13 @@
         </Border>
 
         <!-- Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="16,14,16,10">
-            <StackPanel>
+        <Grid Grid.Row="1" Margin="16,14,16,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0">
 
                 <!-- ── FROM LIBRARY ──────────────────────────────────── -->
                 <TextBlock Text="FROM LIBRARY" Style="{StaticResource SectionLabel}"/>
@@ -487,17 +492,18 @@
                 <!-- Separator -->
                 <Border Height="1" Background="#33E69A28" Margin="0,14,0,14"/>
 
-                <!-- ── DESCRIPTION ────────────────────────────────────── -->
-                <TextBlock Text="DESCRIPTION" Style="{StaticResource Lbl}"/>
-                <TextBox Name="txtDescription"
-                         Text="{Binding Action.Description, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource DarkInput}"
-                         AcceptsReturn="True" Height="180" TextWrapping="Wrap"
-                         VerticalContentAlignment="Top" Padding="8,6"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"/>
-
             </StackPanel>
-        </ScrollViewer>
+
+            <!-- ── DESCRIPTION ────────────────────────────────────── -->
+            <TextBlock Grid.Row="1" Text="DESCRIPTION" Style="{StaticResource Lbl}" Margin="0,14,0,3"/>
+            <TextBox Grid.Row="2" Name="txtDescription"
+                     Text="{Binding Action.Description, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource DarkInput}"
+                     AcceptsReturn="True" TextWrapping="Wrap"
+                     VerticalContentAlignment="Top" Padding="8,6"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     Margin="0,0,0,10"/>
+        </Grid>
 
         <!-- Footer -->
         <Border Grid.Row="2" Background="#F50A0000"
