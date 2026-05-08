@@ -1,4 +1,5 @@
 using Controllers.Controllers;
+using Data.Constants;
 using Data.Objects;
 using DMTools.Helpers;
 using System;
@@ -36,7 +37,13 @@ namespace DMTools.Pages
         private void Refresh()
         {
             _allMonsters = EncounterBuilderPageDataController.LoadMonsters();
-            lbMonsters.ItemsSource = _allMonsters;
+
+            var types = new List<string> { "(all types)" };
+            types.AddRange(MonsterTypes.All);
+            cmbTypeFilter.ItemsSource = types;
+            cmbTypeFilter.SelectedIndex = 0;
+
+            ApplyMonsterFilter();
             RefreshSavedEncounters();
         }
 
@@ -48,16 +55,28 @@ namespace DMTools.Pages
             btnDeleteEncounter.IsEnabled = false;
         }
 
-        private void txtMonsterSearch_TextChanged(object sender, TextChangedEventArgs e)
+        private void txtMonsterSearch_TextChanged(object sender, TextChangedEventArgs e) => ApplyMonsterFilter();
+        private void txtCrFilter_TextChanged(object sender, TextChangedEventArgs e) => ApplyMonsterFilter();
+        private void cmbTypeFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) => ApplyMonsterFilter();
+
+        private void ApplyMonsterFilter()
         {
             try
             {
-                string query = txtMonsterSearch.Text?.Trim() ?? string.Empty;
-                if (string.IsNullOrEmpty(query))
-                    lbMonsters.ItemsSource = _allMonsters;
-                else
-                    lbMonsters.ItemsSource = _allMonsters.Where(m =>
-                        m.Name != null && m.Name.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+                string name = txtMonsterSearch.Text?.Trim() ?? string.Empty;
+                string typeFilter = cmbTypeFilter.SelectedItem as string;
+                bool filterByType = !string.IsNullOrEmpty(typeFilter) && typeFilter != "(all types)";
+
+                decimal? crMin = null, crMax = null;
+                if (decimal.TryParse(txtCrMin.Text?.Trim(), out decimal parsedMin)) crMin = parsedMin;
+                if (decimal.TryParse(txtCrMax.Text?.Trim(), out decimal parsedMax)) crMax = parsedMax;
+
+                lbMonsters.ItemsSource = _allMonsters.Where(m =>
+                    (string.IsNullOrEmpty(name) || (m.Name != null && m.Name.IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0)) &&
+                    (!filterByType || string.Equals(m.Type, typeFilter, StringComparison.OrdinalIgnoreCase)) &&
+                    (crMin == null || m.ChallengeRating >= crMin) &&
+                    (crMax == null || m.ChallengeRating <= crMax)
+                ).ToList();
             }
             catch (Exception ex)
             {

@@ -4,44 +4,158 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d" d:DesignHeight="720" d:DesignWidth="1280"
+      Background="#F2080000"
       Loaded="Page_Loaded" Title="Encounter Builder">
 
     <Page.Resources>
-        <Style x:Key="PanelLabel" TargetType="TextBlock">
+
+        <!-- Slim 4px amber scrollbar -->
+        <Style x:Key="SlimScroll" TargetType="ScrollBar">
+            <Setter Property="Width" Value="4"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Height="0" Opacity="0"
+                                                  Background="Transparent" BorderThickness="0"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Background="#77E69A28" CornerRadius="2" Margin="1,3"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Height="0" Opacity="0"
+                                                  Background="Transparent" BorderThickness="0"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ScrollBar" BasedOn="{StaticResource SlimScroll}"/>
+
+        <!-- Section label -->
+        <Style x:Key="Lbl" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Georgia"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="9"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#CCE69A28"/>
-            <Setter Property="Margin" Value="0,0,0,8"/>
-        </Style>
-        <Style x:Key="FieldLabel" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Georgia"/>
-            <Setter Property="FontSize" Value="10"/>
             <Setter Property="Foreground" Value="#99E69A28"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
         </Style>
-        <Style x:Key="FieldBox" TargetType="TextBox">
-            <Setter Property="FontFamily" Value="Georgia"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="#F0E6D3"/>
-            <Setter Property="Background" Value="#22FFFFFF"/>
-            <Setter Property="BorderBrush" Value="#44E69A28"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="Padding" Value="6,5"/>
-            <Setter Property="CaretBrush" Value="#E69A28"/>
-        </Style>
-        <Style x:Key="ActionButton" TargetType="Button">
-            <Setter Property="FontFamily" Value="Georgia"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="16,7"/>
-            <Setter Property="Cursor" Value="Hand"/>
+
+        <!-- Dark text input -->
+        <Style x:Key="DarkInput" TargetType="TextBox">
+            <Setter Property="Background" Value="#44FFFFFF"/>
+            <Setter Property="Foreground" Value="#F5E6D3"/>
+            <Setter Property="BorderBrush" Value="#77E69A28"/>
             <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,5"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="CaretBrush" Value="#E69A28"/>
+            <Setter Property="SelectionBrush" Value="#66E69A28"/>
+        </Style>
+
+        <!-- Non-editable dark combo -->
+        <Style x:Key="DarkCombo" TargetType="ComboBox">
+            <Setter Property="Background" Value="#44FFFFFF"/>
+            <Setter Property="Foreground" Value="#F0E6D3"/>
+            <Setter Property="BorderBrush" Value="#77E69A28"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="6,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton Cursor="Hand"
+                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="bd" Background="#44FFFFFF"
+                                                BorderBrush="#77E69A28" BorderThickness="1" CornerRadius="1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="22"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Rectangle Grid.Column="0"/>
+                                                <TextBlock Grid.Column="1" Text="▾" Foreground="#AAE69A28"
+                                                           FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="BorderBrush" Value="#AAE69A28"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter IsHitTestVisible="False"
+                                Content="{TemplateBinding SelectionBoxItem}"
+                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                Margin="{TemplateBinding Padding}"
+                                VerticalAlignment="Center"/>
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   Placement="Bottom" PopupAnimation="Slide">
+                                <Border Background="#F30A0000" BorderBrush="#88E69A28" BorderThickness="1" CornerRadius="1"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                        MaxHeight="200">
+                                    <ScrollViewer><ItemsPresenter/></ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="#F0E6D3"/>
+                        <Setter Property="FontFamily" Value="Georgia"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="Padding" Value="10,6"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter Property="Background" Value="#33E69A28"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#55E69A28"/>
+                                <Setter Property="Foreground" Value="#FFE69A28"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Amber filled button -->
+        <Style x:Key="AmberBtn" TargetType="Button">
+            <Setter Property="FontFamily" Value="Georgia"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#FFE69A28"/>
+            <Setter Property="Background" Value="#55E69A28"/>
+            <Setter Property="BorderBrush" Value="#88E69A28"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd" Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="2"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -50,87 +164,69 @@
                                 <Setter TargetName="bd" Property="Opacity" Value="0.35"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.6"/>
+                                <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="RemoveButton" TargetType="Button">
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="11"/>
+
+        <!-- Ghost / outline button -->
+        <Style x:Key="GhostBtn" TargetType="Button" BasedOn="{StaticResource AmberBtn}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#55E69A28"/>
+            <Setter Property="Foreground" Value="#CCE6D3B8"/>
+        </Style>
+
+        <!-- Danger / red outline button -->
+        <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource AmberBtn}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#55C42B1A"/>
+            <Setter Property="Foreground" Value="#C07070"/>
+        </Style>
+
+        <!-- Small × remove button -->
+        <Style x:Key="RemoveBtn" TargetType="Button">
             <Setter Property="Width" Value="22"/>
             <Setter Property="Height" Value="22"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Padding" Value="0"/>
+            <Setter Property="Foreground" Value="#AA9060"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd" Background="Transparent"
                                 BorderBrush="#44C42B1A" BorderThickness="1" CornerRadius="2">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              TextBlock.FontFamily="Segoe UI" TextBlock.FontSize="11"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="bd" Property="Background" Value="#33C42B1A"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#66C42B1A"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#88C42B1A"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style TargetType="ScrollBar">
-            <Setter Property="Width" Value="6"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ScrollBar">
-                        <Grid>
-                            <Track x:Name="PART_Track" IsDirectionReversed="True">
-                                <Track.DecreaseRepeatButton>
-                                    <RepeatButton Command="ScrollBar.LineUpCommand" Opacity="0" IsTabStop="False"/>
-                                </Track.DecreaseRepeatButton>
-                                <Track.Thumb>
-                                    <Thumb>
-                                        <Thumb.Template>
-                                            <ControlTemplate TargetType="Thumb">
-                                                <Border Background="#55E69A28" CornerRadius="3"/>
-                                            </ControlTemplate>
-                                        </Thumb.Template>
-                                    </Thumb>
-                                </Track.Thumb>
-                                <Track.IncreaseRepeatButton>
-                                    <RepeatButton Command="ScrollBar.LineDownCommand" Opacity="0" IsTabStop="False"/>
-                                </Track.IncreaseRepeatButton>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+
     </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>
+            <RowDefinition Height="64"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Background -->
-        <Image Grid.RowSpan="2" Source="/Ressource/DNDBackground.png" Stretch="UniformToFill"/>
-
         <!-- Header -->
-        <Rectangle Grid.Row="0" Fill="#CC0A0000"/>
-        <TextBlock Grid.Row="0" Text="Encounter Builder"
-                   FontFamily="Georgia" FontSize="22" FontStyle="Italic"
-                   Foreground="#E69A28" VerticalAlignment="Center" Margin="24,0,0,0"/>
+        <Border Grid.Row="0" Background="#F50A0000"
+                BorderBrush="#55E69A28" BorderThickness="0,0,0,1" Padding="24,0">
+            <TextBlock Text="Encounter Builder"
+                       FontFamily="Georgia" FontSize="22" FontStyle="Italic"
+                       Foreground="#FFE69A28" VerticalAlignment="Center"/>
+        </Border>
 
         <!-- 3-column layout -->
         <Grid Grid.Row="1">
@@ -143,17 +239,42 @@
             </Grid.ColumnDefinitions>
 
             <!-- ═══ LEFT: Monster browser ═══ -->
-            <DockPanel Grid.Column="0" Background="#CC0A0000" LastChildFill="True">
-                <!-- Title -->
-                <TextBlock DockPanel.Dock="Top" Text="MONSTERS"
-                           FontFamily="Georgia" FontSize="11" FontWeight="Bold"
-                           Foreground="#CCE69A28" Margin="12,14,12,8"/>
-                <!-- Search -->
-                <TextBox DockPanel.Dock="Top" x:Name="txtMonsterSearch"
-                         Style="{StaticResource FieldBox}" Margin="12,0,12,8"
-                         TextChanged="txtMonsterSearch_TextChanged"/>
+            <DockPanel Grid.Column="0" Background="#F50A0000" LastChildFill="True">
+
+                <!-- Filter area -->
+                <StackPanel DockPanel.Dock="Top" Margin="12,12,12,8">
+                    <TextBlock Text="MONSTERS" Style="{StaticResource Lbl}" Margin="0,0,0,8"/>
+
+                    <TextBlock Text="SEARCH" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="txtMonsterSearch" Style="{StaticResource DarkInput}"
+                             Margin="0,0,0,8"
+                             TextChanged="txtMonsterSearch_TextChanged"/>
+
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="CR" Style="{StaticResource Lbl}" VerticalAlignment="Center"/>
+                        <TextBox x:Name="txtCrMin" Grid.Column="1" Style="{StaticResource DarkInput}"
+                                 Padding="6,4" FontSize="11"
+                                 TextChanged="txtCrFilter_TextChanged"/>
+                        <TextBlock Grid.Column="2" Text="–" Foreground="#77E69A28"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBox x:Name="txtCrMax" Grid.Column="3" Style="{StaticResource DarkInput}"
+                                 Padding="6,4" FontSize="11"
+                                 TextChanged="txtCrFilter_TextChanged"/>
+                    </Grid>
+
+                    <TextBlock Text="TYPE" Style="{StaticResource Lbl}"/>
+                    <ComboBox x:Name="cmbTypeFilter" Style="{StaticResource DarkCombo}"
+                              SelectionChanged="cmbTypeFilter_SelectionChanged"/>
+                </StackPanel>
+
                 <!-- Monster list -->
-                <ScrollViewer x:Name="monsterScroll" Margin="0,0,0,0">
+                <ScrollViewer x:Name="monsterScroll">
                     <ListBox x:Name="lbMonsters" Background="Transparent" BorderThickness="0"
                              ScrollViewer.VerticalScrollBarVisibility="Disabled"
                              SelectionChanged="lbMonsters_SelectionChanged"
@@ -166,7 +287,7 @@
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListBoxItem">
                                             <Border x:Name="bg" Background="{TemplateBinding Background}"
-                                                    BorderBrush="Transparent" BorderThickness="0,0,0,1"
+                                                    BorderBrush="#18E69A28" BorderThickness="0,0,0,1"
                                                     Padding="{TemplateBinding Padding}">
                                                 <ContentPresenter/>
                                             </Border>
@@ -186,9 +307,15 @@
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Name}"
-                                           FontFamily="Georgia" FontSize="13"
-                                           Foreground="#F0E6D3"/>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}"
+                                               FontFamily="Georgia" FontSize="13" Foreground="#F5E6D3"/>
+                                    <TextBlock FontFamily="Georgia" FontSize="10" Foreground="#BBE69A28">
+                                        <Run Text="{Binding Type}"/>
+                                        <Run Text=" · CR "/>
+                                        <Run Text="{Binding ChallengeRating}"/>
+                                    </TextBlock>
+                                </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -209,19 +336,17 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Section title -->
-                <TextBlock Grid.Row="0" Text="CURRENT ENCOUNTER"
-                           FontFamily="Georgia" FontSize="11" FontWeight="Bold"
-                           Foreground="#CCE69A28" Margin="0,0,0,14"/>
+                <TextBlock Grid.Row="0" Text="CURRENT ENCOUNTER" Style="{StaticResource Lbl}"
+                           Margin="0,0,0,12" FontSize="11"/>
 
                 <!-- Encounter name -->
-                <StackPanel Grid.Row="1" Margin="0,0,0,14">
-                    <TextBlock Text="NAME" Style="{StaticResource FieldLabel}"/>
-                    <TextBox x:Name="txtEncounterName" Style="{StaticResource FieldBox}"/>
+                <StackPanel Grid.Row="1" Margin="0,0,0,12">
+                    <TextBlock Text="NAME" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="txtEncounterName" Style="{StaticResource DarkInput}"/>
                 </StackPanel>
 
                 <!-- Add monster row -->
-                <Grid Grid.Row="2" Margin="0,0,0,14">
+                <Grid Grid.Row="2" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="8"/>
@@ -229,18 +354,17 @@
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="#22FFFFFF" BorderBrush="#44E69A28"
-                            BorderThickness="0,0,0,1" Padding="6,5">
+                    <Border Grid.Column="0" Background="#44FFFFFF" BorderBrush="#77E69A28"
+                            BorderThickness="1" Padding="8,6">
                         <TextBlock x:Name="tbSelectedMonster" Text="— select a monster —"
-                                   FontFamily="Georgia" FontSize="13"
+                                   FontFamily="Georgia" FontSize="12"
                                    Foreground="#55E6D3B8" FontStyle="Italic"/>
                     </Border>
                     <TextBox x:Name="txtAddQty" Grid.Column="2" Text="1"
-                             Style="{StaticResource FieldBox}" TextAlignment="Center"
+                             Style="{StaticResource DarkInput}" TextAlignment="Center"
                              PreviewTextInput="txtQty_PreviewTextInput"/>
                     <Button x:Name="btnAddToEncounter" Grid.Column="4" Content="Add"
-                            Style="{StaticResource ActionButton}" IsEnabled="False"
-                            Background="#33E69A28" BorderBrush="#66E69A28" Foreground="#E69A28"
+                            Style="{StaticResource AmberBtn}" IsEnabled="False"
                             Click="btnAddToEncounter_Click"/>
                 </Grid>
 
@@ -285,8 +409,8 @@
                                                    Foreground="#E69A28" HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
                                         <Button Grid.Column="2" Content="×" Tag="{Binding}"
-                                                Style="{StaticResource RemoveButton}"
-                                                Foreground="#AA9060" VerticalAlignment="Center"
+                                                Style="{StaticResource RemoveBtn}"
+                                                VerticalAlignment="Center"
                                                 Click="btnRemoveEntry_Click"/>
                                     </Grid>
                                 </Border>
@@ -305,16 +429,13 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" Content="Clear" x:Name="btnClearEncounter"
-                            Style="{StaticResource ActionButton}"
-                            Background="Transparent" BorderBrush="#44E69A28" Foreground="#88E6D3B8"
+                            Style="{StaticResource GhostBtn}"
                             Click="btnClearEncounter_Click"/>
                     <Button Grid.Column="2" Content="Save" x:Name="btnSaveEncounter"
-                            Style="{StaticResource ActionButton}"
-                            Background="Transparent" BorderBrush="#66E69A28" Foreground="#CCE69A28"
+                            Style="{StaticResource GhostBtn}" Foreground="#CCE69A28" BorderBrush="#66E69A28"
                             Click="btnSaveEncounter_Click"/>
                     <Button Grid.Column="4" Content="▶  Run Encounter" x:Name="btnRunEncounter"
-                            Style="{StaticResource ActionButton}"
-                            Background="#44E69A28" BorderBrush="#88E69A28" Foreground="#E69A28"
+                            Style="{StaticResource AmberBtn}"
                             Click="btnRunEncounter_Click"/>
                 </Grid>
             </Grid>
@@ -323,22 +444,20 @@
             <Rectangle Grid.Column="3" Fill="#33E69A28"/>
 
             <!-- ═══ RIGHT: Saved encounters ═══ -->
-            <DockPanel Grid.Column="4" Background="#CC0A0000" LastChildFill="True">
-                <!-- Title -->
-                <TextBlock DockPanel.Dock="Top" Text="SAVED ENCOUNTERS"
-                           FontFamily="Georgia" FontSize="11" FontWeight="Bold"
-                           Foreground="#CCE69A28" Margin="12,14,12,8"/>
+            <DockPanel Grid.Column="4" Background="#F50A0000" LastChildFill="True">
+
+                <TextBlock DockPanel.Dock="Top" Text="SAVED ENCOUNTERS" Style="{StaticResource Lbl}"
+                           Margin="12,14,12,8" FontSize="11"/>
 
                 <!-- Load / Delete buttons pinned to bottom -->
                 <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="12,0,12,14">
                     <Button x:Name="btnLoadEncounter" Content="Load" IsEnabled="False"
-                            Style="{StaticResource ActionButton}"
-                            Background="#33E69A28" BorderBrush="#66E69A28" Foreground="#CCE69A28"
+                            Style="{StaticResource AmberBtn}" Foreground="#CCE69A28"
+                            Background="Transparent" BorderBrush="#66E69A28"
                             Click="btnLoadEncounter_Click"/>
                     <Rectangle Width="8"/>
                     <Button x:Name="btnDeleteEncounter" Content="Delete" IsEnabled="False"
-                            Style="{StaticResource ActionButton}"
-                            Background="Transparent" BorderBrush="#44C42B1A" Foreground="#C07070"
+                            Style="{StaticResource DangerBtn}"
                             Click="btnDeleteEncounter_Click"/>
                 </StackPanel>
 
@@ -357,7 +476,7 @@
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListBoxItem">
                                             <Border x:Name="bg" Background="{TemplateBinding Background}"
-                                                    BorderBrush="Transparent" BorderThickness="0,0,0,1"
+                                                    BorderBrush="#18E69A28" BorderThickness="0,0,0,1"
                                                     Padding="{TemplateBinding Padding}">
                                                 <ContentPresenter/>
                                             </Border>

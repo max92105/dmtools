@@ -9,88 +9,79 @@
 
     <Page.Resources>
 
-        <!-- Slim amber ScrollBar (implicit) -->
-        <Style TargetType="ScrollBar">
+        <!-- Slim 4px amber scrollbar -->
+        <Style x:Key="SlimScroll" TargetType="ScrollBar">
+            <Setter Property="Width" Value="4"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Style.Triggers>
-                <Trigger Property="Orientation" Value="Vertical">
-                    <Setter Property="Width" Value="6"/>
-                    <Setter Property="MinWidth" Value="6"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="ScrollBar">
-                                <Grid>
-                                    <Border Background="#18FFFFFF" CornerRadius="3" Margin="2,0"/>
-                                    <Track x:Name="PART_Track" IsDirectionReversed="True">
-                                        <Track.DecreaseRepeatButton>
-                                            <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" IsTabStop="False"/>
-                                        </Track.DecreaseRepeatButton>
-                                        <Track.Thumb>
-                                            <Thumb>
-                                                <Thumb.Template>
-                                                    <ControlTemplate TargetType="Thumb">
-                                                        <Border x:Name="thumb" Background="#55E69A28" CornerRadius="3" Margin="1,3"/>
-                                                        <ControlTemplate.Triggers>
-                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter TargetName="thumb" Property="Background" Value="#99E69A28"/>
-                                                            </Trigger>
-                                                            <Trigger Property="IsDragging" Value="True">
-                                                                <Setter TargetName="thumb" Property="Background" Value="#CCE69A28"/>
-                                                            </Trigger>
-                                                        </ControlTemplate.Triggers>
-                                                    </ControlTemplate>
-                                                </Thumb.Template>
-                                            </Thumb>
-                                        </Track.Thumb>
-                                        <Track.IncreaseRepeatButton>
-                                            <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" IsTabStop="False"/>
-                                        </Track.IncreaseRepeatButton>
-                                    </Track>
-                                </Grid>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Height="0" Opacity="0"
+                                                  Background="Transparent" BorderThickness="0"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Background="#77E69A28" CornerRadius="2" Margin="1,3"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Height="0" Opacity="0"
+                                                  Background="Transparent" BorderThickness="0"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
+        <Style TargetType="ScrollBar" BasedOn="{StaticResource SlimScroll}"/>
 
-        <!-- Sidebar field label -->
+        <!-- Filter field label (matches Lbl standard) -->
         <Style x:Key="SidebarLabel" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Georgia"/>
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="Foreground" Value="#88E69A28"/>
-            <Setter Property="Margin" Value="0,14,0,4"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#99E69A28"/>
+            <Setter Property="Margin" Value="0,10,0,4"/>
         </Style>
 
-        <!-- Sidebar text box -->
+        <!-- Filter text box (matches DarkInput standard) -->
         <Style x:Key="SidebarBox" TargetType="TextBox">
             <Setter Property="FontFamily" Value="Georgia"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Foreground" Value="#F0E6D3"/>
-            <Setter Property="Background" Value="#22FFFFFF"/>
-            <Setter Property="BorderBrush" Value="#44E69A28"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#F5E6D3"/>
+            <Setter Property="Background" Value="#44FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#77E69A28"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,5"/>
             <Setter Property="CaretBrush" Value="#E69A28"/>
+            <Setter Property="SelectionBrush" Value="#44E69A28"/>
         </Style>
 
         <!-- Range dash -->
         <Style x:Key="RangeDash" TargetType="TextBlock">
             <Setter Property="Text" Value="–"/>
-            <Setter Property="Foreground" Value="#44E69A28"/>
+            <Setter Property="Foreground" Value="#77E69A28"/>
             <Setter Property="FontFamily" Value="Georgia"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="6,0"/>
         </Style>
 
-        <!-- Sidebar button -->
+        <!-- Sidebar button (matches AmberBtn standard) -->
         <Style x:Key="SidebarButton" TargetType="Button">
             <Setter Property="FontFamily" Value="Georgia"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Foreground" Value="#E69A28"/>
-            <Setter Property="Background" Value="#33E69A28"/>
-            <Setter Property="BorderBrush" Value="#55E69A28"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#FFE69A28"/>
+            <Setter Property="Background" Value="#66E69A28"/>
+            <Setter Property="BorderBrush" Value="#AAE69A28"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="0,8"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -102,15 +93,16 @@
                         <Border x:Name="bd" Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="2"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#55E69A28"/>
+                                <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#88E69A28"/>
+                                <Setter TargetName="bd" Property="Opacity" Value="0.55"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Foreground" Value="#33E69A28"/>
@@ -211,21 +203,19 @@
 
     </Page.Resources>
 
-    <Grid>
+    <Grid Background="#F2080000">
         <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>
+            <RowDefinition Height="64"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Background -->
-        <Image Grid.RowSpan="2" Source="/Ressource/DNDBackground.png" Stretch="UniformToFill"/>
-
         <!-- Header -->
-        <Rectangle Grid.Row="0" Fill="#CC0A0000"/>
-        <TextBlock Grid.Row="0" Text="Player Characters"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                   FontFamily="Georgia" FontSize="36" FontWeight="Bold"
-                   Foreground="#E69A28"/>
+        <Border Grid.Row="0" Background="#F50A0000"
+                BorderBrush="#55E69A28" BorderThickness="0,0,0,1" Padding="24,0">
+            <TextBlock Text="Player Characters"
+                       FontFamily="Georgia" FontSize="22" FontStyle="Italic"
+                       Foreground="#FFE69A28" VerticalAlignment="Center"/>
+        </Border>
 
         <!-- Content row: collapsible sidebar + toggle tab + cards -->
         <Grid Grid.Row="1">
@@ -239,11 +229,10 @@
             <Border x:Name="sidebarWrapper" Grid.Column="0" Width="200"
                     ClipToBounds="True" Background="Transparent">
 
-            <!-- Floating sidebar panel -->
+            <!-- Sidebar panel -->
             <Border Width="200"
-                    Background="#CC0A0000"
-                    BorderBrush="#55E69A28" BorderThickness="0,1,0,1"
-                    Margin="0,12,0,12">
+                    Background="#F80A0000"
+                    BorderBrush="#55E69A28" BorderThickness="0,0,1,0">
                 <DockPanel>
 
                     <!-- Action buttons pinned to bottom -->
@@ -326,18 +315,18 @@
 
             <!-- Collapse / expand tab -->
             <Button x:Name="btnToggleSidebar" Grid.Column="1"
-                    Margin="0,12,8,12" Cursor="Hand"
+                    Margin="0,0,6,0" Cursor="Hand"
                     Click="btnToggleSidebar_Click">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="tab" Background="#CC0A0000"
-                                BorderBrush="#55E69A28" BorderThickness="1,1,1,1"
+                        <Border x:Name="tab" Background="#F80A0000"
+                                BorderBrush="#55E69A28" BorderThickness="0,1,1,1"
                                 CornerRadius="0,4,4,0">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="tab" Property="Background" Value="#E6100800"/>
+                                <Setter TargetName="tab" Property="Background" Value="#FF150A00"/>
                                 <Setter TargetName="tab" Property="BorderBrush" Value="#99E69A28"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
