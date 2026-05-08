@@ -74,6 +74,7 @@
                 <Button Name="btnInitiativeManager" Content="Initiative Manager" Style="{StaticResource MenuButtonStyle}" Click="btnInitiativeManager_Click"/>
                 <Button Name="btnPcManager"         Content="PC Manager"        Style="{StaticResource MenuButtonStyle}" Click="btnPcManager_Click"/>
                 <Button Name="btnEncounterBuilder"  Content="Encounter Builder" Style="{StaticResource MenuButtonStyle}" Click="btnEncounterBuilder_Click"/>
+                <Button Name="btnConfiguration"     Content="Configuration"     Style="{StaticResource MenuButtonStyle}" Click="btnConfiguration_Click"/>
 
                 <!-- Footer -->
                 <TextBlock Text="v1.0" FontFamily="Georgia" FontSize="11"

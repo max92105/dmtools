@@ -16,7 +16,7 @@ namespace Controllers.Factories
             using (var db = DatabaseHelper.GetDatabase())
             {
                 var collection = db.GetCollection<DamageModifier>("damageModifiers");
-                var modifiers = collection.Find(d => d.MonsterId == monsterId).ToList();
+                var modifiers = collection.Find(d => d.MonsterId == monsterId).OrderBy(d => d.SortOrder).ToList();
                 foreach (var modifier in modifiers)
                 {
                     modifier.SetInternalState(InternalStates.UnModified, true);

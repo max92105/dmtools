@@ -16,7 +16,7 @@ namespace Controllers.Factories
             using (var db = DatabaseHelper.GetDatabase())
             {
                 var collection = db.GetCollection<ArmorClassEntry>("armorClassEntries");
-                var entries = collection.Find(a => a.MonsterId == monsterId).ToList();
+                var entries = collection.Find(a => a.MonsterId == monsterId).OrderBy(a => a.SortOrder).ToList();
                 foreach (var entry in entries)
                 {
                     entry.SetInternalState(InternalStates.UnModified, true);

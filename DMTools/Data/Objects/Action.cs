@@ -17,6 +17,7 @@ namespace Data.Objects
         private String _DamageType;
         private String _AttackAbility; // STR, DEX, etc. - used for auto-calculating attack bonus
         private Boolean _OverrideAttackBonus; // true = use manual AttackBonus, false = calculate from ability
+        private Int32 _SortOrder;
 
         public Guid MonsterId
         {
@@ -197,6 +198,19 @@ namespace Data.Objects
                 {
                     _OverrideAttackBonus = value;
                     NotifyPropertyChanged("OverrideAttackBonus");
+                }
+            }
+        }
+
+        public Int32 SortOrder
+        {
+            get { return _SortOrder; }
+            set
+            {
+                if (value != _SortOrder)
+                {
+                    _SortOrder = value;
+                    NotifyPropertyChanged("SortOrder");
                 }
             }
         }

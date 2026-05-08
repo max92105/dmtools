@@ -16,7 +16,7 @@ namespace Controllers.Factories
             using (var db = DatabaseHelper.GetDatabase())
             {
                 var collection = db.GetCollection<Speed>("speeds");
-                var speeds = collection.Find(s => s.MonsterId == monsterId).ToList();
+                var speeds = collection.Find(s => s.MonsterId == monsterId).OrderBy(s => s.SortOrder).ToList();
                 foreach (var speed in speeds)
                 {
                     speed.SetInternalState(InternalStates.UnModified, true);

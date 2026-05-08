@@ -1,4 +1,5 @@
 using Data.Constants;
+using Data.Objects;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -49,6 +50,15 @@ namespace DMTools.Pages
             DamageModifierDefaults.GetDefaultDice(challengeRating, out defaultCount, out defaultSize);
             txtDiceCount.Text = defaultCount.ToString();
             cboDiceSize.SelectedItem = "d" + defaultSize;
+        }
+
+        public DamageModifierEditorWindow(DamageModifier existing, decimal challengeRating)
+            : this(challengeRating)
+        {
+            cboDamageType.SelectedItem   = existing.DamageType;
+            cboModifierType.SelectedItem = existing.ModifierType;
+            txtDiceCount.Text            = existing.DiceCount.ToString();
+            cboDiceSize.SelectedItem     = "d" + existing.DiceSize;
         }
 
         private void cboModifierType_SelectionChanged(object sender, SelectionChangedEventArgs e)

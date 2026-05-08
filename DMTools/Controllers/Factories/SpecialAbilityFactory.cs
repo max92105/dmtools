@@ -44,7 +44,7 @@ namespace Controllers.Factories
             using (var db = DatabaseHelper.GetDatabase())
             {
                 var collection = db.GetCollection<SpecialAbility>("specialAbilities");
-                var specialAbilities = collection.Find(s => s.MonsterId == monsterId).ToList();
+                var specialAbilities = collection.Find(s => s.MonsterId == monsterId).OrderBy(s => s.SortOrder).ToList();
                 foreach (var specialAbility in specialAbilities)
                 {
                     specialAbility.SetInternalState(InternalStates.UnModified, true);

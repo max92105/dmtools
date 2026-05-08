@@ -43,7 +43,7 @@ namespace Controllers.Factories
             using (var db = DatabaseHelper.GetDatabase())
             {
                 var collection = db.GetCollection<Data.Objects.Action>("actions");
-                var actions = collection.Find(a => a.MonsterId == monsterId).ToList();
+                var actions = collection.Find(a => a.MonsterId == monsterId).OrderBy(a => a.SortOrder).ToList();
                 foreach (var action in actions)
                 {
                     action.SetInternalState(InternalStates.UnModified, true);

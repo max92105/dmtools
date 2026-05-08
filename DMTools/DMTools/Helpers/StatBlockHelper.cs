@@ -58,6 +58,12 @@ namespace DMTools.Helpers
             return GenerateMonster(statBlockHelperDataModel.Monster);
         }
 
+        private static string FormatText(string text)
+        {
+            if (String.IsNullOrEmpty(text)) return text ?? "";
+            return text.Replace("\r\n", "<br/>").Replace("\r", "<br/>").Replace("\n", "<br/>");
+        }
+
         private static string FormatModifier(int score)
         {
             int mod = (int)Math.Floor((score - 10) / 2.0);
@@ -123,8 +129,8 @@ namespace DMTools.Helpers
 
         private static string GenerateActionDescription(Data.Objects.Action action, Dictionary<string, int> abilityModifiers, int proficiencyBonus)
         {
-            if (String.IsNullOrEmpty(action.DamageDice))
-                return action.Description ?? "";
+            if (String.IsNullOrEmpty(action.DamageDice) || !String.IsNullOrEmpty(action.Description))
+                return FormatText(action.Description);
 
             int attackBonus;
             if (action.OverrideAttackBonus)
@@ -159,7 +165,7 @@ namespace DMTools.Helpers
                 sb.Append(" damage.");
 
             if (!String.IsNullOrEmpty(action.Description))
-                sb.Append(" " + action.Description);
+                sb.Append(" " + FormatText(action.Description));
 
             return sb.ToString();
         }
@@ -293,7 +299,7 @@ namespace DMTools.Helpers
 
             // Special Abilities
             foreach (SpecialAbility sa in _StatBlockDataModel.SpecialAbilities)
-                sb.Append("<div class=\"property-block\"><h4>" + sa.Name + ". </h4><p>" + sa.Description + "</p></div>");
+                sb.Append("<div class=\"property-block\"><h4>" + sa.Name + ". </h4><p>" + FormatText(sa.Description) + "</p></div>");
 
             // Action sections
             AppendActionSection(sb, "Actions",

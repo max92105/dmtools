@@ -14,6 +14,7 @@ namespace DMTools
             InitializeComponent();
             StatBlockHelper.Initialize();
             LegacyMigrationController.MigrateLegacyData();
+            LegacyMigrationController.MigrateTypesCasing();
         }
 
         protected override void OnStateChanged(EventArgs e)

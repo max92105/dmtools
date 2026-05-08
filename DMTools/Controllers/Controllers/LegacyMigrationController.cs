@@ -14,6 +14,35 @@ namespace Controllers.Controllers
     /// </summary>
     public static class LegacyMigrationController
     {
+        public static void MigrateTypesCasing()
+        {
+            var typeMap    = ConfigurationPageDataController.LoadMonsterTypes()
+                                .ToDictionary(t => t.Name.ToLowerInvariant(), t => t.Name);
+            var subtypeMap = ConfigurationPageDataController.LoadMonsterSubtypes()
+                                .ToDictionary(t => t.Name.ToLowerInvariant(), t => t.Name);
+
+            var monsterFactory = new MonsterFactory();
+            foreach (var monster in monsterFactory.GetObjects())
+            {
+                string newType    = Remap(monster.Type, typeMap);
+                string newSubtype = Remap(monster.Subtype, subtypeMap);
+
+                if (newType != monster.Type || newSubtype != monster.Subtype)
+                {
+                    monster.Type    = newType    ?? monster.Type;
+                    monster.Subtype = newSubtype ?? monster.Subtype;
+                    monsterFactory.SaveObject(monster);
+                }
+            }
+        }
+
+        private static string Remap(string value, Dictionary<string, string> map)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            string key = value.ToLowerInvariant();
+            return map.TryGetValue(key, out string canonical) ? canonical : value;
+        }
+
         public static void MigrateLegacyData()
         {
             var monsterFactory = new MonsterFactory();

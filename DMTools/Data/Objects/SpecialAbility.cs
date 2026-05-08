@@ -8,6 +8,7 @@ namespace Data.Objects
         private String _Name;
         private String _Description;
         private Int16 _AttackBonus;
+        private Int32 _SortOrder;
 
         public Guid MonsterId
         {
@@ -73,6 +74,19 @@ namespace Data.Objects
                 {
                     _AttackBonus = value;
                     NotifyPropertyChanged("AttackBonus");
+                }
+            }
+        }
+
+        public Int32 SortOrder
+        {
+            get { return _SortOrder; }
+            set
+            {
+                if (value != _SortOrder)
+                {
+                    _SortOrder = value;
+                    NotifyPropertyChanged("SortOrder");
                 }
             }
         }

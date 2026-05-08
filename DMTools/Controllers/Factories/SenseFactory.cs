@@ -16,7 +16,7 @@ namespace Controllers.Factories
             using (var db = DatabaseHelper.GetDatabase())
             {
                 var collection = db.GetCollection<Sense>("senses");
-                var senses = collection.Find(s => s.MonsterId == monsterId).ToList();
+                var senses = collection.Find(s => s.MonsterId == monsterId).OrderBy(s => s.SortOrder).ToList();
                 foreach (var sense in senses)
                 {
                     sense.SetInternalState(InternalStates.UnModified, true);

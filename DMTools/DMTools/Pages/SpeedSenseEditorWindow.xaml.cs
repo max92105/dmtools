@@ -26,6 +26,13 @@ namespace DMTools.Pages
                 cboType.SelectedIndex = 0;
         }
 
+        public SpeedSenseEditorWindow(string title, string[] types, string existingType, short existingValue)
+            : this(title, types)
+        {
+            cboType.SelectedItem = existingType;
+            txtValue.Text = existingValue.ToString();
+        }
+
         private void btnOk_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;

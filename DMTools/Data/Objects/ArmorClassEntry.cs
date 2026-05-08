@@ -11,6 +11,7 @@ namespace Data.Objects
         private Guid _MonsterId;
         private String _Label;
         private Int16 _Value;
+        private Int32 _SortOrder;
 
         public Guid MonsterId
         {
@@ -50,6 +51,19 @@ namespace Data.Objects
                 {
                     _Value = value;
                     NotifyPropertyChanged("Value");
+                }
+            }
+        }
+
+        public Int32 SortOrder
+        {
+            get { return _SortOrder; }
+            set
+            {
+                if (value != _SortOrder)
+                {
+                    _SortOrder = value;
+                    NotifyPropertyChanged("SortOrder");
                 }
             }
         }

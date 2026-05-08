@@ -1,19 +1,16 @@
-﻿using System;
+using System;
 using System.Windows;
+using System.Windows.Input;
 
 namespace DMTools.Pages
 {
-    /// <summary>
-    /// Interaction logic for StatBlockWindow.xaml
-    /// </summary>
     public partial class StatBlockWindow : Window
     {
-        private String _Html;
+        private string _Html;
 
-        public StatBlockWindow(String html)
+        public StatBlockWindow(string html)
         {
             _Html = html;
-
             InitializeComponent();
         }
 
@@ -28,5 +25,19 @@ namespace DMTools.Pages
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            else if (WindowState == WindowState.Normal)
+                DragMove();
+        }
+
+        private void Minimize_Click(object sender, RoutedEventArgs e)
+            => WindowState = WindowState.Minimized;
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+            => Close();
     }
 }

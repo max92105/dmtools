@@ -53,8 +53,8 @@ namespace DMTools.Pages
 
             // Populate combo boxes
             cboSize.ItemsSource = MonsterSizes.All;
-            cboType.ItemsSource = MonsterTypes.All;
-            cboSubtype.ItemsSource = MonsterSubtypes.All;
+            cboType.ItemsSource    = ConfigurationPageDataController.LoadMonsterTypes().Select(t => t.Name).ToList();
+            cboSubtype.ItemsSource = ConfigurationPageDataController.LoadMonsterSubtypes().Select(t => t.Name).ToList();
             cboAlignment.ItemsSource = Alignments.All;
         }
 
@@ -157,6 +157,17 @@ namespace DMTools.Pages
             }
         }
 
+        private void btnEditSpeed_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(lbSpeeds.SelectedItem is Speed selected)) return;
+            var window = new SpeedSenseEditorWindow("Speed", SpeedTypes.All, selected.SpeedType, selected.Value);
+            if (window.ShowDialog() == true)
+            {
+                selected.SpeedType = window.SelectedType;
+                selected.Value     = window.SelectedValue;
+            }
+        }
+
         private void btnRemoveSpeed_Click(object sender, RoutedEventArgs e)
         {
             if (lbSpeeds.SelectedItem is Speed selected)
@@ -166,6 +177,11 @@ namespace DMTools.Pages
                 _MonsterEditionPageDataModel.Speeds.Remove(selected);
             }
         }
+
+        private void btnMoveUpSpeed_Click(object sender, RoutedEventArgs e)
+            => MoveUp(_MonsterEditionPageDataModel.Speeds, lbSpeeds.SelectedItem as Speed);
+        private void btnMoveDownSpeed_Click(object sender, RoutedEventArgs e)
+            => MoveDown(_MonsterEditionPageDataModel.Speeds, lbSpeeds.SelectedItem as Speed);
         #endregion
 
         #region Sense
@@ -192,6 +208,17 @@ namespace DMTools.Pages
             }
         }
 
+        private void btnEditSense_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(lbSenses.SelectedItem is Sense selected)) return;
+            var window = new SpeedSenseEditorWindow("Sense", SenseTypes.All, selected.SenseType, selected.Value);
+            if (window.ShowDialog() == true)
+            {
+                selected.SenseType = window.SelectedType;
+                selected.Value     = window.SelectedValue;
+            }
+        }
+
         private void btnRemoveSense_Click(object sender, RoutedEventArgs e)
         {
             if (lbSenses.SelectedItem is Sense selected)
@@ -201,6 +228,11 @@ namespace DMTools.Pages
                 _MonsterEditionPageDataModel.Senses.Remove(selected);
             }
         }
+
+        private void btnMoveUpSense_Click(object sender, RoutedEventArgs e)
+            => MoveUp(_MonsterEditionPageDataModel.Senses, lbSenses.SelectedItem as Sense);
+        private void btnMoveDownSense_Click(object sender, RoutedEventArgs e)
+            => MoveDown(_MonsterEditionPageDataModel.Senses, lbSenses.SelectedItem as Sense);
         #endregion
 
         #region Armor Class
@@ -227,6 +259,17 @@ namespace DMTools.Pages
             }
         }
 
+        private void btnEditAc_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(lbArmorClass.SelectedItem is ArmorClassEntry selected)) return;
+            var window = new ArmorClassEditorWindow(selected);
+            if (window.ShowDialog() == true)
+            {
+                selected.Label = window.AcLabel;
+                selected.Value = window.AcValue;
+            }
+        }
+
         private void btnRemoveAc_Click(object sender, RoutedEventArgs e)
         {
             if (lbArmorClass.SelectedItem is ArmorClassEntry selected)
@@ -236,6 +279,11 @@ namespace DMTools.Pages
                 _MonsterEditionPageDataModel.ArmorClassEntries.Remove(selected);
             }
         }
+
+        private void btnMoveUpAc_Click(object sender, RoutedEventArgs e)
+            => MoveUp(_MonsterEditionPageDataModel.ArmorClassEntries, lbArmorClass.SelectedItem as ArmorClassEntry);
+        private void btnMoveDownAc_Click(object sender, RoutedEventArgs e)
+            => MoveDown(_MonsterEditionPageDataModel.ArmorClassEntries, lbArmorClass.SelectedItem as ArmorClassEntry);
         #endregion
 
         #region Damage Modifiers
@@ -264,6 +312,19 @@ namespace DMTools.Pages
             }
         }
 
+        private void btnEditDamageModifier_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(lbDamageModifiers.SelectedItem is DamageModifier selected)) return;
+            var window = new DamageModifierEditorWindow(selected, _MonsterEditionPageDataModel.Monster.ChallengeRating);
+            if (window.ShowDialog() == true)
+            {
+                selected.DamageType   = window.SelectedDamageType;
+                selected.ModifierType = window.SelectedModifierType;
+                selected.DiceCount    = window.DiceCount;
+                selected.DiceSize     = window.DiceSize;
+            }
+        }
+
         private void btnRemoveDamageModifier_Click(object sender, RoutedEventArgs e)
         {
             if (lbDamageModifiers.SelectedItem is DamageModifier selected)
@@ -273,6 +334,11 @@ namespace DMTools.Pages
                 _MonsterEditionPageDataModel.DamageModifiers.Remove(selected);
             }
         }
+
+        private void btnMoveUpDmg_Click(object sender, RoutedEventArgs e)
+            => MoveUp(_MonsterEditionPageDataModel.DamageModifiers, lbDamageModifiers.SelectedItem as DamageModifier);
+        private void btnMoveDownDmg_Click(object sender, RoutedEventArgs e)
+            => MoveDown(_MonsterEditionPageDataModel.DamageModifiers, lbDamageModifiers.SelectedItem as DamageModifier);
         #endregion
 
         #region Skills
@@ -357,6 +423,11 @@ namespace DMTools.Pages
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void btnMoveUpSA_Click(object sender, RoutedEventArgs e)
+            => MoveUp(_MonsterEditionPageDataModel.SpecialAbilities, SelectedSpecialAbility);
+        private void btnMoveDownSA_Click(object sender, RoutedEventArgs e)
+            => MoveDown(_MonsterEditionPageDataModel.SpecialAbilities, SelectedSpecialAbility);
         #endregion
 
         private static int AbilityModifier(short score) => (int)Math.Floor((score - 10) / 2.0);
@@ -457,6 +528,11 @@ namespace DMTools.Pages
                 MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void btnMoveUpAction_Click(object sender, RoutedEventArgs e)
+            => MoveUp(_MonsterEditionPageDataModel.Actions, SelectedAction);
+        private void btnMoveDownAction_Click(object sender, RoutedEventArgs e)
+            => MoveDown(_MonsterEditionPageDataModel.Actions, SelectedAction);
         #endregion
 
         #region Save / Copy / Delete
@@ -543,6 +619,20 @@ namespace DMTools.Pages
             }
         }
         #endregion
+
+        private static void MoveUp<T>(ObservableCollection<T> collection, T item)
+        {
+            if (item == null) return;
+            int index = collection.IndexOf(item);
+            if (index > 0) collection.Move(index, index - 1);
+        }
+
+        private static void MoveDown<T>(ObservableCollection<T> collection, T item)
+        {
+            if (item == null) return;
+            int index = collection.IndexOf(item);
+            if (index >= 0 && index < collection.Count - 1) collection.Move(index, index + 1);
+        }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {

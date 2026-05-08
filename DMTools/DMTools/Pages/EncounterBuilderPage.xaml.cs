@@ -39,7 +39,7 @@ namespace DMTools.Pages
             _allMonsters = EncounterBuilderPageDataController.LoadMonsters();
 
             var types = new List<string> { "(all types)" };
-            types.AddRange(MonsterTypes.All);
+            types.AddRange(ConfigurationPageDataController.LoadMonsterTypes().Select(t => t.Name));
             cmbTypeFilter.ItemsSource = types;
             cmbTypeFilter.SelectedIndex = 0;
 

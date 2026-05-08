@@ -148,21 +148,39 @@ namespace Controllers.Controllers
             foreach (Skill skill in monsterEditionPageDataModel.DisplaySkills)
                 skillFactory.SaveObject(skill);
 
+            int saIdx = 0;
+            foreach (SpecialAbility specialAbility in monsterEditionPageDataModel.SpecialAbilities)
+                specialAbility.SortOrder = saIdx++;
             foreach (SpecialAbility specialAbility in monsterEditionPageDataModel.SpecialAbilities)
                 specialAbilityFactory.SaveObject(specialAbility);
 
+            int actionIdx = 0;
+            foreach (Data.Objects.Action action in monsterEditionPageDataModel.Actions)
+                action.SortOrder = actionIdx++;
             foreach (Data.Objects.Action action in monsterEditionPageDataModel.Actions)
                 actionFactory.SaveObject(action);
 
+            int speedIdx = 0;
+            foreach (Speed speed in monsterEditionPageDataModel.Speeds)
+                speed.SortOrder = speedIdx++;
             foreach (Speed speed in monsterEditionPageDataModel.Speeds)
                 speedFactory.SaveObject(speed);
 
+            int senseIdx = 0;
+            foreach (Sense sense in monsterEditionPageDataModel.Senses)
+                sense.SortOrder = senseIdx++;
             foreach (Sense sense in monsterEditionPageDataModel.Senses)
                 senseFactory.SaveObject(sense);
 
+            int dmIdx = 0;
+            foreach (DamageModifier damageModifier in monsterEditionPageDataModel.DamageModifiers)
+                damageModifier.SortOrder = dmIdx++;
             foreach (DamageModifier damageModifier in monsterEditionPageDataModel.DamageModifiers)
                 damageModifierFactory.SaveObject(damageModifier);
 
+            int acIdx = 0;
+            foreach (ArmorClassEntry armorClassEntry in monsterEditionPageDataModel.ArmorClassEntries)
+                armorClassEntry.SortOrder = acIdx++;
             foreach (ArmorClassEntry armorClassEntry in monsterEditionPageDataModel.ArmorClassEntries)
                 armorClassEntryFactory.SaveObject(armorClassEntry);
         }

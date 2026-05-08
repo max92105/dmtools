@@ -585,7 +585,10 @@
                                              Style="{StaticResource DarkList}" MinHeight="70" MaxHeight="150"/>
                                     <StackPanel Grid.Row="3" Orientation="Horizontal">
                                         <Button Content="+ Add"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnAddAc_Click"/>
-                                        <Button Content="Remove" Style="{StaticResource SmBtn}"      Click="btnRemoveAc_Click"/>
+                                        <Button Content="Edit"   Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnEditAc_Click"/>
+                                        <Button Content="Remove" Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnRemoveAc_Click"/>
+                                        <Button Content="▲" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Margin="0,0,4,0" Click="btnMoveUpAc_Click"/>
+                                        <Button Content="▼" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Click="btnMoveDownAc_Click"/>
                                     </StackPanel>
                                 </Grid>
                                 <Grid Grid.Column="2">
@@ -601,7 +604,10 @@
                                              Style="{StaticResource DarkList}" MinHeight="70" MaxHeight="150"/>
                                     <StackPanel Grid.Row="3" Orientation="Horizontal">
                                         <Button Content="+ Add"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnAddSpeed_Click"/>
-                                        <Button Content="Remove" Style="{StaticResource SmBtn}"      Click="btnRemoveSpeed_Click"/>
+                                        <Button Content="Edit"   Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnEditSpeed_Click"/>
+                                        <Button Content="Remove" Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnRemoveSpeed_Click"/>
+                                        <Button Content="▲" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Margin="0,0,4,0" Click="btnMoveUpSpeed_Click"/>
+                                        <Button Content="▼" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Click="btnMoveDownSpeed_Click"/>
                                     </StackPanel>
                                 </Grid>
                                 <Grid Grid.Column="4">
@@ -617,7 +623,10 @@
                                              Style="{StaticResource DarkList}" MinHeight="70" MaxHeight="150"/>
                                     <StackPanel Grid.Row="3" Orientation="Horizontal">
                                         <Button Content="+ Add"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnAddSense_Click"/>
-                                        <Button Content="Remove" Style="{StaticResource SmBtn}"      Click="btnRemoveSense_Click"/>
+                                        <Button Content="Edit"   Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnEditSense_Click"/>
+                                        <Button Content="Remove" Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnRemoveSense_Click"/>
+                                        <Button Content="▲" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Margin="0,0,4,0" Click="btnMoveUpSense_Click"/>
+                                        <Button Content="▼" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Click="btnMoveDownSense_Click"/>
                                     </StackPanel>
                                 </Grid>
                             </Grid>
@@ -647,7 +656,10 @@
                                          Style="{StaticResource DarkList}" MinHeight="90" MaxHeight="180"/>
                                 <StackPanel Grid.Row="3" Orientation="Horizontal">
                                     <Button Content="+ Add"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnAddDamageModifier_Click"/>
-                                    <Button Content="Remove" Style="{StaticResource SmBtn}"      Click="btnRemoveDamageModifier_Click"/>
+                                    <Button Content="Edit"   Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnEditDamageModifier_Click"/>
+                                    <Button Content="Remove" Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnRemoveDamageModifier_Click"/>
+                                    <Button Content="▲" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Margin="0,0,4,0" Click="btnMoveUpDmg_Click"/>
+                                    <Button Content="▼" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Click="btnMoveDownDmg_Click"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -953,9 +965,11 @@
                                          SelectedItem="{Binding Path=SelectedSpecialAbility, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                                          Style="{StaticResource DarkList}" MinHeight="120" MaxHeight="240"/>
                                 <StackPanel Grid.Row="3" Orientation="Horizontal">
-                                    <Button Content="+ New"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnNewSpecialAbilities_Click"/>
-                                    <Button Content="Edit"   Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnEditSpecialAbilities_Click"/>
-                                    <Button Content="Delete" Style="{StaticResource SmDangerBtn}"               Click="btnDeleteSpecialAbilities_Click"/>
+                                    <Button Content="+ New"  Style="{StaticResource SmAmberBtn}"  Margin="0,0,6,0" Click="btnNewSpecialAbilities_Click"/>
+                                    <Button Content="Edit"   Style="{StaticResource SmBtn}"       Margin="0,0,6,0" Click="btnEditSpecialAbilities_Click"/>
+                                    <Button Content="Delete" Style="{StaticResource SmDangerBtn}" Margin="0,0,6,0" Click="btnDeleteSpecialAbilities_Click"/>
+                                    <Button Content="▲" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Margin="0,0,4,0" Click="btnMoveUpSA_Click"/>
+                                    <Button Content="▼" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Click="btnMoveDownSA_Click"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -974,9 +988,11 @@
                                          SelectedItem="{Binding Path=SelectedAction, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                                          Style="{StaticResource DarkList}" MinHeight="120" MaxHeight="240"/>
                                 <StackPanel Grid.Row="3" Orientation="Horizontal">
-                                    <Button Content="+ New"  Style="{StaticResource SmAmberBtn}" Margin="0,0,6,0" Click="btnNewActions_Click"/>
-                                    <Button Content="Edit"   Style="{StaticResource SmBtn}"      Margin="0,0,6,0" Click="btnEditActions_Click"/>
-                                    <Button Content="Delete" Style="{StaticResource SmDangerBtn}"               Click="btnDeleteActions_Click"/>
+                                    <Button Content="+ New"  Style="{StaticResource SmAmberBtn}"  Margin="0,0,6,0" Click="btnNewActions_Click"/>
+                                    <Button Content="Edit"   Style="{StaticResource SmBtn}"       Margin="0,0,6,0" Click="btnEditActions_Click"/>
+                                    <Button Content="Delete" Style="{StaticResource SmDangerBtn}" Margin="0,0,6,0" Click="btnDeleteActions_Click"/>
+                                    <Button Content="▲" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Margin="0,0,4,0" Click="btnMoveUpAction_Click"/>
+                                    <Button Content="▼" Style="{StaticResource SmBtn}" Width="26" Padding="0,4" Click="btnMoveDownAction_Click"/>
                                 </StackPanel>
                             </Grid>
                         </Border>

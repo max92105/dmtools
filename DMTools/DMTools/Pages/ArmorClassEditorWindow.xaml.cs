@@ -1,3 +1,4 @@
+using Data.Objects;
 using System.Windows;
 
 namespace DMTools.Pages
@@ -19,6 +20,12 @@ namespace DMTools.Pages
         public ArmorClassEditorWindow()
         {
             InitializeComponent();
+        }
+
+        public ArmorClassEditorWindow(ArmorClassEntry entry) : this()
+        {
+            txtLabel.Text = entry.Label ?? "";
+            txtValue.Text = entry.Value.ToString();
         }
 
         private void btnOk_Click(object sender, RoutedEventArgs e)

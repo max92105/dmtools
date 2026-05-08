@@ -121,6 +121,8 @@
     <Compile Include="Factories\SenseFactory.cs" />
     <Compile Include="Factories\SpecialAbilityFactory.cs" />
     <Compile Include="Factories\ActionFactory.cs" />
+    <Compile Include="Controllers\ConfigurationPageDataController.cs" />
+    <Compile Include="Factories\TypeFactory.cs" />
     <Compile Include="Factories\CharacteristicTypeFactory.cs" />
     <Compile Include="Factories\SkillFactory.cs" />
     <Compile Include="Factories\SkillTypeFactory.cs" />

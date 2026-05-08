@@ -41,5 +41,10 @@ namespace DMTools.Pages
         {
             NavigationService.Navigate(new EncounterBuilderPage());
         }
+
+        private void btnConfiguration_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new ConfigurationPage());
+        }
     }
 }
