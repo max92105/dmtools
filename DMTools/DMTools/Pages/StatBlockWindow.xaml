@@ -10,6 +10,12 @@
         WindowStartupLocation="CenterScreen"
         Background="#F2080000">
 
+    <!-- No Windows frame (no white strip / see-through border), still resizable from the edges. -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0"
+                      CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
     <Window.Resources>
         <Style x:Key="ChromeBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>

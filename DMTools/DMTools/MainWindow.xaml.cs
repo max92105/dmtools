@@ -18,6 +18,13 @@ namespace DMTools
             LegacyMigrationController.MigrateTypesCasing();
         }
 
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            // Borderless window: maximize to the work area instead of hiding behind the taskbar.
+            WindowScreenHelper.EnableWorkAreaMaximize(this);
+        }
+
         protected override void OnStateChanged(EventArgs e)
         {
             btnMaxRestore.Content = WindowState == WindowState.Maximized ? "❒" : "□";

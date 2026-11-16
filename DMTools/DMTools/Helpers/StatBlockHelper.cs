@@ -174,11 +174,13 @@ namespace DMTools.Helpers
         }
 
         private static void AppendActionSection(StringBuilder sb, string header, IEnumerable<Data.Objects.Action> actions,
-            Dictionary<string, int> abilityModifiers, int proficiencyBonus)
+            Dictionary<string, int> abilityModifiers, int proficiencyBonus, string intro = null)
         {
             var list = actions.ToList();
-            if (list.Count == 0) return;
+            if (list.Count == 0 && String.IsNullOrWhiteSpace(intro)) return;
             sb.Append("<h3 class=\"section-header\">" + header + "</h3>");
+            if (!String.IsNullOrWhiteSpace(intro))
+                sb.Append("<div class=\"property-block\"><p>" + FormatText(intro) + "</p></div>");
             foreach (var action in list)
             {
                 string desc = GenerateActionDescription(action, abilityModifiers, proficiencyBonus);
@@ -306,7 +308,7 @@ namespace DMTools.Helpers
 
             // Action sections
             AppendActionSection(sb, "Actions",
-                _StatBlockDataModel.Actions.Where(a => !a.IsLegendary && !a.IsBonus && !a.IsReaction),
+                _StatBlockDataModel.Actions.Where(a => !a.IsLegendary && !a.IsBonus && !a.IsReaction && !a.IsLair),
                 abilityModifiers, profBonus);
 
             AppendActionSection(sb, "Bonus Actions",
@@ -317,9 +319,25 @@ namespace DMTools.Helpers
                 _StatBlockDataModel.Actions.Where(a => a.IsReaction),
                 abilityModifiers, profBonus);
 
+            int legendaryCount = monster.LegendaryActionCount > 0 ? monster.LegendaryActionCount : 3;
             AppendActionSection(sb, "Legendary Actions",
                 _StatBlockDataModel.Actions.Where(a => a.IsLegendary),
-                abilityModifiers, profBonus);
+                abilityModifiers, profBonus,
+                _StatBlockDataModel.Actions.Any(a => a.IsLegendary)
+                    ? $"This creature can take {legendaryCount} legendary action{(legendaryCount > 1 ? "s" : "")}, choosing from the options below. " +
+                      "Only one legendary action can be used at a time and only at the end of another creature's turn. " +
+                      "It regains spent legendary actions at the start of its turn."
+                    : null);
+
+            AppendActionSection(sb, "Lair Actions",
+                _StatBlockDataModel.Actions.Where(a => a.IsLair),
+                abilityModifiers, profBonus, monster.LairActionsIntro);
+
+            if (!String.IsNullOrWhiteSpace(monster.RegionalEffects))
+            {
+                sb.Append("<h3 class=\"section-header\">Regional Effects</h3>");
+                sb.Append("<div class=\"property-block\"><p>" + FormatText(monster.RegionalEffects) + "</p></div>");
+            }
 
             sb.Append("</div>"); // end content-wrap
             sb.Append("<div class=\"bar\"></div>");

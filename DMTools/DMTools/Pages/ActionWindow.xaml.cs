@@ -126,6 +126,7 @@ namespace DMTools.Pages
                 Action.IsLegendary  = source.IsLegendary;
                 Action.IsBonus      = source.IsBonus;
                 Action.IsReaction   = source.IsReaction;
+                Action.IsLair       = source.IsLair;
 
                 string name = source.Name ?? "";
                 string desc = source.Description ?? "";

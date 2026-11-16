@@ -1,8 +1,8 @@
 <Window x:Class="DMTools.Pages.ActionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Action" Width="820" Height="920"
-        ResizeMode="CanResize" WindowStartupLocation="CenterScreen"
+        Title="Action" Width="820" Height="920" MinWidth="560" MinHeight="360"
+        ResizeMode="CanResize" WindowStartupLocation="CenterOwner"
         Background="#F2080000">
     <Window.Resources>
 
@@ -338,8 +338,11 @@
                        Foreground="#FFE69A28"/>
         </Border>
 
-        <!-- Content -->
-        <Grid Grid.Row="1" Margin="16,14,16,10">
+        <!-- Content: scrolls when the screen is too small; otherwise the description fills the free space -->
+        <ScrollViewer x:Name="svContent" Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      Padding="16,14,16,10">
+        <Grid MinHeight="720" Height="{Binding ViewportHeight, ElementName=svContent}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -426,7 +429,9 @@
                         <CheckBox Name="chkBonus" IsChecked="{Binding Action.IsBonus}"
                                   Content="Bonus" Style="{StaticResource DarkCheck}" Margin="0,0,14,0"/>
                         <CheckBox Name="chkReaction" IsChecked="{Binding Action.IsReaction}"
-                                  Content="Reaction" Style="{StaticResource DarkCheck}"/>
+                                  Content="Reaction" Style="{StaticResource DarkCheck}" Margin="0,0,14,0"/>
+                        <CheckBox Name="chkLair" IsChecked="{Binding Action.IsLair}"
+                                  Content="Lair" Style="{StaticResource DarkCheck}"/>
                     </StackPanel>
                 </Grid>
 
@@ -504,6 +509,7 @@
                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                      Margin="0,0,0,10"/>
         </Grid>
+        </ScrollViewer>
 
         <!-- Footer -->
         <Border Grid.Row="2" Background="#F50A0000"

@@ -43,7 +43,8 @@ namespace Controllers.VirtualFactories
             Alignment      = m.Alignment,
             ArmorClass     = m.ArmorClass,
             HitPoints      = m.HitPoints,
-            ChallengeRating = m.ChallengeRating
+            ChallengeRating = m.ChallengeRating,
+            Source         = m.Source
         };
     }
 }

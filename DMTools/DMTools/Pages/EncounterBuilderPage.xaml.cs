@@ -259,12 +259,6 @@ namespace DMTools.Pages
                 e.Handled = true;
         }
 
-        private void lbMonsters_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            monsterScroll.ScrollToVerticalOffset(monsterScroll.VerticalOffset - e.Delta * 0.5);
-            e.Handled = true;
-        }
-
         private void lbCurrentEntries_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             entriesScroll.ScrollToVerticalOffset(entriesScroll.VerticalOffset - e.Delta * 0.5);

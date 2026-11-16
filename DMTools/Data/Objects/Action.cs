@@ -136,6 +136,22 @@ namespace Data.Objects
             }
         }
 
+        private Boolean _IsLair;
+
+        /// <summary>Lair action: taken on initiative count 20 while the creature is in its lair.</summary>
+        public Boolean IsLair
+        {
+            get { return _IsLair; }
+            set
+            {
+                if (value != _IsLair)
+                {
+                    _IsLair = value;
+                    NotifyPropertyChanged("IsLair");
+                }
+            }
+        }
+
         /// <summary>
         /// The range of the attack (e.g. "Melee (5 ft.)", "Ranged (80/320 ft.)")
         /// </summary>

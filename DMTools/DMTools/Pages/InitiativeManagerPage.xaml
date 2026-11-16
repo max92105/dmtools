@@ -395,7 +395,10 @@
                     </Border>
 
                     <!-- ── MONSTER PANEL ── -->
-                    <Grid x:Name="panelMonsters" Grid.Row="1">
+                    <!-- Scrolls when the screen is too short; otherwise the monster list fills the free space -->
+                    <ScrollViewer x:Name="panelMonsters" Grid.Row="1"
+                                  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <Grid MinHeight="640" Height="{Binding ViewportHeight, ElementName=panelMonsters}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
@@ -471,6 +474,7 @@
                                             <Run Text="{Binding Type}"/>
                                             <Run Text=" · CR "/>
                                             <Run Text="{Binding ChallengeRating, Converter={StaticResource CrFmt}}"/>
+                                            <Run Text="{Binding Source, StringFormat=' · {0}'}" Foreground="#66E6D3B8"/>
                                         </TextBlock>
                                     </StackPanel>
                                 </DataTemplate>
@@ -573,6 +577,7 @@
                             </StackPanel>
                         </Border>
                     </Grid>
+                    </ScrollViewer>
 
                     <!-- ── PLAYER PANEL ── -->
                     <Grid x:Name="panelPlayers" Grid.Row="1" Visibility="Collapsed">
@@ -677,27 +682,24 @@
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0" Content="◀  Prev" Style="{StaticResource NavBtn}"
-                                Click="btnPrevious_Click"/>
+                                VerticalAlignment="Top" Click="btnPrevious_Click"/>
                         <Button Grid.Column="2" Content="Next  ▶" Style="{StaticResource NavBtn}"
-                                Click="btnNext_Click"/>
-<Button Grid.Column="4" Content="⟳ Monsters" Style="{StaticResource GhostBtn}"
-                                Click="btnRerollMonsters_Click"/>
-                        <Button Grid.Column="6" Content="⟳ Players" Style="{StaticResource GhostBtn}"
-                                Click="btnRerollPlayers_Click"/>
-                        <Button Grid.Column="8" Content="⟳ All" Style="{StaticResource GhostBtn}"
-                                Click="btnRerollAll_Click"/>
-                        <Button Grid.Column="10" Content="↺ Reset" Style="{StaticResource GhostBtn}"
-                                Foreground="#BBDD6644" BorderBrush="#55DD6644"
-                                Click="btnResetInitiative_Click"/>
+                                VerticalAlignment="Top" Click="btnNext_Click"/>
+                        <!-- Reroll / reset buttons wrap onto a second line when the area is narrow -->
+                        <WrapPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right"
+                                   Margin="0,-2,0,-2">
+                            <Button Content="⟳ Monsters" Style="{StaticResource GhostBtn}" Margin="10,2,0,2"
+                                    Click="btnRerollMonsters_Click"/>
+                            <Button Content="⟳ Players" Style="{StaticResource GhostBtn}" Margin="10,2,0,2"
+                                    Click="btnRerollPlayers_Click"/>
+                            <Button Content="⟳ All" Style="{StaticResource GhostBtn}" Margin="10,2,0,2"
+                                    Click="btnRerollAll_Click"/>
+                            <Button Content="↺ Reset" Style="{StaticResource GhostBtn}" Margin="10,2,0,2"
+                                    Foreground="#BBDD6644" BorderBrush="#55DD6644"
+                                    Click="btnResetInitiative_Click"/>
+                        </WrapPanel>
                     </Grid>
                 </Border>
 

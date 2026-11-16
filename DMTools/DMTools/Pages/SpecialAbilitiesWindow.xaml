@@ -1,8 +1,8 @@
 <Window x:Class="DMTools.Pages.SpecialAbilitiesWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Special Ability" Width="800" Height="620"
-        ResizeMode="CanResize" WindowStartupLocation="CenterScreen"
+        Title="Special Ability" Width="800" Height="760" MinWidth="560" MinHeight="360"
+        ResizeMode="CanResize" WindowStartupLocation="CenterOwner"
         Background="#F2080000">
     <Window.Resources>
 
@@ -237,9 +237,16 @@
                        Foreground="#FFE69A28"/>
         </Border>
 
-        <!-- Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="16,14,16,10">
-            <StackPanel>
+        <!-- Content: scrolls when the screen is too small; otherwise the description fills the free space -->
+        <ScrollViewer x:Name="svContent" Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      Padding="16,14,16,10">
+          <Grid MinHeight="560" Height="{Binding ViewportHeight, ElementName=svContent}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0">
 
                 <!-- ── FROM LIBRARY ──────────────────────────────────── -->
                 <TextBlock FontFamily="Georgia" FontSize="9" FontWeight="Bold"
@@ -320,13 +327,15 @@
 
                 <!-- Description -->
                 <TextBlock Text="DESCRIPTION" Style="{StaticResource Lbl}"/>
-                <TextBox Text="{Binding SpecialAbility.Description, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource DarkInput}"
-                         AcceptsReturn="True" Height="200" TextWrapping="Wrap"
-                         VerticalContentAlignment="Top" Padding="8,6"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"/>
-
             </StackPanel>
+
+            <TextBox Grid.Row="1"
+                     Text="{Binding SpecialAbility.Description, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource DarkInput}"
+                     AcceptsReturn="True" TextWrapping="Wrap"
+                     VerticalContentAlignment="Top" Padding="8,6"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+          </Grid>
         </ScrollViewer>
 
         <!-- Footer -->

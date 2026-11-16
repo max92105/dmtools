@@ -1007,6 +1007,53 @@
                     </Grid>
                 </Expander>
 
+                <!-- ══ LEGENDARY, LAIR & REGION ══════════════════════════ -->
+                <Expander Header="LEGENDARY, LAIR &amp; REGION" Style="{StaticResource DarkExpander}" Margin="0,0,0,8">
+                    <Border Background="#0DFFFFFF" BorderBrush="#33E69A28" BorderThickness="1" CornerRadius="3" Padding="14,12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="12"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Legendary actions per round -->
+                            <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+                                <TextBlock Text="LEGENDARY ACTIONS PER ROUND" Style="{StaticResource Lbl}"
+                                           VerticalAlignment="Center" Margin="0,0,10,3"/>
+                                <TextBox Text="{Binding Monster.LegendaryActionCount}" Style="{StaticResource DarkInput}"
+                                         Width="60" TextAlignment="Center"/>
+                                <TextBlock Text="0 = 3 (default) — mark actions as Legendary in the action editor"
+                                           FontFamily="Georgia" FontSize="10" FontStyle="Italic"
+                                           Foreground="#55E69A28" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            </StackPanel>
+
+                            <!-- Lair actions intro -->
+                            <StackPanel Grid.Row="2" Grid.Column="0">
+                                <TextBlock Text="LAIR ACTIONS INTRO  (shown above the actions marked Lair)" Style="{StaticResource Lbl}"/>
+                                <TextBox Text="{Binding Monster.LairActionsIntro}" Style="{StaticResource DarkInput}"
+                                         AcceptsReturn="True" TextWrapping="Wrap" Height="130"
+                                         VerticalContentAlignment="Top" Padding="8,6"
+                                         VerticalScrollBarVisibility="Auto"/>
+                            </StackPanel>
+
+                            <!-- Regional effects -->
+                            <StackPanel Grid.Row="2" Grid.Column="2">
+                                <TextBlock Text="REGIONAL EFFECTS" Style="{StaticResource Lbl}"/>
+                                <TextBox Text="{Binding Monster.RegionalEffects}" Style="{StaticResource DarkInput}"
+                                         AcceptsReturn="True" TextWrapping="Wrap" Height="130"
+                                         VerticalContentAlignment="Top" Padding="8,6"
+                                         VerticalScrollBarVisibility="Auto"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Expander>
+
             </StackPanel>
         </ScrollViewer>
     </Grid>

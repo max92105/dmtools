@@ -10,6 +10,10 @@ namespace Controllers.Factories
 {
     public class ActionFactory
     {
+        /// <summary>"Multiattack", "Multiattack (Vampire Form Only)"...</summary>
+        public static bool IsMultiattack(Data.Objects.Action action)
+            => action?.Name != null && action.Name.TrimStart().StartsWith("Multiattack", StringComparison.OrdinalIgnoreCase);
+
         public Data.Objects.Action GetObject(Guid id)
         {
             using (var db = DatabaseHelper.GetDatabase())
@@ -43,7 +47,11 @@ namespace Controllers.Factories
             using (var db = DatabaseHelper.GetDatabase())
             {
                 var collection = db.GetCollection<Data.Objects.Action>("actions");
-                var actions = collection.Find(a => a.MonsterId == monsterId).OrderBy(a => a.SortOrder).ToList();
+                // Multiattack is always listed first (stat block, editor, export), whatever its sort order.
+                var actions = collection.Find(a => a.MonsterId == monsterId)
+                    .OrderBy(a => IsMultiattack(a) ? 0 : 1)
+                    .ThenBy(a => a.SortOrder)
+                    .ToList();
                 foreach (var action in actions)
                 {
                     action.SetInternalState(InternalStates.UnModified, true);

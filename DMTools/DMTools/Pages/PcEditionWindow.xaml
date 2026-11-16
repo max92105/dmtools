@@ -6,7 +6,7 @@
         mc:Ignorable="d"
         WindowStyle="None" ResizeMode="NoResize"
         Width="460" SizeToContent="Height"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         Background="#F2100800">
 

@@ -54,9 +54,9 @@
                    FontFamily="Georgia" FontSize="42" FontWeight="Bold"
                    Foreground="#E69A28"/>
 
-        <!-- Centered menu card -->
-        <Border Grid.Row="1"
-                HorizontalAlignment="Center" VerticalAlignment="Center"
+        <!-- Centered menu card (scrolls on very small screens) -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,12"
                 Width="400" Background="#E6100800"
                 BorderBrush="#E69A28" BorderThickness="1">
             <StackPanel>
@@ -81,5 +81,6 @@
                            Foreground="#55E69A28" HorizontalAlignment="Right" Margin="0,22,18,16"/>
             </StackPanel>
         </Border>
+        </ScrollViewer>
     </Grid>
 </Page>

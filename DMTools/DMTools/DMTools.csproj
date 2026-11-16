@@ -181,6 +181,7 @@
     <Compile Include="Helpers\MonsterFileHelper.cs" />
     <Compile Include="Helpers\NotificationHelper.cs" />
     <Compile Include="Helpers\StatBlockHelper.cs" />
+    <Compile Include="Helpers\WindowScreenHelper.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

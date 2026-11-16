@@ -71,6 +71,13 @@ namespace DMTools.Pages
             cmbAlignment.ItemsSource = alignments;
             cmbAlignment.SelectedIndex = 0;
 
+            var sources = new List<string> { "" };
+            sources.AddRange(_allMonsters
+                .Where(m => !string.IsNullOrWhiteSpace(m.Source))
+                .Select(m => m.Source).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(s => s));
+            cmbSource.ItemsSource = sources;
+            cmbSource.SelectedIndex = 0;
+
             _suppressFilter = false;
         }
 
@@ -131,6 +138,11 @@ namespace DMTools.Pages
                 (m.Alignment == null || m.Alignment.IndexOf(alignment, StringComparison.OrdinalIgnoreCase) < 0))
                 return false;
 
+            string source = cmbSource.SelectedItem as string;
+            if (!string.IsNullOrEmpty(source) &&
+                !string.Equals(m.Source, source, StringComparison.OrdinalIgnoreCase))
+                return false;
+
             if (decimal.TryParse(txtCrMin.Text, out decimal crMin) && m.ChallengeRating < crMin) return false;
             if (decimal.TryParse(txtCrMax.Text, out decimal crMax) && m.ChallengeRating > crMax) return false;
             if (int.TryParse(txtHpMin.Text, out int hpMin) && m.HitPoints < hpMin) return false;
@@ -169,6 +181,7 @@ namespace DMTools.Pages
             cmbType.SelectedIndex = 0;
             cmbSize.SelectedIndex = 0;
             cmbAlignment.SelectedIndex = 0;
+            cmbSource.SelectedIndex = 0;
             _suppressFilter = false;
             ApplyFilter();
         }

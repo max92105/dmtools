@@ -5,8 +5,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:conv="clr-namespace:DMTools.Converters"
         mc:Ignorable="d"
-        Title="Skills" Height="560" Width="700"
-        ResizeMode="CanResize" Loaded="Window_Loaded"
+        Title="Skills" Height="560" Width="700" MinWidth="480" MinHeight="300"
+        ResizeMode="CanResize" WindowStartupLocation="CenterOwner" Loaded="Window_Loaded"
         Background="#F2080000">
 
     <Window.Resources>
@@ -97,14 +97,14 @@
         <!-- ── Header ──────────────────────────────────────────────── -->
         <Border Grid.Row="0" Background="#F50A0000"
                 BorderBrush="#55E69A28" BorderThickness="0,0,0,1" Padding="20,12">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="Skills"
                            FontFamily="Georgia" FontSize="20" FontStyle="Italic"
                            Foreground="#FFE69A28"/>
                 <TextBlock Text="  ·  set a bonus to override, leave blank to use the ability modifier"
                            FontFamily="Georgia" FontSize="10" FontStyle="Italic"
                            Foreground="#55E69A28" VerticalAlignment="Bottom" Margin="0,0,0,2"/>
-            </StackPanel>
+            </WrapPanel>
         </Border>
 
         <!-- ── Skill list ───────────────────────────────────────────── -->

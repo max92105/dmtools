@@ -275,12 +275,13 @@
                               SelectionChanged="cmbTypeFilter_SelectionChanged"/>
                 </StackPanel>
 
-                <!-- Monster list -->
-                <ScrollViewer x:Name="monsterScroll">
+                <!-- Monster list (scrolls itself so only visible rows are created — fast with thousands of monsters) -->
                     <ListBox x:Name="lbMonsters" Background="Transparent" BorderThickness="0"
-                             ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                             SelectionChanged="lbMonsters_SelectionChanged"
-                             PreviewMouseWheel="lbMonsters_PreviewMouseWheel">
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
+                             SelectionChanged="lbMonsters_SelectionChanged">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Padding" Value="12,7"/>
@@ -316,12 +317,12 @@
                                         <Run Text="{Binding Type}"/>
                                         <Run Text=" · CR "/>
                                         <Run Text="{Binding ChallengeRating, Converter={StaticResource CrFmt}}"/>
+                                        <Run Text="{Binding Source, StringFormat=' · {0}'}" Foreground="#66E6D3B8"/>
                                     </TextBlock>
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                </ScrollViewer>
             </DockPanel>
 
             <!-- Separator -->

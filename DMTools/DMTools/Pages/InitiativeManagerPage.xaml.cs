@@ -30,9 +30,36 @@ namespace DMTools.Pages
         private Guid _currentStatBlockMonsterId = Guid.Empty;
         private bool _statBlockPendingScrollRestore = false;
 
+        // Side panels shrink on small screens / high display scaling so the combat list keeps room.
+        private const double CompactLayoutThreshold = 1300;
+        private const double SidebarWideWidth       = 440;
+        private const double SidebarCompactWidth    = 340;
+        private const double StatBlockWideWidth     = 370;
+        private const double StatBlockCompactWidth  = 280;
+        private bool? _compactLayout;
+
+        private double SidebarWidth => _compactLayout == true ? SidebarCompactWidth : SidebarWideWidth;
+
         public InitiativeManagerPage()
         {
             InitializeComponent();
+            SizeChanged += Page_SizeChanged;
+        }
+
+        private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            bool compact = ActualWidth < CompactLayoutThreshold;
+            if (_compactLayout == compact) return;
+            _compactLayout = compact;
+
+            statBlockPanel.Width = compact ? StatBlockCompactWidth : StatBlockWideWidth;
+
+            if (_sidebarExpanded)
+            {
+                // Drop any held toggle animation so the new base width applies.
+                sidebarWrapper.BeginAnimation(FrameworkElement.WidthProperty, null);
+                sidebarWrapper.Width = SidebarWidth;
+            }
         }
 
         // ── Load ─────────────────────────────────────────────────────────────
@@ -647,7 +674,7 @@ namespace DMTools.Pages
 
             var anim = new DoubleAnimation
             {
-                To = _sidebarExpanded ? 440 : 0,
+                To = _sidebarExpanded ? SidebarWidth : 0,
                 Duration = TimeSpan.FromMilliseconds(200),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
             };

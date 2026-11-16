@@ -76,8 +76,9 @@
                        Foreground="#FFE69A28" VerticalAlignment="Center"/>
         </Border>
 
-        <!-- Form -->
-        <Grid Grid.Row="1" MaxWidth="560" HorizontalAlignment="Left" Margin="32,24,0,24">
+        <!-- Form (scrolls on small screens) -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid MaxWidth="560" HorizontalAlignment="Left" Margin="32,24,0,24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="16"/>
@@ -140,5 +141,6 @@
             </Grid>
 
         </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

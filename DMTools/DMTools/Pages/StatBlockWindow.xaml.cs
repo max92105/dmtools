@@ -14,6 +14,13 @@ namespace DMTools.Pages
             InitializeComponent();
         }
 
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            // Borderless window: maximize to the work area instead of hiding behind the taskbar.
+            Helpers.WindowScreenHelper.EnableWorkAreaMaximize(this);
+        }
+
         private void wbStatBlock_Loaded(object sender, RoutedEventArgs e)
         {
             try

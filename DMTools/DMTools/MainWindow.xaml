@@ -5,7 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" Closed="Window_Closed"
         Title="DM Tools" Width="1280" Height="720" WindowState="Maximized"
-        WindowStyle="None" ResizeMode="CanResize">
+        WindowStyle="None" ResizeMode="CanResize" Background="#100800">
+
+    <!-- Removes the Windows frame (white strip at the top, see-through border when maximized)
+         while keeping resizing from the edges. The custom title bar handles moving/maximizing. -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0"
+                      CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <Style x:Key="ChromeButtonStyle" TargetType="Button">

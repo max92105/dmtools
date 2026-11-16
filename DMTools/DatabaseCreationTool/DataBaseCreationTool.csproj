@@ -120,6 +120,10 @@
     <Compile Include="Migrations\LiteDbMigration.cs" />
     <Compile Include="Migrations\LiteDbMigrationRunner.cs" />
     <Compile Include="Migrations\Migration_1536196904.cs" />
+    <Compile Include="Migrations\Migration_1794787200.cs" />
+    <Compile Include="FiveETools\FiveEToolsText.cs" />
+    <Compile Include="FiveETools\FiveEToolsCopyResolver.cs" />
+    <Compile Include="FiveETools\FiveEToolsMonsterMapper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqliteToLiteDbImporter.cs" />

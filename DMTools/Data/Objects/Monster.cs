@@ -308,5 +308,69 @@ namespace Data.Objects
                 }
             }
         }
+
+        private String _Source;
+
+        // Book the monster comes from (e.g. "MM", "VGM"). Empty for monsters created in the app.
+        public String Source
+        {
+            get { return _Source; }
+            set
+            {
+                if (value != _Source)
+                {
+                    _Source = value;
+                    NotifyPropertyChanged("Source");
+                }
+            }
+        }
+
+        private Int16 _LegendaryActionCount;
+
+        // Legendary actions per round. 0 = default (3).
+        public Int16 LegendaryActionCount
+        {
+            get { return _LegendaryActionCount; }
+            set
+            {
+                if (value != _LegendaryActionCount)
+                {
+                    _LegendaryActionCount = value;
+                    NotifyPropertyChanged("LegendaryActionCount");
+                }
+            }
+        }
+
+        private String _LairActionsIntro;
+
+        // Text shown above the lair actions (e.g. "On initiative count 20 (losing initiative ties)...").
+        public String LairActionsIntro
+        {
+            get { return _LairActionsIntro; }
+            set
+            {
+                if (value != _LairActionsIntro)
+                {
+                    _LairActionsIntro = value;
+                    NotifyPropertyChanged("LairActionsIntro");
+                }
+            }
+        }
+
+        private String _RegionalEffects;
+
+        // Regional effects around the creature's lair (free text, one effect per line).
+        public String RegionalEffects
+        {
+            get { return _RegionalEffects; }
+            set
+            {
+                if (value != _RegionalEffects)
+                {
+                    _RegionalEffects = value;
+                    NotifyPropertyChanged("RegionalEffects");
+                }
+            }
+        }
     }
 }

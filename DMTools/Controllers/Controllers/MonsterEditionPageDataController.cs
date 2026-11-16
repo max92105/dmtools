@@ -160,8 +160,10 @@ namespace Controllers.Controllers
             foreach (SpecialAbility specialAbility in monsterEditionPageDataModel.SpecialAbilities)
                 specialAbilityFactory.SaveObject(specialAbility);
 
+            // Multiattack always first, then the order of the list.
             int actionIdx = 0;
-            foreach (Data.Objects.Action action in monsterEditionPageDataModel.Actions)
+            foreach (Data.Objects.Action action in monsterEditionPageDataModel.Actions
+                         .OrderBy(a => ActionFactory.IsMultiattack(a) ? 0 : 1).ToList())
                 action.SortOrder = actionIdx++;
             foreach (Data.Objects.Action action in monsterEditionPageDataModel.Actions)
                 actionFactory.SaveObject(action);

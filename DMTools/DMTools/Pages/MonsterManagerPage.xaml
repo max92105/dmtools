@@ -296,6 +296,10 @@
                         <ComboBox x:Name="cmbAlignment" Style="{StaticResource DarkCombo}"
                                   Margin="0,0,0,14" SelectionChanged="cmbFilter_SelectionChanged"/>
 
+                        <TextBlock Text="SOURCE" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="cmbSource" Style="{StaticResource DarkCombo}"
+                                  Margin="0,0,0,14" SelectionChanged="cmbFilter_SelectionChanged"/>
+
                         <TextBlock Text="CR" Style="{StaticResource Lbl}"/>
                         <Grid Margin="0,0,0,14">
                             <Grid.ColumnDefinitions>
@@ -462,6 +466,10 @@
                                                            FontFamily="Georgia" FontSize="10"
                                                            Foreground="#88E6D3B8"
                                                            Visibility="{Binding HasSubtype, Converter={StaticResource BoolVis}}"/>
+                                                <TextBlock Text="{Binding Source, StringFormat=' · {0}'}"
+                                                           FontFamily="Georgia" FontSize="10" FontStyle="Italic"
+                                                           Foreground="#66E6D3B8"
+                                                           Visibility="{Binding HasSource, Converter={StaticResource BoolVis}}"/>
                                             </StackPanel>
                                         </StackPanel>
 

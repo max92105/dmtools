@@ -23,6 +23,7 @@ namespace Data.VirtualObject
         public Int16   ArmorClass     { get; set; }
         public Int16   HitPoints      { get; set; }
         public Decimal ChallengeRating { get; set; }
+        public String  Source         { get; set; }
 
         public bool IsSelected
         {
@@ -32,5 +33,6 @@ namespace Data.VirtualObject
 
         public bool HasSubtype => !string.IsNullOrWhiteSpace(Subtype);
         public bool HasSize    => !string.IsNullOrWhiteSpace(Size);
+        public bool HasSource  => !string.IsNullOrWhiteSpace(Source);
     }
 }

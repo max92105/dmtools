@@ -1,4 +1,5 @@
 ﻿using Controllers.Controllers;
+using Controllers.Factories;
 using Data.Constants;
 using Data.DataModels.MonsterEditionPage;
 using Data.Objects;
@@ -66,6 +67,12 @@ namespace DMTools.Pages
                     _MonsterEditionPageDataModel = MonsterEditionPageDataController.LoadMonster(_MonsterId);
                 else
                     _MonsterEditionPageDataModel = MonsterEditionPageDataController.LoadNewMonster();
+
+                // Imported monsters can have an alignment outside the standard list
+                // (e.g. "Neutral Good (50%) Or Neutral Evil (50%)"): offer it so the combo doesn't show blank.
+                string alignment = _MonsterEditionPageDataModel.Monster?.Alignment;
+                if (!string.IsNullOrEmpty(alignment) && !Alignments.All.Contains(alignment))
+                    cboAlignment.ItemsSource = new[] { alignment }.Concat(Alignments.All).ToList();
 
                 DataContext = _MonsterEditionPageDataModel;
 
@@ -138,7 +145,7 @@ namespace DMTools.Pages
         {
             try
             {
-                var window = new SpeedSenseEditorWindow("Speed", SpeedTypes.All);
+                var window = new SpeedSenseEditorWindow("Speed", SpeedTypes.All) { Owner = Window.GetWindow(this) };
                 if (window.ShowDialog() == true)
                 {
                     var speed = new Speed
@@ -160,7 +167,7 @@ namespace DMTools.Pages
         private void btnEditSpeed_Click(object sender, RoutedEventArgs e)
         {
             if (!(lbSpeeds.SelectedItem is Speed selected)) return;
-            var window = new SpeedSenseEditorWindow("Speed", SpeedTypes.All, selected.SpeedType, selected.Value);
+            var window = new SpeedSenseEditorWindow("Speed", SpeedTypes.All, selected.SpeedType, selected.Value) { Owner = Window.GetWindow(this) };
             if (window.ShowDialog() == true)
             {
                 selected.SpeedType = window.SelectedType;
@@ -189,7 +196,7 @@ namespace DMTools.Pages
         {
             try
             {
-                var window = new SpeedSenseEditorWindow("Sense", SenseTypes.All);
+                var window = new SpeedSenseEditorWindow("Sense", SenseTypes.All) { Owner = Window.GetWindow(this) };
                 if (window.ShowDialog() == true)
                 {
                     var sense = new Sense
@@ -211,7 +218,7 @@ namespace DMTools.Pages
         private void btnEditSense_Click(object sender, RoutedEventArgs e)
         {
             if (!(lbSenses.SelectedItem is Sense selected)) return;
-            var window = new SpeedSenseEditorWindow("Sense", SenseTypes.All, selected.SenseType, selected.Value);
+            var window = new SpeedSenseEditorWindow("Sense", SenseTypes.All, selected.SenseType, selected.Value) { Owner = Window.GetWindow(this) };
             if (window.ShowDialog() == true)
             {
                 selected.SenseType = window.SelectedType;
@@ -240,7 +247,7 @@ namespace DMTools.Pages
         {
             try
             {
-                var window = new ArmorClassEditorWindow();
+                var window = new ArmorClassEditorWindow() { Owner = Window.GetWindow(this) };
                 if (window.ShowDialog() == true)
                 {
                     var entry = new ArmorClassEntry
@@ -262,7 +269,7 @@ namespace DMTools.Pages
         private void btnEditAc_Click(object sender, RoutedEventArgs e)
         {
             if (!(lbArmorClass.SelectedItem is ArmorClassEntry selected)) return;
-            var window = new ArmorClassEditorWindow(selected);
+            var window = new ArmorClassEditorWindow(selected) { Owner = Window.GetWindow(this) };
             if (window.ShowDialog() == true)
             {
                 selected.Label = window.AcLabel;
@@ -291,7 +298,7 @@ namespace DMTools.Pages
         {
             try
             {
-                var window = new DamageModifierEditorWindow(_MonsterEditionPageDataModel.Monster.ChallengeRating);
+                var window = new DamageModifierEditorWindow(_MonsterEditionPageDataModel.Monster.ChallengeRating) { Owner = Window.GetWindow(this) };
                 if (window.ShowDialog() == true)
                 {
                     var modifier = new DamageModifier
@@ -315,7 +322,7 @@ namespace DMTools.Pages
         private void btnEditDamageModifier_Click(object sender, RoutedEventArgs e)
         {
             if (!(lbDamageModifiers.SelectedItem is DamageModifier selected)) return;
-            var window = new DamageModifierEditorWindow(selected, _MonsterEditionPageDataModel.Monster.ChallengeRating);
+            var window = new DamageModifierEditorWindow(selected, _MonsterEditionPageDataModel.Monster.ChallengeRating) { Owner = Window.GetWindow(this) };
             if (window.ShowDialog() == true)
             {
                 selected.DamageType   = window.SelectedDamageType;
@@ -348,7 +355,7 @@ namespace DMTools.Pages
             {
                 if (Save())
                 {
-                    SkillWindow skillWindow = new SkillWindow(_MonsterEditionPageDataModel.Monster.Id, GetAbilityModifiers(), GetEffectiveProficiencyBonus());
+                    SkillWindow skillWindow = new SkillWindow(_MonsterEditionPageDataModel.Monster.Id, GetAbilityModifiers(), GetEffectiveProficiencyBonus()) { Owner = Window.GetWindow(this) };
                     skillWindow.ShowDialog();
 
                     if (skillWindow.DialogResult != null && (Boolean)skillWindow.DialogResult)
@@ -372,7 +379,7 @@ namespace DMTools.Pages
                     specialAbility,
                     _MonsterEditionPageDataModel.Monster.Name,
                     _MonsterEditionPageDataModel.Monster.ChallengeRating,
-                    GetAbilityModifiers());
+                    GetAbilityModifiers()) { Owner = Window.GetWindow(this) };
                 specialAbilitiesWindow.ShowDialog();
 
                 if (specialAbilitiesWindow.DialogResult == true)
@@ -394,7 +401,7 @@ namespace DMTools.Pages
                         SelectedSpecialAbility,
                         _MonsterEditionPageDataModel.Monster.Name,
                         _MonsterEditionPageDataModel.Monster.ChallengeRating,
-                        GetAbilityModifiers());
+                        GetAbilityModifiers()) { Owner = Window.GetWindow(this) };
                     specialAbilitiesWindow.ShowDialog();
                 }
             }
@@ -481,11 +488,14 @@ namespace DMTools.Pages
             try
             {
                 Data.Objects.Action action = new Data.Objects.Action() { Id = Guid.NewGuid(), MonsterId = _MonsterEditionPageDataModel.Monster.Id };
-                ActionWindow actionWindow = new ActionWindow(action, _MonsterEditionPageDataModel.Monster.Name, GetEffectiveProficiencyBonus(), GetAbilityModifiers());
+                ActionWindow actionWindow = new ActionWindow(action, _MonsterEditionPageDataModel.Monster.Name, GetEffectiveProficiencyBonus(), GetAbilityModifiers()) { Owner = Window.GetWindow(this) };
                 actionWindow.ShowDialog();
 
                 if (actionWindow.DialogResult == true)
+                {
                     _MonsterEditionPageDataModel.Actions.Add(action);
+                    PinMultiattackFirst();
+                }
             }
             catch (Exception ex)
             {
@@ -499,8 +509,9 @@ namespace DMTools.Pages
             {
                 if (SelectedAction != null)
                 {
-                    ActionWindow actionWindow = new ActionWindow(SelectedAction, _MonsterEditionPageDataModel.Monster.Name, GetEffectiveProficiencyBonus(), GetAbilityModifiers());
+                    ActionWindow actionWindow = new ActionWindow(SelectedAction, _MonsterEditionPageDataModel.Monster.Name, GetEffectiveProficiencyBonus(), GetAbilityModifiers()) { Owner = Window.GetWindow(this) };
                     actionWindow.ShowDialog();
+                    PinMultiattackFirst(); // the action may have been renamed to / from "Multiattack"
                 }
             }
             catch (Exception ex)
@@ -530,9 +541,28 @@ namespace DMTools.Pages
         }
 
         private void btnMoveUpAction_Click(object sender, RoutedEventArgs e)
-            => MoveUp(_MonsterEditionPageDataModel.Actions, SelectedAction);
+        {
+            MoveUp(_MonsterEditionPageDataModel.Actions, SelectedAction);
+            PinMultiattackFirst();
+        }
+
         private void btnMoveDownAction_Click(object sender, RoutedEventArgs e)
-            => MoveDown(_MonsterEditionPageDataModel.Actions, SelectedAction);
+        {
+            MoveDown(_MonsterEditionPageDataModel.Actions, SelectedAction);
+            PinMultiattackFirst();
+        }
+
+        /// <summary>Multiattack must always be the first action shown.</summary>
+        private void PinMultiattackFirst()
+        {
+            var actions = _MonsterEditionPageDataModel.Actions;
+            var multiattacks = actions.Where(ActionFactory.IsMultiattack).ToList();
+            for (int i = 0; i < multiattacks.Count; i++)
+            {
+                int current = actions.IndexOf(multiattacks[i]);
+                if (current != i) actions.Move(current, i);
+            }
+        }
         #endregion
 
         #region Save / Copy / Delete

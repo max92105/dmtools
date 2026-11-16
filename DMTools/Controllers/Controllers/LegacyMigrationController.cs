@@ -1,4 +1,5 @@
 using Controllers.Factories;
+using Controllers.Helpers;
 using Data.Constants;
 using Data.Objects;
 using System;
@@ -17,12 +18,15 @@ namespace Controllers.Controllers
         public static void MigrateArmorClass()
         {
             var monsterFactory = new MonsterFactory();
-            var acFactory = new ArmorClassEntryFactory();
+
+            // One query for all entries instead of one per monster (thousands of monsters).
+            var primaryByMonster = LoadAll<ArmorClassEntry>("armorClassEntries")
+                .GroupBy(e => e.MonsterId)
+                .ToDictionary(g => g.Key, g => g.OrderBy(e => e.SortOrder).First());
 
             foreach (var monster in monsterFactory.GetObjects())
             {
-                var entries = acFactory.GetObjectsByMonsterId(monster.Id);
-                var primary = entries.FirstOrDefault();
+                primaryByMonster.TryGetValue(monster.Id, out ArmorClassEntry primary);
                 if (primary != null && monster.ArmorClass != primary.Value)
                 {
                     monster.ArmorClass = primary.Value;
@@ -53,6 +57,12 @@ namespace Controllers.Controllers
             }
         }
 
+        private static List<T> LoadAll<T>(string collectionName)
+        {
+            using (var db = DatabaseHelper.GetDatabase())
+                return db.GetCollection<T>(collectionName).FindAll().ToList();
+        }
+
         private static string Remap(string value, Dictionary<string, string> map)
         {
             if (string.IsNullOrEmpty(value)) return value;
@@ -70,12 +80,18 @@ namespace Controllers.Controllers
 
             var monsters = monsterFactory.GetObjects();
 
+            // Which monsters already have rows — one query per collection instead of four per monster.
+            var withSpeeds = new HashSet<Guid>(LoadAll<Speed>("speeds").Select(s => s.MonsterId));
+            var withSenses = new HashSet<Guid>(LoadAll<Sense>("senses").Select(s => s.MonsterId));
+            var withDm     = new HashSet<Guid>(LoadAll<DamageModifier>("damageModifiers").Select(d => d.MonsterId));
+            var withAc     = new HashSet<Guid>(LoadAll<ArmorClassEntry>("armorClassEntries").Select(a => a.MonsterId));
+
             foreach (var monster in monsters)
             {
-                bool anyExistingSpeeds = speedFactory.GetObjectsByMonsterId(monster.Id).Count > 0;
-                bool anyExistingSenses = senseFactory.GetObjectsByMonsterId(monster.Id).Count > 0;
-                bool anyExistingDm = dmFactory.GetObjectsByMonsterId(monster.Id).Count > 0;
-                bool anyExistingAc = acFactory.GetObjectsByMonsterId(monster.Id).Count > 0;
+                bool anyExistingSpeeds = withSpeeds.Contains(monster.Id);
+                bool anyExistingSenses = withSenses.Contains(monster.Id);
+                bool anyExistingDm = withDm.Contains(monster.Id);
+                bool anyExistingAc = withAc.Contains(monster.Id);
 
                 if (!anyExistingAc && monster.ArmorClass > 0)
                 {
