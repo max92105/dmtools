@@ -4,6 +4,74 @@
              xmlns:local="clr-namespace:DMTools"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+
+        <!-- Close button of the dark title bar (same as the main window) -->
+        <Style x:Key="DarkWindowCloseButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#99E6D3B8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#CCC42B1A"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#99C42B1A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Pop-up windows (DarkWindow): dark title bar like the main window, square, amber border -->
+        <ControlTemplate x:Key="DarkWindowTemplate" TargetType="Window">
+            <Border Background="{TemplateBinding Background}" BorderBrush="#88E69A28" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Title bar (draggable through WindowChrome.CaptionHeight) -->
+                    <Grid Grid.Row="0" Background="#E6100800">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" Source="/Ressource/DNDIcon.ico" Width="16" Height="16"
+                               Margin="10,0,8,0" VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <TextBlock Grid.Column="1" Text="{TemplateBinding Title}"
+                                   FontFamily="Georgia" FontSize="13" FontStyle="Italic"
+                                   Foreground="#E69A28" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <Button Grid.Column="2" Content="&#x2715;" ToolTip="Close"
+                                Style="{StaticResource DarkWindowCloseButton}"
+                                Command="{x:Static SystemCommands.CloseWindowCommand}"
+                                WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Rectangle Grid.ColumnSpan="3" Height="1" VerticalAlignment="Bottom" Fill="#33E69A28"/>
+                    </Grid>
+
+                    <!-- Window content -->
+                    <AdornerDecorator Grid.Row="1">
+                        <ContentPresenter/>
+                    </AdornerDecorator>
+                </Grid>
+            </Border>
+        </ControlTemplate>
+
     </Application.Resources>
 </Application>

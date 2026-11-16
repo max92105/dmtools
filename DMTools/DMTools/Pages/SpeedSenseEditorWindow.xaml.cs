@@ -2,7 +2,7 @@ using System.Windows;
 
 namespace DMTools.Pages
 {
-    public partial class SpeedSenseEditorWindow : Window
+    public partial class SpeedSenseEditorWindow : DMTools.Helpers.DarkWindow
     {
         public string SelectedType => cboType.SelectedItem as string;
 

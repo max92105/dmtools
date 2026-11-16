@@ -3,7 +3,7 @@ using System.Windows;
 
 namespace DMTools.Pages
 {
-    public partial class ArmorClassEditorWindow : Window
+    public partial class ArmorClassEditorWindow : DMTools.Helpers.DarkWindow
     {
         public string AcLabel => txtLabel.Text;
 

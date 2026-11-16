@@ -38,6 +38,28 @@ namespace DMTools.Helpers
             var hwnd = new WindowInteropHelper(window).Handle;
             if (hwnd == IntPtr.Zero) return;
             HwndSource.FromHwnd(hwnd)?.AddHook(MaximizeHook);
+            ApplySquareCorners(window);
+        }
+
+        /// <summary>
+        /// Windows 11 rounds window corners and draws a thin border: ask for square corners and no system border
+        /// (the windows draw their own). Ignored on Windows 10.
+        /// </summary>
+        public static void ApplySquareCorners(Window window)
+        {
+            var hwnd = new WindowInteropHelper(window).Handle;
+            if (hwnd == IntPtr.Zero) return;
+            try
+            {
+                int doNotRound = DWMWCP_DONOTROUND;
+                DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref doNotRound, sizeof(int));
+                int noBorder = DWMWA_COLOR_NONE;
+                DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, ref noBorder, sizeof(int));
+            }
+            catch
+            {
+                // dwmapi missing / attribute unsupported: keep the default look.
+            }
         }
 
         // ── Fit on load ──────────────────────────────────────────────────────
@@ -49,6 +71,7 @@ namespace DMTools.Helpers
 
             try
             {
+                ApplySquareCorners(window);
                 FitToScreen(window);
             }
             catch
@@ -177,6 +200,13 @@ namespace DMTools.Helpers
 
         private const int WM_GETMINMAXINFO = 0x0024;
         private const int MONITOR_DEFAULTTONEAREST = 0x00000002;
+        private const int DWMWA_WINDOW_CORNER_PREFERENCE = 33;
+        private const int DWMWA_BORDER_COLOR = 34;
+        private const int DWMWCP_DONOTROUND = 1;
+        private const int DWMWA_COLOR_NONE = unchecked((int)0xFFFFFFFE);
+
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
 
         [DllImport("user32.dll")]
         private static extern IntPtr MonitorFromWindow(IntPtr hwnd, int flags);

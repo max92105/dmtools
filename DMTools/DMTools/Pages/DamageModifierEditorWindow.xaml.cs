@@ -6,7 +6,7 @@ using System.Windows.Controls;
 
 namespace DMTools.Pages
 {
-    public partial class DamageModifierEditorWindow : Window
+    public partial class DamageModifierEditorWindow : DMTools.Helpers.DarkWindow
     {
         private static readonly string[] ModifierTypes = { "Resistance", "Vulnerability", "Immunity" };
 

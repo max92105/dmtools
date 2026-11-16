@@ -10,7 +10,7 @@ using System.Windows;
 
 namespace DMTools.Pages
 {
-    public partial class SkillWindow : Window
+    public partial class SkillWindow : DMTools.Helpers.DarkWindow
     {
         private SkillWindowDataModel _SkillWindowDataModel = new SkillWindowDataModel();
         private readonly Guid _MonsterId;

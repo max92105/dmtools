@@ -10,7 +10,7 @@ using System.Windows.Controls;
 
 namespace DMTools.Pages
 {
-    public partial class SpecialAbilitiesWindow : Window
+    public partial class SpecialAbilitiesWindow : DMTools.Helpers.DarkWindow
     {
         private static readonly DependencyProperty _SpecialAbilityProperty =
             DependencyProperty.Register("SpecialAbility", typeof(SpecialAbility), typeof(SpecialAbilitiesWindow));

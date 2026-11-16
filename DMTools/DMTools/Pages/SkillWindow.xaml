@@ -1,4 +1,4 @@
-<Window x:Class="DMTools.Pages.SkillWindow"
+<h:DarkWindow x:Class="DMTools.Pages.SkillWindow" xmlns:h="clr-namespace:DMTools.Helpers"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -9,7 +9,7 @@
         ResizeMode="CanResize" WindowStartupLocation="CenterOwner" Loaded="Window_Loaded"
         Background="#F2080000">
 
-    <Window.Resources>
+    <h:DarkWindow.Resources>
         <conv:ZeroToEmptyStringConverter  x:Key="ZeroToEmpty"/>
         <conv:IsZeroToVisibilityConverter x:Key="IsZeroVis"/>
 
@@ -85,7 +85,7 @@
         <SolidColorBrush x:Key="BrushINT" Color="#FF88AAEE"/>
         <SolidColorBrush x:Key="BrushWIS" Color="#FFCC99EE"/>
         <SolidColorBrush x:Key="BrushCHA" Color="#FFE6C46E"/>
-    </Window.Resources>
+    </h:DarkWindow.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -269,4 +269,4 @@
             </StackPanel>
         </Border>
     </Grid>
-</Window>
+</h:DarkWindow>

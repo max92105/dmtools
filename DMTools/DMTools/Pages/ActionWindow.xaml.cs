@@ -12,7 +12,7 @@ using System.Windows.Controls;
 
 namespace DMTools.Pages
 {
-    public partial class ActionWindow : Window
+    public partial class ActionWindow : DMTools.Helpers.DarkWindow
     {
         private readonly string _currentMonsterName;
         private readonly int    _proficiencyBonus;

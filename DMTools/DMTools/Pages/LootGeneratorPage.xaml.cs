@@ -39,6 +39,7 @@ namespace DMTools.Pages
         private readonly List<ToggleButton> _rarityChips = new List<ToggleButton>();
         private readonly DispatcherTimer _filterTimer;
         private bool _suppressFilter;
+        private Item _detailsItem; // item shown in the details panel
 
         public LootGeneratorPage()
         {
@@ -99,18 +100,29 @@ namespace DMTools.Pages
                 _rarityChips.Add(chip);
             }
 
-            var categories = new List<string> { AllOption };
-            categories.AddRange(_allItems.Select(i => i.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct().OrderBy(c => c));
-            cmbCategory.ItemsSource = categories;
-            cmbCategory.SelectedIndex = 0;
-
             cmbAttunement.ItemsSource = new[] { AnyAttunement, RequiresAttunement, NoAttunement };
             cmbAttunement.SelectedIndex = 0;
 
+            _suppressFilter = false;
+            RefreshCategoryAndSourceLists();
+        }
+
+        /// <summary>(Re)fills the category / source dropdowns from the items, keeping the current choice.</summary>
+        private void RefreshCategoryAndSourceLists()
+        {
+            _suppressFilter = true;
+
+            string category = cmbCategory.SelectedItem as string;
+            var categories = new List<string> { AllOption };
+            categories.AddRange(_allItems.Select(i => i.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct().OrderBy(c => c));
+            cmbCategory.ItemsSource = categories;
+            cmbCategory.SelectedItem = categories.Contains(category) ? category : AllOption;
+
+            string source = cmbSource.SelectedItem as string;
             var sources = new List<string> { AllOption };
             sources.AddRange(_allItems.Select(i => i.Source).Where(s => !string.IsNullOrEmpty(s)).Distinct().OrderBy(s => s));
             cmbSource.ItemsSource = sources;
-            cmbSource.SelectedIndex = 0;
+            cmbSource.SelectedItem = sources.Contains(source) ? source : AllOption;
 
             _suppressFilter = false;
         }
@@ -174,13 +186,15 @@ namespace DMTools.Pages
 
         private void ShowDetails(Item item, bool allowAddToTable)
         {
+            _detailsItem = item;
             tbDetailsEmpty.Text = "Select an item to see its details.";
             pnlDetails.Visibility = item != null ? Visibility.Visible : Visibility.Collapsed;
             tbDetailsEmpty.Visibility = item != null ? Visibility.Collapsed : Visibility.Visible;
             pnlAddToTable.Visibility = item != null && allowAddToTable ? Visibility.Visible : Visibility.Collapsed;
             if (item == null) return;
 
-            pnlDetails.DataContext = item; // rarity colour
+            pnlDetails.DataContext = null; // re-evaluate the rarity colour even for the same (edited) item
+            pnlDetails.DataContext = item;
             tbDetailName.Text = item.Name;
             tbDetailRarity.Text = item.Rarity + (item.RequiresAttunement
                 ? " (requires attunement" + (string.IsNullOrEmpty(item.AttunementNote) ? "" : " " + item.AttunementNote) + ")"
@@ -200,6 +214,96 @@ namespace DMTools.Pages
         {
             ShowDetails(null, false);
             tbDetailsEmpty.Text = name + " — not in the item list (no details).";
+        }
+
+        // ── Create / edit / delete items ─────────────────────────────────────
+
+        private void btnNewItem_Click(object sender, RoutedEventArgs e) => EditItem(null);
+
+        private void btnEditItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (_detailsItem != null) EditItem(_detailsItem);
+        }
+
+        private void EditItem(Item existing)
+        {
+            try
+            {
+                var window = new ItemEditWindow(existing, _allItems.Select(i => i.Category), _allItems.Select(i => i.Source))
+                {
+                    Owner = Window.GetWindow(this)
+                };
+                if (window.ShowDialog() != true || window.Result == null) return;
+
+                var saved = window.Result;
+                LootGeneratorDataController.SaveItem(saved);
+
+                Item shown;
+                if (existing == null)
+                {
+                    _allItems.Add(saved);
+                    _allItems.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.CurrentCultureIgnoreCase));
+                    _itemsById[saved.Id] = saved;
+                    shown = saved;
+                }
+                else
+                {
+                    // Update the object in place: table entries and rolled loot keep pointing at it.
+                    CopyItem(saved, existing);
+                    _allItems.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.CurrentCultureIgnoreCase));
+                    shown = existing;
+                }
+
+                RefreshCategoryAndSourceLists();
+                ApplyFilter();
+                if (_filteredItems.Contains(shown)) { lbItems.SelectedItem = shown; lbItems.ScrollIntoView(shown); }
+                ShowDetails(shown, allowAddToTable: true);
+                if (_currentTable != null) LoadEntries(); // renamed items show their new name in tables
+
+                NotificationHelper.NewNotification("Item", $"{shown.Name} saved", Notifications.Wpf.NotificationType.Success);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void btnDeleteItem_Click(object sender, RoutedEventArgs e)
+        {
+            var item = _detailsItem;
+            if (item == null) return;
+            if (MessageBox.Show($"Delete \"{item.Name}\" from the item list?\n\nLoot tables that contain it keep the line, as a name-only entry.",
+                    "Delete item", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+
+            try
+            {
+                LootGeneratorDataController.DeleteItem(item.Id);
+                _allItems.Remove(item);
+                _itemsById.Remove(item.Id);
+                RefreshCategoryAndSourceLists();
+                ApplyFilter();
+                ShowDetails(null, false);
+                if (_currentTable != null) LoadEntries();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static void CopyItem(Item from, Item to)
+        {
+            to.Name = from.Name;
+            to.Category = from.Category;
+            to.Rarity = from.Rarity;
+            to.IsMagic = from.IsMagic;
+            to.Source = from.Source;
+            to.ValueGp = from.ValueGp;
+            to.Weight = from.Weight;
+            to.RequiresAttunement = from.RequiresAttunement;
+            to.AttunementNote = from.AttunementNote;
+            to.Properties = from.Properties;
+            to.Description = from.Description;
         }
 
         // ── Add to table ─────────────────────────────────────────────────────

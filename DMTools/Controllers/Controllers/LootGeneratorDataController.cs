@@ -21,6 +21,40 @@ namespace Controllers.Controllers
                 return db.GetCollection<Item>(Items).FindAll().OrderBy(i => i.Name).ToList();
         }
 
+        /// <summary>Creates or updates an item. Loot table entries linked to it take its (new) name.</summary>
+        public static void SaveItem(Item item)
+        {
+            using (var db = DatabaseHelper.GetDatabase())
+            {
+                db.GetCollection<Item>(Items).Upsert(item);
+
+                var entries = db.GetCollection<LootTableEntry>(Entries);
+                foreach (var entry in entries.Find(e => e.ItemId == item.Id).Where(e => e.Name != item.Name).ToList())
+                {
+                    entry.Name = item.Name;
+                    entries.Update(entry);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deletes an item. Loot table entries that used it are kept as name-only entries,
+        /// so the tables don't silently lose lines.
+        /// </summary>
+        public static void DeleteItem(Guid itemId)
+        {
+            using (var db = DatabaseHelper.GetDatabase())
+            {
+                var entries = db.GetCollection<LootTableEntry>(Entries);
+                foreach (var entry in entries.Find(e => e.ItemId == itemId).ToList())
+                {
+                    entry.ItemId = Guid.Empty;
+                    entries.Update(entry);
+                }
+                db.GetCollection<Item>(Items).Delete(itemId);
+            }
+        }
+
         // ── Loot tables ──────────────────────────────────────────────────────
 
         public static List<LootTable> LoadTables()
