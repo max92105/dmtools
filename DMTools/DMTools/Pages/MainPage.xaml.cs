@@ -42,6 +42,11 @@ namespace DMTools.Pages
             NavigationService.Navigate(new EncounterBuilderPage());
         }
 
+        private void btnLootGenerator_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new LootGeneratorPage());
+        }
+
         private void btnConfiguration_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new ConfigurationPage());

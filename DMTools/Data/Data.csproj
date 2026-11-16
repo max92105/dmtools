@@ -124,6 +124,8 @@
     <Compile Include="Objects\Characteristic.cs" />
     <Compile Include="Objects\CharacteristicType.cs" />
     <Compile Include="Objects\Monster.cs" />
+    <Compile Include="Objects\Item.cs" />
+    <Compile Include="Objects\LootTable.cs" />
     <Compile Include="Objects\MonsterJsonImport.cs" />
     <Compile Include="Objects\ObjectBase.cs" />
     <Compile Include="Objects\PlayerCharacter.cs" />

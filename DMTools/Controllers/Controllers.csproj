@@ -106,6 +106,7 @@
     <Compile Include="Controllers\PcEditionPageDataController.cs" />
     <Compile Include="Controllers\InitiativeManagerPageDataController.cs" />
     <Compile Include="Controllers\LegacyMigrationController.cs" />
+    <Compile Include="Controllers\LootGeneratorDataController.cs" />
     <Compile Include="Controllers\MonsterEditionPageDataController.cs" />
     <Compile Include="Controllers\MonsterManagerPageDataController.cs" />
     <Compile Include="Controllers\SkillWindowDataController.cs" />

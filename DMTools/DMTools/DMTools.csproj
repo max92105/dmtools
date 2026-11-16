@@ -182,6 +182,10 @@
     <Compile Include="Helpers\NotificationHelper.cs" />
     <Compile Include="Helpers\StatBlockHelper.cs" />
     <Compile Include="Helpers\WindowScreenHelper.cs" />
+    <Compile Include="Helpers\LootRoller.cs" />
+    <Compile Include="Pages\LootGeneratorPage.xaml.cs">
+      <DependentUpon>LootGeneratorPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -231,6 +235,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\ActionWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\LootGeneratorPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
